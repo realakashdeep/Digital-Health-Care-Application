@@ -60,4 +60,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/local_hospital_outlined.svg
+    - assets/add_user.svg
+    - assets/camp.svg
+    - assets/lab.svg
+    - assets/vaccination.svg
+    - assets/doctor.svg
+
 

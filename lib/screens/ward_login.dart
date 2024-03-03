@@ -1,3 +1,4 @@
+import 'package:final_year_project/screens/ward_menu.dart';
 import 'package:flutter/material.dart';
 
 class WardLoginPage extends StatelessWidget {
@@ -64,7 +65,10 @@ class WardLoginPage extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  // Handle login button press
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WardMenuPage()), // Navigate to WardMenuPage
+                    );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
