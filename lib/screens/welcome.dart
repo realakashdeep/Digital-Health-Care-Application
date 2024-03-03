@@ -1,3 +1,4 @@
+import 'package:final_year_project/screens/ward_login.dart';
 import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -49,7 +50,7 @@ class WelcomePage extends StatelessWidget {
                 ),
                 child: Text('Sign up',style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
-              Spacer(),  // Fill the available space between buttons and "Skip" text
+              SizedBox(height: 12),  // Fill the available space between buttons and "Skip" text
               GestureDetector(
                 onTap: () {
                   // Handle the "Skip" action
@@ -59,7 +60,24 @@ class WelcomePage extends StatelessWidget {
                   style: TextStyle(fontSize: 20, color: Colors.blue),
                 ),
               ),
-              SizedBox(height: 20),
+              Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WardLoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,  // Set button background color to blue
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),  // Set border radius
+                  ),
+                  minimumSize: Size(300, 40),
+                ),
+                child: Text('Ward Log In',style: TextStyle(color: Colors.white, fontSize: 20)),
+              ),
+              SizedBox(height: 15),
             ],
           ),
         ),
