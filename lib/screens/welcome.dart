@@ -1,5 +1,7 @@
 import 'package:final_year_project/screens/ward_login.dart';
 import 'package:flutter/material.dart';
+import 'package:final_year_project/screens/user_login.dart';
+import 'package:final_year_project/screens/user_signup.dart';
 
 class WelcomePage extends StatelessWidget {
   @override
@@ -23,8 +25,10 @@ class WelcomePage extends StatelessWidget {
               SizedBox(height: 80),
               ElevatedButton(
                 onPressed: () {
-                  // Handle log in button press
-                  // You can navigate to the login screen or perform any other action
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserLogin()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,  // Set button background color to blue
@@ -38,8 +42,10 @@ class WelcomePage extends StatelessWidget {
               SizedBox(height: 12),  // Add spacing between buttons
               ElevatedButton(
                 onPressed: () {
-                  // Handle sign up button press
-                  // You can navigate to the sign-up screen or perform any other action
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserSignUp()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,  // Set button background color to blue
