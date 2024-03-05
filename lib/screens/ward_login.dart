@@ -24,7 +24,7 @@ class WardLoginPage extends StatelessWidget {
               SizedBox(height: 80),  // Adjust the spacing based on your design
               Container(
                 width: 300,
-                height: 40,
+                height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   color: Colors.white,
@@ -32,8 +32,8 @@ class WardLoginPage extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(
                     labelText: 'Ward ID',
-                    hintText: 'Enter your Ward ID',
-                    hintStyle: TextStyle(fontSize: 14),
+                    hintText: 'Enter Ward ID',
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                     alignLabelWithHint: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -44,7 +44,7 @@ class WardLoginPage extends StatelessWidget {
               SizedBox(height: 16),
               Container(
                 width: 300,
-                height: 40,
+                height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   color: Colors.white,
@@ -52,9 +52,9 @@ class WardLoginPage extends StatelessWidget {
                 child: TextField(
                   obscureText: true,  // Use obscureText for password fields
                   decoration: InputDecoration(
-                    labelText: 'Ward Password',
-                    hintText: 'Enter your Ward Password',
-                    hintStyle: TextStyle(fontSize: 14),
+                    labelText: 'Password',
+                    hintText: 'Enter Ward Password',
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                     alignLabelWithHint: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -65,10 +65,10 @@ class WardLoginPage extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => WardMenuPage()), // Navigate to WardMenuPage
-                    );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WardMenuPage()), // Navigate to WardMenuPage
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
