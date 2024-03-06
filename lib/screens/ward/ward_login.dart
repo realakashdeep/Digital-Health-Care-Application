@@ -1,4 +1,4 @@
-import 'package:final_year_project/screens/ward_menu.dart';
+import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
 
 class WardLoginPage extends StatelessWidget {

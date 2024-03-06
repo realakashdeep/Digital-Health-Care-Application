@@ -58,6 +58,8 @@ class UserSignUp extends StatelessWidget {
                       SizedBox(height: 12),
                       buildTextField("Enter Your State"),
                       SizedBox(height: 12),
+                      buildTextField("Enter Your District"),
+                      SizedBox(height: 12),
                       buildTextField("Enter Your Ward No"),
                       SizedBox(height: 12),
                       buildTextField("Enter Your Pin Code"),

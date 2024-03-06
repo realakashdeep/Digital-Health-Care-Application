@@ -1,7 +1,7 @@
-import 'package:final_year_project/screens/ward_login.dart';
+import 'package:final_year_project/screens/ward/ward_login.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/user_login.dart';
-import 'package:final_year_project/screens/user_signup.dart';
+import 'package:final_year_project/screens/user/user_login.dart';
+import 'package:final_year_project/screens/user/user_signup.dart';
 
 class WelcomePage extends StatelessWidget {
   @override
