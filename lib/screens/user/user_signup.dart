@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:final_year_project/screens/user/user_otp.dart';
 
 class UserSignUp extends StatelessWidget {
   const UserSignUp({super.key});
@@ -71,7 +72,12 @@ class UserSignUp extends StatelessWidget {
                       buildPasswordField("Confirm Your Password"),
                       SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Otp()),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
