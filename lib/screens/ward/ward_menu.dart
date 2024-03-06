@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'CurrentCampsPage.dart';
+import 'RegisterUserPage.dart';
+
 class WardMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,10 @@ class WardMenuPage extends StatelessWidget {
               SizedBox(height: 80),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Handle register button press
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterUserPage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -46,7 +52,10 @@ class WardMenuPage extends StatelessWidget {
               SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Handle register button press
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CurrentCampsPage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
