@@ -40,15 +40,16 @@ class Otp extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => UserHome()),
                   );
                 },
-                child: Container(
-                  width: 300,
-                  height: 40,
-                  child: Center(
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
+                  minimumSize: Size(300, 40),
+                ),
+                child: Text(
+                  'Submit',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
