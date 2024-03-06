@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:final_year_project/screens/user/user_home.dart';
 
 class UserLogin extends StatelessWidget {
   const UserLogin({super.key});
@@ -39,6 +40,10 @@ class UserLogin extends StatelessWidget {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserHome()),
+                  );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
