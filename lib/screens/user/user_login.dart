@@ -71,8 +71,6 @@ class UserLogin extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            width: 300,
-            height: 50,
             child: TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -96,8 +94,6 @@ class UserLogin extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            width: 300,
-            height: 50,
             child: TextFormField(
               obscureText: true,
               validator: (value) {
