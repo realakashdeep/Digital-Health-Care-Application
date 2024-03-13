@@ -10,55 +10,59 @@ class UserLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Container(
-        margin: EdgeInsets.zero,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                height: 300,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/login_user_image.jpg'),
-                    fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.zero,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  height: 300,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/login_user_image.jpg'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w400,
+                const SizedBox(height: 12),
+                SizedBox(
+                  child: Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              userCred(context),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => UserHome()),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                const SizedBox(height: 12),
+                userCred(context),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => UserHome()),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    minimumSize: Size(350, 40),
                   ),
-                  minimumSize: Size(300, 40),
+                  child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
-                child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-            ],
+                // Add a SizedBox to give some space above the button when the keyboard is open
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+              ],
+            ),
           ),
         ),
       ),
@@ -78,7 +82,8 @@ class UserLogin extends StatelessWidget {
                 }
                 if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
                   return 'Please enter a valid phone number';
-                }                return null;
+                }
+                return null;
               },
               decoration: InputDecoration(
                 labelText: 'Enter User ID/Phone Number',
@@ -108,7 +113,7 @@ class UserLogin extends StatelessWidget {
                   return 'Password cannot be longer than 32 characters';
                 }
 
-                if (value.length < 8 ) {
+                if (value.length < 8) {
                   return 'Password cannot be less than 8 characters';
                 }
                 return null;
