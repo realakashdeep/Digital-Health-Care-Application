@@ -38,9 +38,9 @@ class UserLogin extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                userCred(context),
                 const SizedBox(height: 20),
+                userCred(context),
+                const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -97,7 +97,7 @@ class UserLogin extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           SizedBox(
             child: TextFormField(
               obscureText: true,
