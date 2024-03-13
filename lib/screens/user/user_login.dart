@@ -55,7 +55,7 @@ class UserLogin extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    minimumSize: Size(350, 40),
+                    minimumSize: Size(300, 40),
                   ),
                   child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
@@ -71,7 +71,7 @@ class UserLogin extends StatelessWidget {
 
   Widget userCred(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 20, right: 20),
+      margin: EdgeInsets.only(left: 45, right: 45),
       child: Column(
         children: [
           SizedBox(
