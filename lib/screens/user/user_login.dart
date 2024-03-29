@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_home.dart';
 
 class UserLogin extends StatelessWidget {
+
+  ImageProvider logo = AssetImage("assets/login_user_image.jpg");
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   UserLogin({Key? key}) : super(key: key);
@@ -22,7 +24,7 @@ class UserLogin extends StatelessWidget {
                   height: 300,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/login_user_image.jpg'),
+                      image: logo,
                       fit: BoxFit.cover,
                     ),
                   ),

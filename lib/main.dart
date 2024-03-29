@@ -5,13 +5,12 @@ void main() {
   runApp(const MyApp());
 }
 
- // Import your splash screen file
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    precacheImage(AssetImage("assets/login_user_image.jpg"), context);
     return MaterialApp(
       title: 'Digital Health Application',
       debugShowCheckedModeBanner: false,
