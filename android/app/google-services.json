@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "558968875125",
+    "project_id": "digital-health-care-app",
+    "storage_bucket": "digital-health-care-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558968875125:android:e00373b6a5c5e9a0e3f03c",
+        "android_client_info": {
+          "package_name": "com.example.final_year_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdbE6OFYZm28PQ1wm7HIuuZunC1Cb5UJU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

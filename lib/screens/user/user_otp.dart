@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_home.dart';
 
-
 class Otp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
