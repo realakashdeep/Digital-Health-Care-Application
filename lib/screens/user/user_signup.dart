@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_otp.dart';
+import 'package:flutter/material.dart';
+import 'package:final_year_project/provider/auth_provider.dart';
+import 'package:provider/provider.dart';
 
-class UserSignUp extends StatelessWidget {
+class UserSignUp extends StatefulWidget {
+const UserSignUp ({super.key});
+
+@override
+  State<UserSignUp> createState() => _UserSignUp();
+}
+
+class _UserSignUp extends State<UserSignUp> {
+  @override
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? confirmPassword = '';
   int setConfirmPassword = 0;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
+  String? phoneNumber;
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -57,32 +70,29 @@ class UserSignUp extends StatelessWidget {
                         SizedBox(height: 20),
                         buildTextField("Enter Your Name"),
                         SizedBox(height: 12),
-                        buildTextField("Enter Your Phone Number"),
+                        buildTextField("Enter Your Phone Number", controller: _phoneNumberController),
                         SizedBox(height: 12),
-                        buildTextField("Enter Your Gender"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your State"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your District"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Ward No"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Pin Code"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Aadhaar Number"),
-                        SizedBox(height: 12),
-                        buildPasswordField("Enter Your New Password", controller: _newPasswordController),
-                        SizedBox(height: 12),
-                        buildPasswordField("Confirm Your Password", controller: null),
-                        SizedBox(height: 12),
+                        // buildTextField("Enter Your Gender"),
+                        // SizedBox(height: 12),
+                        // buildTextField("Enter Your State"),
+                        // SizedBox(height: 12),
+                        // buildTextField("Enter Your District"),
+                        // SizedBox(height: 12),
+                        // buildTextField("Enter Your Ward No"),
+                        // SizedBox(height: 12),
+                        // buildTextField("Enter Your Pin Code"),
+                        // SizedBox(height: 12),
+                        // buildTextField("Enter Your Aadhaar Number"),
+                        // SizedBox(height: 12),
+                        // buildPasswordField("Enter Your New Password", controller: _newPasswordController),
+                        // SizedBox(height: 12),
+                        // buildPasswordField("Confirm Your Password", controller: null),
+                        // SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               // Proceed to the next page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => Otp()),
-                              );
+                              sendPhoneNumber();
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -110,6 +120,7 @@ class UserSignUp extends StatelessWidget {
   }
 
   Widget buildTextField(String hintText, {TextEditingController? controller}) {
+    String prefixText = hintText == "Enter Your Phone Number" ? '+91  ' : '';
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       child: TextFormField(
@@ -138,8 +149,10 @@ class UserSignUp extends StatelessWidget {
           ),
           filled: true,
           labelText: hintText,
-          hintStyle: TextStyle(color: Colors.grey),
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
           hintText: hintText,
+          prefixText: prefixText,
+          prefixStyle: TextStyle(color: Colors.grey, fontSize: 17),
           fillColor: Colors.white70,
           contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         ),
@@ -174,7 +187,6 @@ class UserSignUp extends StatelessWidget {
             return 'Passwords do not match';
           }
 
-          // Compare with the password entered in the "Enter Your New Password" field
           // if (hintText == "Confirm Your Password" && value != _passwordController.text) {
           //   return 'Passwords do not match';
           // }
@@ -196,4 +208,9 @@ class UserSignUp extends StatelessWidget {
     );
   }
 
+  void sendPhoneNumber() {
+    final ap = Provider.of<AuthProvider>(context, listen: true);
+    ap.signInWithPhone(context, "+91"+_phoneNumberController.text.toString());
+  }
 }
+
