@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "558968875125",
+    "firebase_url": "https://digital-health-care-app-default-rtdb.firebaseio.com",
     "project_id": "digital-health-care-app",
     "storage_bucket": "digital-health-care-app.appspot.com"
   },
