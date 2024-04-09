@@ -51,6 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:558968875125:android:e00373b6a5c5e9a0e3f03c',
     messagingSenderId: '558968875125',
     projectId: 'digital-health-care-app',
+    databaseURL: 'https://digital-health-care-app-default-rtdb.firebaseio.com',
     storageBucket: 'digital-health-care-app.appspot.com',
   );
 
@@ -59,6 +60,7 @@ class DefaultFirebaseOptions {
     appId: '1:558968875125:ios:4f809e1e27bfc5dee3f03c',
     messagingSenderId: '558968875125',
     projectId: 'digital-health-care-app',
+    databaseURL: 'https://digital-health-care-app-default-rtdb.firebaseio.com',
     storageBucket: 'digital-health-care-app.appspot.com',
     iosBundleId: 'com.example.finalYearProject',
   );
@@ -68,6 +70,7 @@ class DefaultFirebaseOptions {
     appId: '1:558968875125:ios:91607fdea0c1e466e3f03c',
     messagingSenderId: '558968875125',
     projectId: 'digital-health-care-app',
+    databaseURL: 'https://digital-health-care-app-default-rtdb.firebaseio.com',
     storageBucket: 'digital-health-care-app.appspot.com',
     iosBundleId: 'com.example.digitalHealthcareApp.RunnerTests',
   );
