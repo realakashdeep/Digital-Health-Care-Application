@@ -1,7 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/user/user_otp.dart';
-import 'package:flutter/material.dart';
-import 'package:final_year_project/provider/auth_provider.dart';
+import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
 import 'package:provider/provider.dart';
 
 class UserSignUp extends StatefulWidget {
@@ -12,7 +11,6 @@ const UserSignUp ({super.key});
 }
 
 class _UserSignUp extends State<UserSignUp> {
-  @override
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? confirmPassword = '';
   int setConfirmPassword = 0;
@@ -89,12 +87,35 @@ class _UserSignUp extends State<UserSignUp> {
                         // buildPasswordField("Confirm Your Password", controller: null),
                         // SizedBox(height: 12),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              // Proceed to the next page
                               sendPhoneNumber();
+                              // try {
+                              //   await FirebaseAuth.instance.verifyPhoneNumber(
+                              //     verificationCompleted: (PhoneAuthCredential credential) {
+                              //     },
+                              //     verificationFailed: (FirebaseAuthException exception) {
+                              //     },
+                              //     codeSent: (String verificationId, int? resendToken) {
+                              //       Navigator.push(
+                              //         context,
+                              //         MaterialPageRoute(
+                              //           builder: (context) => Otp(verificationid: verificationId),
+                              //         ),
+                              //       );
+                              //     },
+                              //     codeAutoRetrievalTimeout: (String verificationId) {
+                              //       // Handle code retrieval timeout if needed
+                              //     },
+                              //     phoneNumber: "+91" + _phoneNumberController.text.toString(),
+                              //   );
+                              // } catch (e) {
+                              //   // Handle any errors that occur during phone number verification
+                              //   print('Error verifying phone number: $e');
+                              // }
                             }
                           },
+
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             shape: RoundedRectangleBorder(
@@ -209,8 +230,8 @@ class _UserSignUp extends State<UserSignUp> {
   }
 
   void sendPhoneNumber() {
-    final ap = Provider.of<AuthProvider>(context, listen: true);
-    ap.signInWithPhone(context, "+91"+_phoneNumberController.text.toString());
+    final ap = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
+    ap.signInWithPhone(context, "+91" + _phoneNumberController.text.toString());
   }
 }
 

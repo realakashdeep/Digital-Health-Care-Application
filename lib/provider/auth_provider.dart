@@ -9,34 +9,30 @@ import '../screens/user/user_otp.dart';
 
 class AuthProvider extends ChangeNotifier{
 
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   void signInWithPhone(BuildContext context, String phoneNumber) async {
     try {
-      await _firebaseAuth.verifyPhoneNumber(
-          phoneNumber: phoneNumber,
-          verificationCompleted:
-              (PhoneAuthCredential phoneAuthCredential) async {
-            await _firebaseAuth.signInWithCredential(phoneAuthCredential);
-          },
-          verificationFailed: (error) {
-            throw Exception(error.message);
-          },
-          codeSent: (verificationId, forceResendingToken) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Otp(),
-              ),
-            );
-          },
-          codeAutoRetrievalTimeout: (verificationId) {});
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-      ));
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        verificationCompleted: (PhoneAuthCredential credential) {
+        },
+        verificationFailed: (FirebaseAuthException exception) {
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Otp(verificationid: verificationId),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // Handle code retrieval timeout if needed
+        },
+        phoneNumber: "+91" + phoneNumber,
+      );
+    } catch (e) {
+      // Handle any errors that occur during phone number verification
+      print('Error verifying phone number: $e');
     }
   }
 }

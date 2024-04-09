@@ -1,7 +1,11 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_home.dart';
 class Otp extends StatefulWidget {
-  const Otp({super.key});
+  String verificationid;
+  Otp({super.key,required this.verificationid});
 
   @override
   State<Otp> createState() => _OtpState();
@@ -59,21 +63,23 @@ class _OtpState extends State<Otp> {
             ),
             SizedBox(height: 20), // Reduced spacing
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 String otp = _controllers.map((controller) => controller.text).join('');
                 if (otp.length != 6) {
-                  // Show warning if OTP length is not 6
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Enter 6 digit OTP'),
                     ),
                   );
-                } else {
-                  // Proceed with submission
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserHome()),
+                } else {try{
+                  PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otp);
+                  FirebaseAuth.instance.signInWithCredential(credential).then(
+                          (value) => Navigator.push(context,MaterialPageRoute(builder: (context)=>UserHome()))
                   );
+                }
+                catch(ex){
+                  log(ex.toString());
+                }
                 }
               },
               style: ElevatedButton.styleFrom(
