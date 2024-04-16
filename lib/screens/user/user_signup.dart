@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
@@ -68,7 +70,7 @@ class _UserSignUp extends State<UserSignUp> {
                         SizedBox(height: 20),
                         buildTextField("Enter Your Name"),
                         SizedBox(height: 12),
-                        buildTextField("Enter Your Phone Number", controller: _phoneNumberController),
+                        buildTextField("Enter Your Phone Number", mycontroller: _phoneNumberController),
                         SizedBox(height: 12),
                         // buildTextField("Enter Your Gender"),
                         // SizedBox(height: 12),
@@ -140,11 +142,12 @@ class _UserSignUp extends State<UserSignUp> {
     );
   }
 
-  Widget buildTextField(String hintText, {TextEditingController? controller}) {
+  Widget buildTextField(String hintText, {TextEditingController? mycontroller}) {
     String prefixText = hintText == "Enter Your Phone Number" ? '+91  ' : '';
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       child: TextFormField(
+        controller: mycontroller,
         validator: (value) {
 
           if (value == null || value.isEmpty) {
@@ -231,7 +234,8 @@ class _UserSignUp extends State<UserSignUp> {
 
   void sendPhoneNumber() {
     final ap = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
-    ap.signInWithPhone(context, "+91" + _phoneNumberController.text.toString());
+    log("hello moshi moshi"+_phoneNumberController.text.toString());
+    ap.signInWithPhone(context,  _phoneNumberController.text.toString());
   }
 }
 

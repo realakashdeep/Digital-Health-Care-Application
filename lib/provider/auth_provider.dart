@@ -20,6 +20,7 @@ class AuthProvider extends ChangeNotifier{
         codeSent: (String verificationId, int? resendToken) {
           Navigator.push(
             context,
+
             MaterialPageRoute(
               builder: (context) => Otp(verificationid: verificationId),
             ),
