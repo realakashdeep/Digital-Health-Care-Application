@@ -1,25 +1,15 @@
-import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
-import 'package:provider/provider.dart';
+import 'signup_controller.dart';
 
 class UserSignUp extends StatefulWidget {
-const UserSignUp ({super.key});
+  const UserSignUp({Key? key}) : super(key: key);
 
-@override
-  State<UserSignUp> createState() => _UserSignUp();
+  @override
+  State<UserSignUp> createState() => _UserSignUpState();
 }
 
-class _UserSignUp extends State<UserSignUp> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? confirmPassword = '';
-  int setConfirmPassword = 0;
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
-  String? phoneNumber;
-  final TextEditingController _phoneNumberController = TextEditingController();
+class _UserSignUpState extends State<UserSignUp> {
+  final SignUpController _controller = SignUpController();
 
   @override
   Widget build(BuildContext context) {
@@ -36,113 +26,85 @@ class _UserSignUp extends State<UserSignUp> {
               ),
             ),
           ),
-          SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.only(top: 180, left: 0, right: 0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: 10),
-                        Text(
-                          'Registration',
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        buildTextField("Enter Your Name"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Phone Number", mycontroller: _phoneNumberController),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Gender"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your State"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your District"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Ward No"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Pin Code"),
-                        SizedBox(height: 12),
-                        buildTextField("Enter Your Aadhaar Number"),
-                        SizedBox(height: 12),
-                        buildPasswordField("Enter Your New Password", controller: _newPasswordController),
-                        SizedBox(height: 12),
-                        buildPasswordField("Confirm Your Password", controller: null),
-                        SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              sendPhoneNumber();
-                              // try {
-                              //   await FirebaseAuth.instance.verifyPhoneNumber(
-                              //     verificationCompleted: (PhoneAuthCredential credential) {
-                              //     },
-                              //     verificationFailed: (FirebaseAuthException exception) {
-                              //     },
-                              //     codeSent: (String verificationId, int? resendToken) {
-                              //       Navigator.push(
-                              //         context,
-                              //         MaterialPageRoute(
-                              //           builder: (context) => Otp(verificationid: verificationId),
-                              //         ),
-                              //       );
-                              //     },
-                              //     codeAutoRetrievalTimeout: (String verificationId) {
-                              //       // Handle code retrieval timeout if needed
-                              //     },
-                              //     phoneNumber: "+91" + _phoneNumberController.text.toString(),
-                              //   );
-                              // } catch (e) {
-                              //   // Handle any errors that occur during phone number verification
-                              //   print('Error verifying phone number: $e');
-                              // }
-                            }
-                          },
+          _buildUI(),
+        ],
+      ),
+    );
+  }
 
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            minimumSize: Size(300, 40),
-                          ),
-                          child: Text(
-                            'Submit',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+  Widget _buildUI() {
+    return SingleChildScrollView(
+      child: Container(
+        margin: EdgeInsets.only(top: 180, left: 0, right: 0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
               ),
             ),
+            child: _buildForm(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Form(
+      key: _controller.formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: 10),
+          Text(
+            'Registration',
+            style: TextStyle(
+              fontSize: 40,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(height: 20),
+          buildTextField("Enter Your Name", _controller.name),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Phone Number", _controller.phone_number),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Gender", _controller.gender),
+          SizedBox(height: 12),
+          buildTextField("Enter Your State", _controller.state),
+          SizedBox(height: 12),
+          buildTextField("Enter Your District", _controller.district),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Ward No",_controller.ward_no),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Pin Code", _controller.pin_code),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Aadhaar Number",_controller.aadhaar_number),
+          SizedBox(height: 12),
+          buildPasswordField("Enter Your New Password",_controller.new_pass),
+          SizedBox(height: 12),
+          buildPasswordField("Confirm Your Password",_controller.confirm_pass),
+          SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              _controller.validateAndSubmit(context);
+            },
+            child: Text('Submit'),
           ),
         ],
       ),
     );
   }
 
-  Widget buildTextField(String hintText, {TextEditingController? mycontroller}) {
+  Widget buildTextField(String hintText, TextEditingController? mycontroller) {
     String prefixText = hintText == "Enter Your Phone Number" ? '+91  ' : '';
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
@@ -184,37 +146,31 @@ class _UserSignUp extends State<UserSignUp> {
     );
   }
 
-  Widget buildPasswordField(String hintText, {required TextEditingController? controller}) {
+  Widget buildPasswordField(String hintText, TextEditingController? pass_controller) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       child: TextFormField(
         obscureText: true,
-        controller: controller,
+        controller: pass_controller,
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please $hintText';
+            return 'Please enter a password.';
           }
-
-          if (value.contains(' ') && hintText.contains("Password")) {
-            return 'Password cannot contain spaces';
+          if (value.length < 8) {
+            return 'Password must be at least 8 characters long.';
           }
-
-          if (value.length > 32 && hintText.contains("Password")) {
-            return 'Password cannot be longer than 32 characters';
+          if( RegExp(r'[A-Z]').hasMatch(value)) {
+            return 'Password must contain at least one uppercase letter';
           }
-
-          if (value.length < 8 && hintText.contains("Password")) {
-            return 'Password cannot be less than 8 characters';
+          if(RegExp(r'[a-z]').hasMatch(value)){
+            return 'Password must contain at least one lowercase letter';
           }
-
-          if (hintText == "Confirm Your Password" && value != _newPasswordController.text) {
-            return 'Passwords do not match';
+          if(RegExp(r'[0-9]').hasMatch(value)){
+            return 'Password must contain at least one digit';
           }
-
-          // if (hintText == "Confirm Your Password" && value != _passwordController.text) {
-          //   return 'Passwords do not match';
-          // }
-
+          if(RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)){
+            return 'Password must contain at least one special character.';
+          }
           return null;
         },
         decoration: InputDecoration(
@@ -232,10 +188,4 @@ class _UserSignUp extends State<UserSignUp> {
     );
   }
 
-  void sendPhoneNumber() {
-    final ap = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
-    log("hello moshi moshi"+_phoneNumberController.text.toString());
-    ap.signInWithPhone(context,  _phoneNumberController.text.toString());
-  }
 }
-

@@ -1,17 +1,23 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_year_project/screens/user/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_home.dart';
 class Otp extends StatefulWidget {
   String verificationid;
-  Otp({super.key,required this.verificationid});
+  MyUser myuser;
+
+  Otp({super.key,required this.verificationid,required this.myuser});
 
   @override
   State<Otp> createState() => _OtpState();
 }
 
 class _OtpState extends State<Otp> {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
 
@@ -73,9 +79,12 @@ class _OtpState extends State<Otp> {
                   );
                 } else {try{
                   PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otp);
-                  FirebaseAuth.instance.signInWithCredential(credential).then(
-                          (value) => Navigator.push(context,MaterialPageRoute(builder: (context)=>UserHome()))
-                  );
+                  _auth.signInWithCredential(credential).then((UserCredential userCredential) {
+                    widget.myuser.userId = userCredential.user!.uid;
+                    saveUserRecord(widget.myuser).then((value) {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserHome()));
+                    });
+                  });
                 }
                 catch(ex){
                   log(ex.toString());
@@ -98,6 +107,13 @@ class _OtpState extends State<Otp> {
         ),
       ),
     );
+  }
+  Future<void> saveUserRecord(MyUser user) async {
+    try {
+      await _db.collection("Users").doc(user.userId).set(user.toJson());
+    } catch(e){
+      throw ('An unexpected error occurred: $e');
+    }
   }
 }
 
