@@ -1,40 +1,52 @@
-import 'package:final_year_project/screens/user/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:final_year_project/screens/user/user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class SignUpController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final name = TextEditingController();
-  final phone_number = TextEditingController();
-  final gender = TextEditingController();
-  final state = TextEditingController();
-  final district = TextEditingController();
-  final ward_no = TextEditingController();
-  final pin_code = TextEditingController();
-  final aadhaar_number = TextEditingController();
-  final new_pass = TextEditingController();
-  final confirm_pass = TextEditingController();
-  final dob = TextEditingController();
+  final TextEditingController name = TextEditingController();
+  final TextEditingController phone_number = TextEditingController();
+  final TextEditingController gender = TextEditingController();
+  final TextEditingController state = TextEditingController();
+  final TextEditingController district = TextEditingController();
+  final TextEditingController ward_no = TextEditingController();
+  final TextEditingController pin_code = TextEditingController();
+  final TextEditingController aadhaar_number = TextEditingController();
+  final TextEditingController new_pass = TextEditingController();
+  final TextEditingController confirm_pass = TextEditingController();
+  final TextEditingController dob = TextEditingController();
 
   void validateAndSubmit(BuildContext context) {
     // if (formKey.currentState!.validate()) {
-      sendPhoneNumber(context);
+      String hashedPassword = hashPassword(new_pass.text);
+      sendUserDetails(context, hashedPassword);
     // }
   }
 
-  void sendPhoneNumber(BuildContext context) {
-    final ap = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
+  void sendUserDetails(BuildContext context, String hashedPassword) {
+    final authProvider = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
     MyUser user = MyUser(
-        userId: '',
-        name: name.text.toString(),
-        phoneNumber: phone_number.text.toString(),
-        password: new_pass.text.toString(),
-        dob: dob.text.toString(),
-        gender: gender.text.toString(),
-        address: district.text.toString(),
-        aadhaarNumber: aadhaar_number.text.toString());
-    ap.signInWithPhone(context, phone_number.text.toString(),user);
+      userId: '',
+      name: name.text.toString(),
+      phoneNumber: phone_number.text.toString(),
+      password: hashedPassword,
+      dob: dob.text.toString(),
+      gender: gender.text.toString(),
+      state: state.text.toString(), // Include state field
+      district: district.text.toString(), // Include district field
+      ward: ward_no.text.toString(), // Include ward field
+      aadhaarNumber: aadhaar_number.text.toString(),
+    );
+    authProvider.signInWithPhone(context, phone_number.text.toString(), user);
   }
 
+
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 }

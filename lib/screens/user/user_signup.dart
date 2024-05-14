@@ -10,6 +10,20 @@ class UserSignUp extends StatefulWidget {
 
 class _UserSignUpState extends State<UserSignUp> {
   final SignUpController _controller = SignUpController();
+  bool obscureText = true;
+
+  List<String> states = [
+    'West Bengal',
+  ];
+  Map<String, List<String>> districtsByState = {
+    'West Bengal': ['Kolkata'],
+  };
+  Map<String, List<String>> wardsByDistrict = {
+    'Kolkata': ['Ward 1', 'Ward 2', 'Ward 3'],
+  };
+
+  String? selectedState;
+  String? selectedDistrict;
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +93,11 @@ class _UserSignUpState extends State<UserSignUp> {
           SizedBox(height: 12),
           buildTextField("Enter Your Gender", _controller.gender),
           SizedBox(height: 12),
-          buildTextField("Enter Your State", _controller.state),
+          buildStateDropdown("Select Your State"),
           SizedBox(height: 12),
-          buildTextField("Enter Your District", _controller.district),
+          buildDistrictDropdown("Select Your District"),
           SizedBox(height: 12),
-          buildTextField("Enter Your Ward No",_controller.ward_no),
+          buildWardDropdown("Select Your Ward No"),
           SizedBox(height: 12),
           buildTextField("Enter Your Pin Code", _controller.pin_code),
           SizedBox(height: 12),
@@ -111,7 +125,6 @@ class _UserSignUpState extends State<UserSignUp> {
       child: TextFormField(
         controller: mycontroller,
         validator: (value) {
-
           if (value == null || value.isEmpty) {
             return 'Please $hintText';
           }
@@ -150,7 +163,7 @@ class _UserSignUpState extends State<UserSignUp> {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       child: TextFormField(
-        obscureText: true,
+        obscureText: obscureText,
         controller: pass_controller,
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -159,7 +172,7 @@ class _UserSignUpState extends State<UserSignUp> {
           if (value.length < 8) {
             return 'Password must be at least 8 characters long.';
           }
-          if( RegExp(r'[A-Z]').hasMatch(value)) {
+          if(RegExp(r'[A-Z]').hasMatch(value)) {
             return 'Password must contain at least one uppercase letter';
           }
           if(RegExp(r'[a-z]').hasMatch(value)){
@@ -183,7 +196,125 @@ class _UserSignUpState extends State<UserSignUp> {
           hintText: hintText,
           fillColor: Colors.white70,
           contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          suffixIcon: IconButton(
+            icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                obscureText = !obscureText;
+              });
+            },
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget buildStateDropdown(String hintText) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 2),
+      child: DropdownButtonFormField<String>(
+        value: selectedState,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedState = newValue;
+            selectedDistrict = null; // Reset district selection when state changes
+            _controller.state.text = newValue ?? ''; // Update controller's state text
+            _controller.district.text = ''; // Clear district text when state changes
+          });
+        },
+        items: states.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          labelText: hintText,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+          hintText: hintText,
+          fillColor: Colors.white70,
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+        isExpanded: false,
+      ),
+    );
+  }
+
+  Widget buildDistrictDropdown(String hintText) {
+    if (selectedState == null) {
+      return Container();
+    }
+    List<String>? districts = districtsByState[selectedState!];
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 2),
+      child: DropdownButtonFormField<String>(
+        value: selectedDistrict,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedDistrict = newValue;
+            _controller.district.text = newValue ?? ''; // Update controller's district text
+          });
+        },
+        items: districts!.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          labelText: hintText,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+          hintText: hintText,
+          fillColor: Colors.white70,
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+        isExpanded: false,
+      ),
+    );
+  }
+
+
+  Widget buildWardDropdown(String hintText) {
+    if (selectedDistrict == null) {
+      // If no district is selected, show an empty dropdown
+      return Container();
+    }
+    List<String>? wards = wardsByDistrict[selectedDistrict!];
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 2),
+      child: DropdownButtonFormField<String>(
+        value: _controller.ward_no.text.isNotEmpty ? _controller.ward_no.text : null, // Set the initial value to the controller's value if it's not empty
+        onChanged: (String? newValue) {
+          setState(() {
+            _controller.ward_no.text = newValue ?? ''; // Update the controller's value
+          });
+        },
+        items: wards!.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          labelText: hintText,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+          hintText: hintText,
+          fillColor: Colors.white70,
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+        isExpanded: true,
       ),
     );
   }
