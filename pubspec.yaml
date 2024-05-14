@@ -43,6 +43,7 @@ dependencies:
   firebase_database: ^10.4.11
   cloud_firestore: ^4.16.0
   provider: ^6.1.2
+  crypto: ^3.0.0
 
 dev_dependencies:
   flutter_test:
