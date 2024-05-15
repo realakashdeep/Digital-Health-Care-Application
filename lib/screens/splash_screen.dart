@@ -1,19 +1,16 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import 'welcome.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:final_year_project/screens/user/user_home.dart';
+import 'package:final_year_project/screens/welcome.dart';
 
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Delay navigation to show splash screen for 2 seconds
     Timer(
-      Duration(seconds: 2),
-          () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => WelcomePage()),
-      ),
+      Duration(seconds: 3), () => checkAuthenticationAndNavigate(context),
     );
 
     return Scaffold(
@@ -37,5 +34,24 @@ class SplashScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void checkAuthenticationAndNavigate(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      // User is authenticated, navigate to UserHome
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const UserHome()),
+      );
+    } else {
+      // User is not authenticated, navigate to WelcomePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomePage()),
+      );
+    }
   }
 }

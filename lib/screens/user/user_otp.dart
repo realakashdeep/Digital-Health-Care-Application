@@ -69,7 +69,7 @@ class _OtpState extends State<Otp> {
             ),
             SizedBox(height: 20), // Reduced spacing
             ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 String otp = _controllers.map((controller) => controller.text).join('');
                 if (otp.length != 6) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -77,20 +77,21 @@ class _OtpState extends State<Otp> {
                       content: Text('Enter 6 digit OTP'),
                     ),
                   );
-                } else {try{
-                  PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otp);
-                  _auth.signInWithCredential(credential).then((UserCredential userCredential) {
-                    widget.myuser.userId = userCredential.user!.uid;
-                    saveUserRecord(widget.myuser).then((value) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserHome()));
+                } else {
+                  try {
+                    PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otp);
+                    _auth.signInWithCredential(credential).then((UserCredential userCredential) {
+                      widget.myuser.userId = userCredential.user!.uid;
+                      saveUserRecord(widget.myuser).then((value) {
+                        Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
+                      });
                     });
-                  });
-                }
-                catch(ex){
-                  log(ex.toString());
-                }
+                  } catch(ex) {
+                    log(ex.toString());
+                  }
                 }
               },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
@@ -99,7 +100,7 @@ class _OtpState extends State<Otp> {
                 minimumSize: Size(300, 40),
               ),
               child: Text(
-                'Submit',
+                'Verify OTP',
                 style: TextStyle(color: Colors.white),
               ),
             ),

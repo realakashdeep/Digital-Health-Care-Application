@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../screens/user/user_otp.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+
   void signInWithPhone(
       BuildContext context, String phoneNumber, MyUser user) async {
     try {
@@ -20,12 +23,10 @@ class AuthProvider extends ChangeNotifier {
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          // Handle code retrieval timeout if needed
         },
         phoneNumber: "+91" + phoneNumber,
       );
     } catch (e) {
-      // Handle any errors that occur during phone number verification
       print('Error verifying phone number: $e');
     }
   }
