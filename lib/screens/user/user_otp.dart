@@ -1,23 +1,25 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_year_project/screens/user/user_model.dart';
+import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/user/user_home.dart';
+
+import '../../services/user_services.dart';
+
 class Otp extends StatefulWidget {
   String verificationid;
-  MyUser myuser;
+  MyUser? myuser;
 
-  Otp({super.key,required this.verificationid,required this.myuser});
+  Otp({super.key,required this.verificationid,this.myuser});
 
   @override
   State<Otp> createState() => _OtpState();
 }
 
 class _OtpState extends State<Otp> {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserService _userService = UserService();
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
 
@@ -52,7 +54,7 @@ class _OtpState extends State<Otp> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'OTP Verification',
+              tOtp,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20), // Reduced spacing
@@ -79,12 +81,15 @@ class _OtpState extends State<Otp> {
                   );
                 } else {
                   try {
-                    PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otp);
+                    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: widget.verificationid, smsCode: otp);
                     _auth.signInWithCredential(credential).then((UserCredential userCredential) {
-                      widget.myuser.userId = userCredential.user!.uid;
-                      saveUserRecord(widget.myuser).then((value) {
-                        Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
-                      });
+                      if (widget.myuser != null) {
+                        widget.myuser!.userId = userCredential.user!.uid;
+                        _userService.createUser(widget.myuser!).then((value) => Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false));
+                      } else {
+                      // Navigate to another screen if MyUser is not provided
+                      Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
+                      }
                     });
                   } catch(ex) {
                     log(ex.toString());
@@ -109,13 +114,7 @@ class _OtpState extends State<Otp> {
       ),
     );
   }
-  Future<void> saveUserRecord(MyUser user) async {
-    try {
-      await _db.collection("Users").doc(user.userId).set(user.toJson());
-    } catch(e){
-      throw ('An unexpected error occurred: $e');
-    }
-  }
+
 }
 
 class NumericTextField extends StatelessWidget {

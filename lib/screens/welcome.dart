@@ -1,3 +1,4 @@
+import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/screens/ward/ward_login.dart';
 import 'package:flutter/material.dart';
 import 'package:final_year_project/screens/user/user_login.dart';
@@ -37,7 +38,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                   minimumSize: Size(300, 40),
                 ),
-                child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
+                child: Text(tLogin, style: TextStyle(color: Colors.white, fontSize: 20)),
               ),
               SizedBox(height: 12),  // Add spacing between buttons
               ElevatedButton(
@@ -54,7 +55,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                   minimumSize: Size(300, 40),
                 ),
-                child: Text('Sign up',style: TextStyle(color: Colors.white, fontSize: 20)),
+                child: Text(tSignUp,style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
               SizedBox(height: 12),  // Fill the available space between buttons and "Skip" text
               GestureDetector(
@@ -62,7 +63,7 @@ class WelcomePage extends StatelessWidget {
                   // Handle the "Skip" action
                 },
                 child: Text(
-                  'Skip',
+                  tSkip,
                   style: TextStyle(fontSize: 20, color: Colors.blue),
                 ),
               ),

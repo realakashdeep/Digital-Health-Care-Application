@@ -1,3 +1,4 @@
+import 'package:final_year_project/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'signup_controller.dart';
 
@@ -79,7 +80,7 @@ class _UserSignUpState extends State<UserSignUp> {
         children: [
           SizedBox(height: 10),
           Text(
-            'Registration',
+            tRegistration,
             style: TextStyle(
               fontSize: 40,
               fontFamily: 'Roboto',
@@ -120,7 +121,7 @@ class _UserSignUpState extends State<UserSignUp> {
               ),
               minimumSize: Size(300, 40),
             ),
-            child: Text('Submit',
+            child: Text(tSubmit,
                 style: TextStyle(color: Colors.white),
           ),
           ),

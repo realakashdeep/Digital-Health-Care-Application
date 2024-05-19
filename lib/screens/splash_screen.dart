@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:final_year_project/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,7 +28,7 @@ class SplashScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              'Digital HealthCare Application',
+              tTitle,
               style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
@@ -44,7 +45,7 @@ class SplashScreen extends StatelessWidget {
       // User is authenticated, navigate to UserHome
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const UserHome()),
+        MaterialPageRoute(builder: (context) => UserHome()),
       );
     } else {
       // User is not authenticated, navigate to WelcomePage

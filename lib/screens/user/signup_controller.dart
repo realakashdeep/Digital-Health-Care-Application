@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/user/user_model.dart';
+import 'package:final_year_project/models/user_model.dart';
 import 'package:provider/provider.dart';
-import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
+import 'package:final_year_project/provider/auth_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
@@ -27,7 +27,7 @@ class SignUpController {
   }
 
   void sendUserDetails(BuildContext context, String hashedPassword) {
-    final authProvider = Provider.of<MyAppAuthProvider.AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     MyUser user = MyUser(
       userId: '',
       name: name.text.toString(),
@@ -40,7 +40,7 @@ class SignUpController {
       ward: ward_no.text.toString(), // Include ward field
       aadhaarNumber: aadhaar_number.text.toString(),
     );
-    authProvider.signInWithPhone(context, phone_number.text.toString(), user);
+    authProvider.signInWithPhone(context, phone_number.text.toString(), user: user);
   }
 
 

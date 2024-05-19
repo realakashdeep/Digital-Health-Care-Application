@@ -1,8 +1,10 @@
+import 'package:final_year_project/screens/user/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:final_year_project/provider/auth_provider.dart' as MyAppAuthProvider;
 import 'package:provider/provider.dart';
 
+import 'constants/text_strings.dart';
 import 'screens/splash_screen.dart';
 import 'screens/user/user_signup.dart'; // Import the UserSignUp screen
 import 'screens/user/user_home.dart'; // Import the UserHome screen
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppAuthProvider.AuthProvider(),
       child: MaterialApp(
-        title: 'Digital Health Application',
+        title: tTitle,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -33,6 +35,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => SplashScreen(),
           '/user_home': (context) => UserHome(),
+          '/user_profile' : (context) => UserProfile()
         },
       ),
     );

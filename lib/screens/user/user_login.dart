@@ -1,5 +1,8 @@
+
+import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/user/user_home.dart';
+import 'package:provider/provider.dart';
 
 class UserLogin extends StatelessWidget {
 
@@ -7,6 +10,9 @@ class UserLogin extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   UserLogin({Key? key}) : super(key: key);
+
+  final TextEditingController phoneNumberController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,7 @@ class UserLogin extends StatelessWidget {
                 const SizedBox(height: 12),
                 SizedBox(
                   child: Text(
-                    'Login',
+                    tLogin,
                     style: TextStyle(
                       fontSize: 40,
                       fontFamily: 'Roboto',
@@ -46,10 +52,11 @@ class UserLogin extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => UserHome()),
-                      );
+                      Provider.of<AuthProvider>(context, listen: false).signInWithPhone(context,phoneNumberController.text.toString());
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => UserHome()),
+                      // );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -59,7 +66,7 @@ class UserLogin extends StatelessWidget {
                     ),
                     minimumSize: Size(300, 40),
                   ),
-                  child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
+                  child: Text(tLogin, style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
                 // Add a SizedBox to give some space above the button when the keyboard is open
                 SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
@@ -78,6 +85,7 @@ class UserLogin extends StatelessWidget {
         children: [
           SizedBox(
             child: TextFormField(
+              controller: phoneNumberController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter User ID/Phone Number';
@@ -121,7 +129,7 @@ class UserLogin extends StatelessWidget {
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: tPassword,
                 hintText: 'Enter Password',
                 hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                 alignLabelWithHint: true,

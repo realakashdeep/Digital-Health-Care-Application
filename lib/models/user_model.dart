@@ -28,16 +28,16 @@ class MyUser {
 
   static MyUser empty() => MyUser(
     userId: "",
-    name: "",
-    phoneNumber: "",
-    password: "",
-    dob: "",
-    gender: "",
+    name: "ram",
+    phoneNumber: "1234567890",
+    password: "pass@",
+    dob: "12/12/12",
+    gender: "male",
     // address: "",
-    aadhaarNumber: "",
-    state: "",
-    district: "",
-    ward: "",
+    aadhaarNumber: "123456789012",
+    state: "bihar",
+    district: "alipurduar",
+    ward: "007",
   );
 
   // Convert model to JSON structure for storing data in Firestore
