@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:developer' as devLog;
 import 'package:crypto/crypto.dart';
 import '../models/user_model.dart';
 import '../screens/user/user_otp.dart';
@@ -21,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
           .where("phoneNumber", isEqualTo: phoneNumber)
           .limit(1)
           .get();
-
+          devLog.log(querySnapshot.docs.toString(), name: "MyLog");
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error checking if number is registered: $e');
@@ -65,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logInWithPhone(BuildContext context, String phoneNumber, String password) async {
     try {
       final QuerySnapshot result = await _firestore
-          .collection('users')
+          .collection('Users')
           .where('phoneNumber', isEqualTo: phoneNumber)
           .limit(1)
           .get();
@@ -85,28 +86,10 @@ class AuthProvider extends ChangeNotifier {
       final enteredHashedPassword = hashPassword(password);
 
       if (storedHashedPassword == enteredHashedPassword) {
-        await _auth.verifyPhoneNumber(
-          phoneNumber: "+91$phoneNumber",
-          verificationCompleted: (PhoneAuthCredential credential) async {
-          //   await _auth.signInWithCredential(credential);
-          //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserHome()));
-          },
-          verificationFailed: (FirebaseAuthException exception) {
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(content: Text('Verification failed: ${exception.message}')),
-            // );
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserHome(),
-              ),
-            );
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            print('Code auto-retrieval timeout');
-          },
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => UserHome()),
+              (Route<dynamic> route) => false, // This predicate removes all previous routes
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
