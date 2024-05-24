@@ -91,7 +91,7 @@ class _UserSignUpState extends State<UserSignUp> {
           buildTextField("Enter Your Name", _controller.name),
           SizedBox(height: 12),
           buildTextField("Enter Your Phone Number", _controller.phone_number),
-          SizedBox(height: 12),
+          // SizedBox(height: 12),
           // buildTextField("Enter Your Gender", _controller.gender),
           // SizedBox(height: 12),
           // buildStateDropdown("Select Your State"),
@@ -107,7 +107,7 @@ class _UserSignUpState extends State<UserSignUp> {
           // buildPasswordField("Enter Your New Password",_controller.new_pass),
           // SizedBox(height: 12),
           // buildPasswordField("Confirm Your Password",_controller.confirm_pass),
-          // SizedBox(height: 12),
+           SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
               if (_controller.formKey.currentState!.validate()) {
@@ -121,7 +121,7 @@ class _UserSignUpState extends State<UserSignUp> {
               ),
               minimumSize: Size(300, 40),
             ),
-            child: Text(tSubmit,
+            child: const Text(tSubmit,
                 style: TextStyle(color: Colors.white),
           ),
           ),
@@ -184,16 +184,16 @@ class _UserSignUpState extends State<UserSignUp> {
           if (value.length < 8) {
             return 'Password must be at least 8 characters long.';
           }
-          if(RegExp(r'[A-Z]').hasMatch(value)) {
+          if (!RegExp(r'[A-Z]').hasMatch(value)) {
             return 'Password must contain at least one uppercase letter';
           }
-          if(RegExp(r'[a-z]').hasMatch(value)){
+          if (!RegExp(r'[a-z]').hasMatch(value)) {
             return 'Password must contain at least one lowercase letter';
           }
-          if(RegExp(r'[0-9]').hasMatch(value)){
+          if (!RegExp(r'[0-9]').hasMatch(value)) {
             return 'Password must contain at least one digit';
           }
-          if(RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)){
+          if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
             return 'Password must contain at least one special character.';
           }
           return null;

@@ -18,7 +18,7 @@ class WelcomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 20),  // Add some spacing between the title and text
+              SizedBox(height: 20),
               Text(
                 'Digital HealthCare Facilities',
                 style: TextStyle(fontSize: 24),

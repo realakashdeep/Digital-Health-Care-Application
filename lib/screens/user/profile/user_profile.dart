@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../constants/text_strings.dart';
 import '../../../models/user_model.dart';
 import '../../../services/user_services.dart';
+import '../../welcome.dart';
 import 'edit_profile.dart';
 
 class UserProfile extends StatefulWidget {
@@ -42,10 +43,10 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(tProfile),
+        title: const Text(tProfile),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -55,14 +56,14 @@ class _UserProfileState extends State<UserProfile> {
 
   Widget _buildUserProfile() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
           // Profile photo (Replace with actual user photo)
           Container(
             width: 200.0,
             height: 200.0,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
                 image: AssetImage('assets/rwd.jpeg'), // Replace with actual image
@@ -70,47 +71,47 @@ class _UserProfileState extends State<UserProfile> {
               ),
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
 
           // User name
           Text(
             _user!.name,
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
 
           // Email (Replace with actual user email)
           buildUserInfo(tPhoneNumber, _user!.phoneNumber),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
 
           // Gender (Replace with actual user gender)
           buildUserInfo(tGender, _user!.gender),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
 
           // Address (Replace with actual user address)
           buildUserInfo(tAddress, _user!.district+" "+_user!.state),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
 
           // Aadhar Number (Replace with actual user Aadhar number)
           buildUserInfo(tAadharNumber, _user!.aadhaarNumber),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
 
           // Edit profile button
           ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditProfile()),
+                MaterialPageRoute(builder: (context) => const EditProfile()),
               );
             },
-            child: Text(tEditProfile),
+            child: const Text(tEditProfile),
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
 
           // Log out button (Implement logout functionality)
           ElevatedButton(
@@ -123,15 +124,17 @@ class _UserProfileState extends State<UserProfile> {
                       )
                 );
             },
-            child: Text(tLogOut),
+            child: const Text(tLogOut),
           ),
+
+
         ],
       ),
     );
   }
 
   Widget _buildLoadingIndicator() {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(),
     );
   }
@@ -141,9 +144,9 @@ class _UserProfileState extends State<UserProfile> {
       children: [
         Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        SizedBox(width: 10.0),
+        const SizedBox(width: 10.0),
         Text(value),
       ],
     );

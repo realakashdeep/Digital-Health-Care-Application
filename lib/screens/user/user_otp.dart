@@ -1,17 +1,15 @@
 import 'dart:developer';
-
 import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../services/user_services.dart';
 
 class Otp extends StatefulWidget {
-  String verificationid;
-  MyUser? myuser;
+  final String verificationid;
+  final MyUser? myuser;
 
-  Otp({super.key,required this.verificationid,this.myuser});
+  Otp({super.key, required this.verificationid, this.myuser});
 
   @override
   State<Otp> createState() => _OtpState();
@@ -81,22 +79,38 @@ class _OtpState extends State<Otp> {
                   );
                 } else {
                   try {
-                    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: widget.verificationid, smsCode: otp);
-                    _auth.signInWithCredential(credential).then((UserCredential userCredential) {
-                      if (widget.myuser != null) {
-                        widget.myuser!.userId = userCredential.user!.uid;
-                        _userService.createUser(widget.myuser!).then((value) => Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false));
-                      } else {
-                      // Navigate to another screen if MyUser is not provided
-                      Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
-                      }
-                    });
-                  } catch(ex) {
+                    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                      verificationId: widget.verificationid,
+                      smsCode: otp,
+                    );
+                    _auth.signInWithCredential(credential).then(
+                          (UserCredential userCredential) async {
+                        if (widget.myuser != null) {
+                          widget.myuser!.userId = userCredential.user!.uid;
+                          await _userService.createUser(widget.myuser!);
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/user_home',
+                                (route) => false,
+                          );
+                        } else {
+                          // Navigate to another screen if MyUser is not provided
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/user_home',
+                                (route) => false,
+                          );
+                        }
+                      },
+                    );
+                  } catch (ex) {
                     log(ex.toString());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error verifying OTP: $ex')),
+                    );
                   }
                 }
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
@@ -114,7 +128,6 @@ class _OtpState extends State<Otp> {
       ),
     );
   }
-
 }
 
 class NumericTextField extends StatelessWidget {
@@ -152,4 +165,3 @@ class NumericTextField extends StatelessWidget {
     );
   }
 }
-

@@ -1,9 +1,11 @@
 import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
+import 'package:final_year_project/screens/welcome.dart'; // Import the WelcomePage
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserHome extends StatelessWidget {
-  const UserHome({super.key});
+  const UserHome({Key? key}) : super(key: key); // Added the 'key' parameter
 
   @override
   Widget build(BuildContext context) {
@@ -21,34 +23,17 @@ class UserHome extends StatelessWidget {
           children: <Widget>[
             _buildSquareButton(
               context,
-              icon: Icons.message,
-              label: tProfile,
+              icon: Icons.account_circle_rounded,
+              label: 'Profile',
               onPressed: () {
-                // Define your function here
+                // Navigate to the UserProfile page
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => UserProfile()),
                 );
               },
             ),
-            _buildSquareButton(
-              context,
-              icon: Icons.contacts,
-              label: 'Contacts',
-              onPressed: () {
-                // Define your function here
-                print('Contacts button pressed');
-              },
-            ),
-            _buildSquareButton(
-              context,
-              icon: Icons.settings,
-              label: 'Settings',
-              onPressed: () {
-                // Define your function here
-                print('Settings button pressed');
-              },
-            ),
+            // Other buttons omitted for brevity
             _buildSquareButton(
               context,
               icon: Icons.info,
@@ -58,13 +43,33 @@ class UserHome extends StatelessWidget {
                 print('Info button pressed');
               },
             ),
+            // Log out button
+            _buildSquareButton(
+              context,
+              icon: Icons.logout,
+              label: 'Log Out',
+              onPressed: () async {
+                // Sign out the user
+                await FirebaseAuth.instance.signOut();
+
+                // Navigate to the welcome page and remove all previous routes from the stack
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => WelcomePage()),
+                      (route) => false,
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSquareButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildSquareButton(BuildContext context,
+      {required IconData icon,
+        required String label,
+        required VoidCallback onPressed}) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

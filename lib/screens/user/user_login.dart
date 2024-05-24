@@ -1,18 +1,26 @@
-
 import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class UserLogin extends StatelessWidget {
-
-  ImageProvider logo = AssetImage("assets/login_user_image.jpg");
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class UserLogin extends StatefulWidget {
 
   UserLogin({Key? key}) : super(key: key);
 
+  @override
+  State<UserLogin> createState() => _UserLoginState();
+}
+
+class _UserLoginState extends State<UserLogin> {
+  ImageProvider logo = AssetImage("assets/login_user_image.jpg");
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  bool _isObscure = true;
+
   final TextEditingController phoneNumberController = TextEditingController();
 
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +60,11 @@ class UserLogin extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Provider.of<AuthProvider>(context, listen: false).signInWithPhone(context,phoneNumberController.text.toString());
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => UserHome()),
-                      // );
+                      Provider.of<AuthProvider>(context, listen: false).logInWithPhone(
+                        context,
+                        phoneNumberController.text.toString(),
+                        passwordController.text.toString(),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -66,10 +74,11 @@ class UserLogin extends StatelessWidget {
                     ),
                     minimumSize: Size(300, 40),
                   ),
-                  child: Text(tLogin, style: TextStyle(color: Colors.white, fontSize: 20)),
+                  child: Text(
+                    tLogin,
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-                // Add a SizedBox to give some space above the button when the keyboard is open
-                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
               ],
             ),
           ),
@@ -79,66 +88,61 @@ class UserLogin extends StatelessWidget {
   }
 
   Widget userCred(BuildContext context) {
+
     return Container(
-      margin: EdgeInsets.only(left: 45, right: 45),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            child: TextFormField(
-              controller: phoneNumberController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter User ID/Phone Number';
-                }
-                if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-                  return 'Please enter a valid phone number';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: 'Enter User ID/Phone Number',
-                hintText: 'Enter User ID/Phone Number',
-                hintStyle: TextStyle(color: Colors.grey),
-                alignLabelWithHint: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+          TextFormField(
+            controller: phoneNumberController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: 'Enter User ID/Phone Number',
+              hintText: 'Enter User ID/Phone Number',
+              hintStyle: TextStyle(color: Colors.grey),
+              alignLabelWithHint: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please enter your phone number";
+              }
+              return null;
+            },
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            child: TextFormField(
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                if (value.contains(' ')) {
-                  return 'Password cannot contain spaces';
-                }
-
-                if (value.length > 32) {
-                  return 'Password cannot be longer than 32 characters';
-                }
-
-                if (value.length < 8) {
-                  return 'Password cannot be less than 8 characters';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: tPassword,
-                hintText: 'Enter Password',
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-                alignLabelWithHint: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: passwordController,
+            obscureText: _isObscure,
+            decoration: InputDecoration(
+              labelText: tPassword,
+              hintText: 'Enter Password',
+              hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+              alignLabelWithHint: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              // Add suffix icon to toggle password visibility
+              suffixIcon: IconButton(
+                icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                onPressed: () {
+                  setState(() {
+                    _isObscure = !_isObscure; // Toggle password visibility
+                  });
+                },
               ),
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please enter your password";
+              }
+              return null;
+            },
           ),
         ],
       ),

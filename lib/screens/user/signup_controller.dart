@@ -19,11 +19,26 @@ class SignUpController {
   final TextEditingController confirm_pass = TextEditingController();
   final TextEditingController dob = TextEditingController();
 
-  void validateAndSubmit(BuildContext context) {
+  void validateAndSubmit(BuildContext context) async {
     // if (formKey.currentState!.validate()) {
-      String hashedPassword = hashPassword(new_pass.text);
-      sendUserDetails(context, hashedPassword);
-    // }
+      bool isRegistered = await checkIfNumberRegistered(context);
+      if (isRegistered) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Phone number is already registered.'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      } else {
+        String hashedPassword = hashPassword(new_pass.text);
+        sendUserDetails(context, hashedPassword);
+      }
+    //}
+  }
+
+  Future<bool> checkIfNumberRegistered(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    return await authProvider.checkIfNumberRegistered(phone_number.text.toString());
   }
 
   void sendUserDetails(BuildContext context, String hashedPassword) {
@@ -35,14 +50,13 @@ class SignUpController {
       password: hashedPassword,
       dob: dob.text.toString(),
       gender: gender.text.toString(),
-      state: state.text.toString(), // Include state field
-      district: district.text.toString(), // Include district field
-      ward: ward_no.text.toString(), // Include ward field
+      state: state.text.toString(),
+      district: district.text.toString(),
+      ward: ward_no.text.toString(),
       aadhaarNumber: aadhaar_number.text.toString(),
     );
-    authProvider.signInWithPhone(context, phone_number.text.toString(), user: user);
+    authProvider.registerUser(context, user);
   }
-
 
   String hashPassword(String password) {
     var bytes = utf8.encode(password);
