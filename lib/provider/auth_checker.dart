@@ -1,3 +1,4 @@
+import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,10 @@ class AuthChecker extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
-          return UserHome();
+          if(snapshot.data?.email == null){
+            return const UserHome();
+          }
+            return WardMenuPage();
         } else {
           return WelcomePage();
         }

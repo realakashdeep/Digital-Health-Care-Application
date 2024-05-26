@@ -1,3 +1,5 @@
+import 'package:final_year_project/provider/ward_auth_provider.dart';
+import 'package:final_year_project/provider/ward_user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -5,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'constants/text_strings.dart';
 import 'provider/auth_provider.dart' as MyAuthProvider; // Alias your AuthProvider
 import 'screens/splash_screen.dart';
-import 'screens/user/user_signup.dart';
 import 'screens/user/user_home.dart';
 import 'screens/user/profile/user_profile.dart';
 import 'screens/welcome.dart';
@@ -18,8 +19,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => MyAuthProvider.AuthProvider(), // Use the aliased name
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => MyAuthProvider.AuthProvider()),
+        ChangeNotifierProvider(create: (context) => WardAuthProvider()),
+        ChangeNotifierProvider(create: (context) => WardUserProvider())
+      ],
       child: MyApp(),
     ),
   );

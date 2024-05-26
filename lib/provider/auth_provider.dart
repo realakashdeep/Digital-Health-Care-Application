@@ -6,7 +6,6 @@ import 'dart:developer' as devLog;
 import 'package:crypto/crypto.dart';
 import '../models/user_model.dart';
 import '../screens/user/user_otp.dart';
-import '../screens/user/user_home.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -62,14 +61,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       final QuerySnapshot result = await _firestore
           .collection('Users')
-          .where('phoneNumber', isEqualTo: phoneNumber)
-          .limit(1)
+          .where('phoneNumber', isEqualTo: phoneNumber.trim())
           .get();
-
       final List<DocumentSnapshot> documents = result.docs;
+
       if (documents.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No user found with this phone number.')),
+          SnackBar(content: Text('No user found with this phone number.'+phoneNumber)),
         );
         return;
       }

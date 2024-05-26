@@ -1,5 +1,9 @@
+
+import 'package:final_year_project/provider/ward_user_provider.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../provider/ward_auth_provider.dart';
 
 class WardLoginPage extends StatefulWidget {
   @override
@@ -7,20 +11,29 @@ class WardLoginPage extends StatefulWidget {
 }
 
 class _WardLoginPageState extends State<WardLoginPage> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _wardIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    final wardAuthProvider = Provider.of<WardAuthProvider>(context);
+    final wardUserProvider = Provider.of<WardUserProvider>(context);
+
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Allow the widget to resize when the keyboard appears
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text('Digital HealthCare Facilities'),
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
           child: Align(
             alignment: Alignment.topCenter,
             child: Form(
@@ -33,19 +46,51 @@ class _WardLoginPageState extends State<WardLoginPage> {
                     'Ward Login',
                     style: TextStyle(fontSize: 24),
                   ),
-                  SizedBox(height: 80),
-                  buildTextField(_wardIdController, 'Ward ID', 'Enter Ward ID'),
+                  SizedBox(height: 40),
+                  buildTextField(_emailController, 'Email', 'Enter Ward Email'),
                   SizedBox(height: 16),
                   buildTextField(_passwordController, 'Password', 'Enter Ward Password', obscureText: true),
                   SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
+                  _isLoading
+                      ? CircularProgressIndicator()
+                      : ElevatedButton(
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Perform login logic here
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => WardMenuPage()),
-                        );
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        try {
+                          await wardAuthProvider.signIn(
+                            _emailController.text,
+                            _passwordController.text,
+                          );
+                          final ward = wardAuthProvider.ward;
+                          if (ward != null) {
+                            await wardUserProvider.fetchUser(ward.wardId);
+                            final db_ward = wardUserProvider.user;
+                            if(db_ward == null){
+                              await wardUserProvider.addUser(ward);
+                            }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WardMenuPage(),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Login failed: Ward data is null')),
+                            );
+                          }
+                        } catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Login failed: $error')),
+                          );
+                        } finally {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -68,11 +113,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
 
   Widget buildTextField(TextEditingController controller, String labelText, String hintText, {bool obscureText = false}) {
     return Container(
-      margin: EdgeInsets.only(left: 45, right: 45),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Colors.white,
-      ),
+      margin: EdgeInsets.symmetric(horizontal: 16.0),
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
@@ -80,24 +121,30 @@ class _WardLoginPageState extends State<WardLoginPage> {
           if (value == null || value.isEmpty) {
             return 'Please enter $labelText';
           }
-          RegExp wardIdRegExp = RegExp(r'^[A-Z]{3}\d{6}$');
-          if (!wardIdRegExp.hasMatch(value)) {
-            return 'Invalid Ward ID format. Example: KMC001050';
-          }
-          else if(controller == _passwordController){
+
+          if (labelText == 'Email') {
+            RegExp emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+            if (!emailRegExp.hasMatch(value)) {
+              return 'Please enter a valid email address';
+            }
+          } else if (labelText == 'Ward ID') {
+            RegExp wardIdRegExp = RegExp(r'^[A-Z]{3}\d{6}$');
+            if (!wardIdRegExp.hasMatch(value)) {
+              return 'Invalid Ward ID format. Example: KMC001050';
+            }
+          } else if (labelText == 'Password') {
             if (value.contains(' ')) {
               return 'Password cannot contain spaces';
+            }
+
+            if (value.length < 6) {
+              return 'Password cannot be less than 6 characters';
             }
 
             if (value.length > 32) {
               return 'Password cannot be longer than 32 characters';
             }
-
-            if (value.length < 8) {
-              return 'Password cannot be less than 8 characters';
-            }
           }
-
           return null;
         },
         decoration: InputDecoration(

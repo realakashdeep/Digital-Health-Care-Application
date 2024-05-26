@@ -1,153 +1,130 @@
+import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
+import '../../provider/ward_auth_provider.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
 
 class WardMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final wardAuthProvider = Provider.of<WardAuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome to'),
+        title: Text('Ward Menu'),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              Text(
-                'Digital HealthCare Facilities',
-                style: TextStyle(fontSize: 24),
-              ),
-              SizedBox(height: 80),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterUserPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  minimumSize: Size(300, 40),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: 20),
+                Text(
+                  'Ward Menu',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
-                icon: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
-                  child: SvgPicture.asset(
-                    'assets/add_user.svg',
-                    color: Colors.white, // Set the color of the SVG
-                    width: 24,
-                    height: 24,
-                  ),
+                SizedBox(height: 40),
+                buildMenuButton(
+                  context,
+                  'Register New User',
+                  'assets/add_user.svg',
+                  RegisterUserPage(),
                 ),
-                label: Text('Register New User', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CurrentCampsPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  minimumSize: Size(300, 40),
+                SizedBox(height: 12),
+                buildMenuButton(
+                  context,
+                  'Current Camps',
+                  'assets/camp.svg',
+                  CurrentCampsPage(),
                 ),
-                icon: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
-                  child: SvgPicture.asset(
-                    'assets/camp.svg',
-                    color: Colors.white, // Set the color of the SVG
-                    width: 24,
-                    height: 24,
-                  ),
+                SizedBox(height: 12),
+                buildMenuButton(
+                  context,
+                  'Ongoing Tests',
+                  'assets/lab.svg',
+                  null, // Replace with appropriate page
                 ),
-                label: Text('Current Camps', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Handle register button press
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  minimumSize: Size(300, 40),
+                SizedBox(height: 12),
+                buildMenuButton(
+                  context,
+                  'Ongoing Vaccinations',
+                  'assets/vaccination.svg',
+                  null, // Replace with appropriate page
                 ),
-                icon: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
-                  child: SvgPicture.asset(
-                    'assets/lab.svg',
-                    color: Colors.white, // Set the color of the SVG
-                    width: 24,
-                    height: 24,
-                  ),
+                SizedBox(height: 12),
+                buildMenuButton(
+                  context,
+                  'Available Doctors',
+                  'assets/doctor.svg',
+                  null, // Replace with appropriate page
                 ),
-                label: Text('Ongoing Tests', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Handle register button press
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                SizedBox(height: 40),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await wardAuthProvider.signOut();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => WelcomePage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    minimumSize: Size(300, 40),
                   ),
-                  minimumSize: Size(300, 40),
-                ),
-                icon: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
-                  child: SvgPicture.asset(
-                    'assets/vaccination.svg',
-                    color: Colors.white, // Set the color of the SVG
-                    width: 24,
-                    height: 24,
+                  icon: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
+                  label: Text('Logout', style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
-                label: Text('Ongoing Vaccinations', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-              SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Handle register button press
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  minimumSize: Size(300, 40),
-                ),
-                icon: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
-                  child: SvgPicture.asset(
-                    'assets/doctor.svg',
-                    color: Colors.white, // Set the color of the SVG
-                    width: 24,
-                    height: 24,
-                  ),
-                ),
-                label: Text('Available Doctors', style: TextStyle(color: Colors.white, fontSize: 20)),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildMenuButton(BuildContext context, String label, String assetPath, Widget? page) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        if (page != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        minimumSize: Size(300, 40),
+      ),
+      icon: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: SvgPicture.asset(
+          assetPath,
+          color: Colors.white,
+          width: 24,
+          height: 24,
+        ),
+      ),
+      label: Text(label, style: TextStyle(color: Colors.white, fontSize: 20)),
     );
   }
 }
