@@ -113,18 +113,23 @@ class _UserLoginState extends State<UserLogin> {
             controller: phoneNumberController,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-              labelText: 'Enter User ID/Phone Number',
-              hintText: 'Enter User ID/Phone Number',
+              labelText: 'Enter Phone Number',
+              hintText: 'Enter Phone Number',
               hintStyle: TextStyle(color: Colors.grey),
               alignLabelWithHint: true,
               contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
+              prefixText: '+91 ', // Add prefix text
+              prefixStyle: TextStyle(color: Colors.grey, fontSize: 16), // Style the prefix text
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return "Please enter your phone number";
+              }
+              if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                return 'Please enter a valid phone number';
               }
               return null;
             },

@@ -16,12 +16,12 @@ class UserHome extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 34.0),
         child: Column(
           children: [
-            const SizedBox(height: 30), // Increased spacing between title and buttons
+            const SizedBox(height: 15),
             Expanded(
               child: GridView.count(
-                crossAxisCount: 2, // Two columns
-                crossAxisSpacing: 25.0, // Increased spacing between buttons horizontally
-                mainAxisSpacing: 30.0, // Increased spacing between buttons vertically
+                crossAxisCount: 2,
+                crossAxisSpacing: 25.0,
+                mainAxisSpacing: 30.0,
                 children: <Widget>[
                   _buildSquareButton(
                     context,

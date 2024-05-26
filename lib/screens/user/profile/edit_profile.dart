@@ -45,11 +45,13 @@ class _EditProfileState extends State<EditProfile> {
               onPressed: () {
                 // Handle saving edited profile information
               },
-              child: Text(tSaveProfile),
+              child: Text(tSaveProfile, style: TextStyle(fontSize: 20, color: Colors.white)),
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
+                minimumSize: Size(300, 40),
               ),
             ),
           ],

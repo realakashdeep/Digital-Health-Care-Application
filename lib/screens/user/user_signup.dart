@@ -23,8 +23,11 @@ class _UserSignUpState extends State<UserSignUp> {
     'Kolkata': ['Ward 1', 'Ward 2', 'Ward 3'],
   };
 
+  List<String> genders = ['Male', 'Female', 'Other'];
+
   String? selectedState;
   String? selectedDistrict;
+  String? selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -91,23 +94,23 @@ class _UserSignUpState extends State<UserSignUp> {
           buildTextField("Enter Your Name", _controller.name),
           SizedBox(height: 12),
           buildTextField("Enter Your Phone Number", _controller.phone_number),
-          // SizedBox(height: 12),
-          // buildTextField("Enter Your Gender", _controller.gender),
-          // SizedBox(height: 12),
-          // buildStateDropdown("Select Your State"),
-          // SizedBox(height: 12),
-          // buildDistrictDropdown("Select Your District"),
-          // SizedBox(height: 12),
-          // buildWardDropdown("Select Your Ward No"),
-          // SizedBox(height: 12),
-          // buildTextField("Enter Your Pin Code", _controller.pin_code),
-          // SizedBox(height: 12),
-          // buildTextField("Enter Your Aadhaar Number",_controller.aadhaar_number),
-          // SizedBox(height: 12),
-          // buildPasswordField("Enter Your New Password",_controller.new_pass),
-          // SizedBox(height: 12),
-          // buildPasswordField("Confirm Your Password",_controller.confirm_pass),
-           SizedBox(height: 12),
+          SizedBox(height: 12),
+          buildGenderDropdown("Select Your Gender"),
+          SizedBox(height: 12),
+          buildStateDropdown("Select Your State"),
+          SizedBox(height: 12),
+          buildDistrictDropdown("Select Your District"),
+          SizedBox(height: 12),
+          buildWardDropdown("Select Your Ward No"),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Pin Code", _controller.pin_code, TextInputType.number),
+          SizedBox(height: 12),
+          buildTextField("Enter Your Aadhaar Number", _controller.aadhaar_number, TextInputType.number),
+          SizedBox(height: 12),
+          buildPasswordField("Enter Your New Password", _controller.new_pass),
+          SizedBox(height: 12),
+          buildPasswordField("Confirm Your Password", _controller.confirm_pass),
+          SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
               if (_controller.formKey.currentState!.validate()) {
@@ -122,20 +125,21 @@ class _UserSignUpState extends State<UserSignUp> {
               minimumSize: Size(300, 40),
             ),
             child: const Text('Submit',
-                style: TextStyle(color: Colors.white),
-          ),
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget buildTextField(String hintText, TextEditingController? mycontroller) {
+  Widget buildTextField(String hintText, TextEditingController? mycontroller, [TextInputType keyboardType = TextInputType.text]) {
     String prefixText = hintText == "Enter Your Phone Number" ? '+91  ' : '';
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       child: TextFormField(
         controller: mycontroller,
+        keyboardType: keyboardType,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please $hintText';
@@ -221,6 +225,45 @@ class _UserSignUpState extends State<UserSignUp> {
     );
   }
 
+  Widget buildGenderDropdown(String hintText) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 2),
+      child: DropdownButtonFormField<String>(
+        value: selectedGender,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedGender = newValue;
+            _controller.gender.text = newValue ?? ''; // Update controller's gender text
+          });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'You must choose one option';
+          }
+          return null;
+        },
+        items: genders.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          labelText: hintText,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+          hintText: hintText,
+          fillColor: Colors.white70,
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+        isExpanded: false,
+      ),
+    );
+  }
+
   Widget buildStateDropdown(String hintText) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
@@ -233,6 +276,12 @@ class _UserSignUpState extends State<UserSignUp> {
             _controller.state.text = newValue ?? ''; // Update controller's state text
             _controller.district.text = ''; // Clear district text when state changes
           });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'You must choose one option';
+          }
+          return null;
         },
         items: states.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
@@ -271,6 +320,12 @@ class _UserSignUpState extends State<UserSignUp> {
             _controller.district.text = newValue ?? ''; // Update controller's district text
           });
         },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'You must choose one option';
+          }
+          return null;
+        },
         items: districts!.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
@@ -293,7 +348,6 @@ class _UserSignUpState extends State<UserSignUp> {
     );
   }
 
-
   Widget buildWardDropdown(String hintText) {
     if (selectedDistrict == null) {
       // If no district is selected, show an empty dropdown
@@ -308,6 +362,12 @@ class _UserSignUpState extends State<UserSignUp> {
           setState(() {
             _controller.ward_no.text = newValue ?? ''; // Update the controller's value
           });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'You must choose one option';
+          }
+          return null;
         },
         items: wards!.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
@@ -330,5 +390,4 @@ class _UserSignUpState extends State<UserSignUp> {
       ),
     );
   }
-
 }

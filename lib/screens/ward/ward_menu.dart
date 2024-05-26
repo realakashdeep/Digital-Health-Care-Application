@@ -32,7 +32,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
                 SizedBox(height: 10),
                 Text(
                   'Ward Menu',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 28),
                 ),
                 SizedBox(height: 40),
                 GridView.count(
@@ -78,14 +78,10 @@ class _WardMenuPageState extends State<WardMenuPage> {
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 34.0),
         child: ElevatedButton.icon(
           onPressed: () async {
-            await wardAuthProvider.signOut();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => WelcomePage()),
-            );
+            _showLogoutConfirmationDialog(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.redAccent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
@@ -183,6 +179,50 @@ class _WardMenuPageState extends State<WardMenuPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Are you sure you want to log out?', style: TextStyle(fontSize: 20, color: Colors.black)),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.blue,
+              ),
+              child: Text('No', style: TextStyle(fontSize: 14, color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                await Provider.of<WardAuthProvider>(context, listen: false).signOut();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => WelcomePage()),
+                      (Route<dynamic> route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.redAccent,
+              ),
+              child: Text('Yes', style: TextStyle(fontSize: 14, color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

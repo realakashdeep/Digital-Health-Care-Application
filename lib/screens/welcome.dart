@@ -38,7 +38,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                   minimumSize: Size(300, 40),
                 ),
-                child: Text(tLogin, style: TextStyle(color: Colors.white, fontSize: 20)),
+                child: Text('Log In', style: TextStyle(color: Colors.white, fontSize: 20)),
               ),
               SizedBox(height: 12),  // Add spacing between buttons
               ElevatedButton(
@@ -55,7 +55,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                   minimumSize: Size(300, 40),
                 ),
-                child: Text(tSignUp,style: TextStyle(color: Colors.white, fontSize: 20)),
+                child: Text('Sign Up',style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
               SizedBox(height: 12),  // Fill the available space between buttons and "Skip" text
               GestureDetector(
