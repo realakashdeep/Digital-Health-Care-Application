@@ -1,27 +1,19 @@
 import 'dart:async';
-import 'package:final_year_project/provider/auth_checker.dart';
 import 'package:flutter/material.dart';
-import 'package:final_year_project/screens/welcome.dart';
-import 'package:flutter_svg/svg.dart';
-
-import '../constants/text_strings.dart'; // Import your initial screen
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/provider/auth_checker.dart';
 
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Delay navigation to show splash screen for 2 seconds
     Timer(
-      Duration(seconds: 3),
+      Duration(seconds: 5),
           () {
-        final navigator = Navigator.of(context);
-        if (navigator != null && navigator.canPop()) {
-          navigator.pop();
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AuthChecker()),
-          );
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AuthChecker()),
+        );
       },
     );
 
@@ -32,10 +24,10 @@ class SplashScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
-              'assets/local_hospital_outlined.svg', // Replace with your actual file name
+              'assets/local_hospital_outlined.svg',
               width: 100,
               height: 100,
-              color: Colors.white, // You can set the desired color
+              color: Colors.white,
             ),
             SizedBox(height: 16),
             Text(

@@ -22,18 +22,13 @@ class AuthProvider extends ChangeNotifier {
           .where("phoneNumber", isEqualTo: phoneNumber)
           .limit(1)
           .get();
-          devLog.log(querySnapshot.docs.toString(), name: "MyLog");
+      devLog.log(querySnapshot.docs.toString(), name: "MyLog");
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error checking if number is registered: $e');
       return false;
     }
   }
-
-
-
-
-
 
   Future<void> registerUser(BuildContext context, MyUser user) async {
     try {
@@ -81,15 +76,40 @@ class AuthProvider extends ChangeNotifier {
 
       final userDoc = documents.first;
       final userData = userDoc.data() as Map<String, dynamic>;
-      print('User Document Data: $userData');
       final storedHashedPassword = userData['password'];
       final enteredHashedPassword = hashPassword(password);
 
       if (storedHashedPassword == enteredHashedPassword) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => UserHome()),
-              (Route<dynamic> route) => false, // This predicate removes all previous routes
+        // Send OTP
+        await _auth.verifyPhoneNumber(
+          phoneNumber: "+91$phoneNumber",
+          verificationCompleted: (PhoneAuthCredential credential) async {
+          },
+          verificationFailed: (FirebaseAuthException exception) {
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            MyUser user = MyUser(
+              userId: userDoc.id,
+              name: userData['name'] ?? '',
+              phoneNumber: userData['phoneNumber'] ?? '',
+              gender: userData['gender'] ?? '',
+              district: userData['district'] ?? '',
+              state: userData['state'] ?? '',
+              aadhaarNumber: userData['aadhaarNumber'] ?? '',
+              password: userData['password'] ?? '',
+              dob: userData['dob'] ?? '',
+              ward: userData['ward'] ?? '',
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Otp(verificationid: verificationId, myuser: user),
+              ),
+            );
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            print('Code auto-retrieval timeout');
+          },
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

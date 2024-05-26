@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UserLogin extends StatefulWidget {
-
   UserLogin({Key? key}) : super(key: key);
 
   @override
@@ -15,11 +14,8 @@ class _UserLoginState extends State<UserLogin> {
   ImageProvider logo = AssetImage("assets/login_user_image.jpg");
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool _isObscure = true;
-
   final TextEditingController phoneNumberController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
   @override
@@ -58,13 +54,21 @@ class _UserLoginState extends State<UserLogin> {
                 userCred(context),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      Provider.of<AuthProvider>(context, listen: false).logInWithPhone(
-                        context,
-                        phoneNumberController.text.toString(),
-                        passwordController.text.toString(),
-                      );
+                      bool isRegistered = await Provider.of<AuthProvider>(context, listen: false)
+                          .checkIfNumberRegistered(phoneNumberController.text.toString());
+                      if (isRegistered) {
+                        Provider.of<AuthProvider>(context, listen: false).logInWithPhone(
+                          context,
+                          phoneNumberController.text.toString(),
+                          passwordController.text.toString(),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('No user found with this phone number.')),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -88,7 +92,6 @@ class _UserLoginState extends State<UserLogin> {
   }
 
   Widget userCred(BuildContext context) {
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Column(
@@ -127,12 +130,11 @@ class _UserLoginState extends State<UserLogin> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              // Add suffix icon to toggle password visibility
               suffixIcon: IconButton(
                 icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
                 onPressed: () {
                   setState(() {
-                    _isObscure = !_isObscure; // Toggle password visibility
+                    _isObscure = !_isObscure;
                   });
                 },
               ),

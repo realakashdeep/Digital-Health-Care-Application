@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'auth_provider.dart' as MyAuthProvider; // Alias your AuthProvider
-import '../screens/user/user_home.dart';
-import '../screens/welcome.dart';
+import 'package:final_year_project/provider/auth_provider.dart' as MyAuthProvider;
+import 'package:final_year_project/screens/user/user_home.dart';
+import 'package:final_year_project/screens/welcome.dart';
 
 class AuthChecker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<MyAuthProvider.AuthProvider>(context); // Use the aliased name
+    final authProvider = Provider.of<MyAuthProvider.AuthProvider>(context);
 
     return StreamBuilder<User?>(
       stream: authProvider.authStateChanges,
@@ -20,7 +20,7 @@ class AuthChecker extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
-          return const UserHome();
+          return UserHome();
         } else {
           return WelcomePage();
         }
