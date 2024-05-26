@@ -20,6 +20,7 @@ class _OtpState extends State<Otp> {
   final UserService _userService = UserService();
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
+  bool _isLoading = false; // Add a loading state variable
 
   @override
   void initState() {
@@ -68,7 +69,9 @@ class _OtpState extends State<Otp> {
               ),
             ),
             SizedBox(height: 20), // Reduced spacing
-            ElevatedButton(
+            _isLoading // Show CircularProgressIndicator when loading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
               onPressed: () async {
                 String otp = _controllers.map((controller) => controller.text).join('');
                 if (otp.length != 6) {
@@ -78,6 +81,9 @@ class _OtpState extends State<Otp> {
                     ),
                   );
                 } else {
+                  setState(() {
+                    _isLoading = true; // Set loading state to true
+                  });
                   try {
                     PhoneAuthCredential credential = PhoneAuthProvider.credential(
                       verificationId: widget.verificationid,
@@ -102,12 +108,24 @@ class _OtpState extends State<Otp> {
                           );
                         }
                       },
-                    );
+                    ).catchError((ex) {
+                      log(ex.toString());
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error verifying OTP: $ex')),
+                      );
+                    }).whenComplete(() {
+                      setState(() {
+                        _isLoading = false; // Reset loading state after the process
+                      });
+                    });
                   } catch (ex) {
                     log(ex.toString());
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Error verifying OTP: $ex')),
                     );
+                    setState(() {
+                      _isLoading = false; // Reset loading state after the process
+                    });
                   }
                 }
               },

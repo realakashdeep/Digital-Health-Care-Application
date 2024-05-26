@@ -79,7 +79,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Login failed: Ward data is null')),
+                              SnackBar(content: Text('Login failed: Wrong Credentials')),
                             );
                           }
                         } catch (error) {

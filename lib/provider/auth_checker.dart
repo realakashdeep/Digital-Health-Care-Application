@@ -22,7 +22,7 @@ class AuthChecker extends StatelessWidget {
           );
         } else if (snapshot.hasData) {
           if(snapshot.data?.email == null){
-            return const UserHome();
+            return UserHome();
           }
             return WardMenuPage();
         } else {

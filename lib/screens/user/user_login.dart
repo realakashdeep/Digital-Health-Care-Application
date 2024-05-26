@@ -18,6 +18,8 @@ class _UserLoginState extends State<UserLogin> {
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool _isLoading = false; // Add a loading state variable
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,13 +55,19 @@ class _UserLoginState extends State<UserLogin> {
                 const SizedBox(height: 20),
                 userCred(context),
                 const SizedBox(height: 30),
-                ElevatedButton(
+                _isLoading // Show CircularProgressIndicator when loading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        _isLoading = true; // Set loading state to true
+                      });
+
                       bool isRegistered = await Provider.of<AuthProvider>(context, listen: false)
                           .checkIfNumberRegistered(phoneNumberController.text.toString());
                       if (isRegistered) {
-                        Provider.of<AuthProvider>(context, listen: false).logInWithPhone(
+                        await Provider.of<AuthProvider>(context, listen: false).logInWithPhone(
                           context,
                           phoneNumberController.text.toString(),
                           passwordController.text.toString(),
@@ -69,6 +77,10 @@ class _UserLoginState extends State<UserLogin> {
                           SnackBar(content: Text('No user found with this phone number.')),
                         );
                       }
+
+                      setState(() {
+                        _isLoading = false; // Reset loading state after the process
+                      });
                     }
                   },
                   style: ElevatedButton.styleFrom(

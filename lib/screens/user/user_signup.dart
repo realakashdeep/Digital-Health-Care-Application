@@ -121,7 +121,7 @@ class _UserSignUpState extends State<UserSignUp> {
               ),
               minimumSize: Size(300, 40),
             ),
-            child: const Text(tSubmit,
+            child: const Text('Submit',
                 style: TextStyle(color: Colors.white),
           ),
           ),
