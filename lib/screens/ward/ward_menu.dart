@@ -1,3 +1,4 @@
+import 'package:final_year_project/screens/ward/patientInfoForm.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../provider/ward_auth_provider.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
+
 
 class WardMenuPage extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
     final wardAuthProvider = Provider.of<WardAuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome Ward Representative'),
+        title: Text('Ward Menu'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -34,11 +36,6 @@ class _WardMenuPageState extends State<WardMenuPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(height: 10),
-                    Text(
-                      'Ward Menu',
-                      style: TextStyle(fontSize: 28),
-                    ),
                     SizedBox(height: 40),
                     GridView.count(
                       shrinkWrap: true,
@@ -70,6 +67,12 @@ class _WardMenuPageState extends State<WardMenuPage> {
                           'Generate Reports',
                           Icons.list_alt,
                           null,
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
+                          'Add Patient Health Record',
+                          Icons.medical_information,
+                          PatientInfoForm(),
                         ),
                       ],
                     ),

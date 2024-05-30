@@ -1,19 +1,20 @@
+import 'package:final_year_project/provider/patient_data_provider.dart';
 import 'package:final_year_project/provider/ward_auth_provider.dart';
 import 'package:final_year_project/provider/ward_user_provider.dart';
+import 'package:final_year_project/screens/ward/patientInfoForm.dart';
 import 'package:final_year_project/screens/user/user_signup.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-
 import 'constants/text_strings.dart';
-import 'provider/auth_provider.dart' as MyAuthProvider; // Alias your AuthProvider
+import 'provider/auth_provider.dart' as MyAuthProvider;
 import 'screens/splash_screen.dart';
 import 'screens/user/user_home.dart';
 import 'screens/user/profile/user_profile.dart';
 import 'screens/welcome.dart';
 import 'firebase_options.dart';
-import 'provider/auth_checker.dart'; // Import AuthChecker
+import 'provider/auth_checker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => MyAuthProvider.AuthProvider()),
         ChangeNotifierProvider(create: (context) => WardAuthProvider()),
-        ChangeNotifierProvider(create: (context) => WardUserProvider())
+        ChangeNotifierProvider(create: (context) => WardUserProvider()),
+        ChangeNotifierProvider(create: (context) => PatientDataProvider())
       ],
       child: MyApp(),
     ),
@@ -49,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/user_home': (context) => UserHome(),
         '/user_profile': (context) => UserProfile(),
         '/welcome': (context) => WelcomePage(),
+        '/patient_form' : (context) => PatientInfoForm()
       },
     );
   }
