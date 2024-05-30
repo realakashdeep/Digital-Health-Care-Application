@@ -5,13 +5,23 @@ import 'package:intl/intl.dart';
 import '../../models/camp_model.dart';
 import 'app_drawer.dart';
 
-class CurrentCampsPage extends StatelessWidget {
+class CurrentCampsPage extends StatefulWidget {
+  @override
+  State<CurrentCampsPage> createState() => _CurrentCampsPageState();
+}
+
+class _CurrentCampsPageState extends State<CurrentCampsPage> {
   // Create TextEditingController instances for each text field
   final TextEditingController _campNameController = TextEditingController();
+
   final TextEditingController _descriptionController = TextEditingController();
+
   final TextEditingController _startDateController = TextEditingController();
+
   final TextEditingController _addressController = TextEditingController();
+
   final TextEditingController _headDoctorController = TextEditingController();
+
   final TextEditingController _lastDateController = TextEditingController();
 
   @override
@@ -65,16 +75,15 @@ class CurrentCampsPage extends StatelessWidget {
               Camp camp = Camp.fromSnapshot(document);
               return GestureDetector(
                 onTap: () {
-                  // Handle card tap to view details
                   _showCampDetails(context, camp);
                 },
                 child: Card(
-                  margin: EdgeInsets.all(12.0), // Increase margin to make the card bigger
+                  margin: EdgeInsets.all(30.0),
                   elevation: 4.0,
                   child: Padding(
-                    padding: EdgeInsets.all(16.0), // Add padding to make the card content look better
+                    padding: EdgeInsets.all(20.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch the content to fill the card width
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Center(
                           child: Text(
@@ -85,7 +94,7 @@ class CurrentCampsPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 12.0), // Add space between title and dates
+                        SizedBox(height: 12.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -131,6 +140,7 @@ class CurrentCampsPage extends StatelessWidget {
   }
 
   void _showAddCampModal(BuildContext context) {
+    bool _isSaving = false;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -179,12 +189,35 @@ class CurrentCampsPage extends StatelessWidget {
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            // Handle save operation
+                            setState(() {
+                              _isSaving = true;
+                            });
                             _saveCampData();
+                            setState(() {
+                              _isSaving = false;
+                            });
+
+                            // Close the modal
                             Navigator.pop(context);
                           },
-                          child: Text('Save'),
-                        ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            minimumSize: Size(300, 40),
+                          ),
+                          child: _isSaving
+                              ? CircularProgressIndicator() // Show loading indicator when _isSaving is true
+                              : Text(
+                            'Save',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        )
+
                       ),
                     ],
                   ),
@@ -197,10 +230,8 @@ class CurrentCampsPage extends StatelessWidget {
     );
   }
 
-
   void _showCampDetails(BuildContext context, Camp camp) {
     String formattedStartDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.startDate));
-
     String formattedEndDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.lastDate));
 
     showDialog(
@@ -302,6 +333,19 @@ class CurrentCampsPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
+                deleteCampFromDatabase(camp.id);
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.red, // Change the color to red for better visibility
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
                 Navigator.of(context).pop();
               },
               child: Text(
@@ -317,10 +361,6 @@ class CurrentCampsPage extends StatelessWidget {
       },
     );
   }
-
-
-
-
 
   Widget _buildTextField(
       String labelText, String hintText, TextEditingController controller,
@@ -342,6 +382,7 @@ class CurrentCampsPage extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildDateField(BuildContext context, String labelText, String hintText, TextEditingController controller) {
     return GestureDetector(
       onTap: () async {
@@ -395,6 +436,16 @@ class CurrentCampsPage extends StatelessWidget {
     }).catchError((error) {
       // Error occurred while saving camp data
       print('Error saving camp data: $error');
+    });
+  }
+
+  void deleteCampFromDatabase(String campId) {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final campReference = firestoreInstance.collection('Camp').doc(campId);
+    campReference.delete().then((_) {
+      print('Camp deleted successfully');
+    }).catchError((error) {
+      print('Error deleting camp: $error');
     });
   }
 }

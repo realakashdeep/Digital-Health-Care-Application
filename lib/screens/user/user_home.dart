@@ -1,4 +1,5 @@
 import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -58,8 +59,11 @@ class UserHome extends StatelessWidget {
                     icon: Icons.campaign,
                     label: 'View Ongoing Camps',
                     onPressed: () {
-                      // Define your function here
-                      print('View Ongoing Camps button pressed');
+                      // Navigate to ViewCampsPage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ViewCamps()),
+                      );
                     },
                   ),
                 ],
