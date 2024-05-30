@@ -4,10 +4,10 @@ class Camp {
   final String id;
   final String name;
   final String description;
-  final String startDate;
+  final String startDate; // Change type to String
   final String address;
   final String headDoctor;
-  final String lastDate;
+  final String lastDate; // Change type to String
 
   Camp({
     required this.id,

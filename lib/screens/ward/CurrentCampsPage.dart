@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import '../../models/camp_model.dart';
 import 'app_drawer.dart';
 
@@ -141,39 +141,53 @@ class CurrentCampsPage extends StatelessWidget {
             return SingleChildScrollView(
               controller: scrollController,
               child: Padding(
-
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Add New Camp',
-                      style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Camp Name', 'Enter camp name', _campNameController),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Description (Max words 200)', 'Enter description', _descriptionController, maxLength: 200, maxLines: 2, keyboardType: TextInputType.multiline),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Start Date', 'Enter start date', _startDateController, keyboardType: TextInputType.datetime),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Address', 'Enter address', _addressController),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Head Doctor', 'Enter head doctor\'s name', _headDoctorController),
-                    SizedBox(height: 16.0),
-                    _buildTextField('Last Date', 'Enter last date', _lastDateController, keyboardType: TextInputType.datetime),
-                    SizedBox(height: 20.0),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle save operation
-                          _saveCampData();
-                          Navigator.pop(context);
-                        },
-                        child: Text('Save'),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Add New Camp',
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.0),
+                      _buildTextField('Camp Name', 'Enter camp name', _campNameController),
+                      SizedBox(height: 16.0),
+                      _buildTextField(
+                        'Description (Max words 200)',
+                        'Enter description',
+                        _descriptionController,
+                        maxLength: 200,
+                        maxLines: 2,
+                        keyboardType: TextInputType.multiline,
+                      ),
+                      SizedBox(height: 16.0),
+                      _buildDateField(context, 'Start Date', 'Enter start date', _startDateController),
+                      SizedBox(height: 16.0),
+                      _buildTextField('Address', 'Enter address', _addressController),
+                      SizedBox(height: 16.0),
+                      _buildTextField('Head Doctor', 'Enter head doctor\'s name', _headDoctorController),
+                      SizedBox(height: 16.0),
+                      _buildDateField(context, 'Last Date', 'Enter last date', _lastDateController),
+                      SizedBox(height: 20.0),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save operation
+                            _saveCampData();
+                            Navigator.pop(context);
+                          },
+                          child: Text('Save'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -183,8 +197,12 @@ class CurrentCampsPage extends StatelessWidget {
     );
   }
 
+
   void _showCampDetails(BuildContext context, Camp camp) {
-    // Show camp details in a dialog or navigate to a new page
+    String formattedStartDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.startDate));
+
+    String formattedEndDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.lastDate));
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -227,7 +245,7 @@ class CurrentCampsPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  camp.startDate,
+                  formattedStartDate,
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.grey[600],
@@ -242,7 +260,7 @@ class CurrentCampsPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  camp.lastDate,
+                  formattedEndDate,
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.grey[600],
@@ -301,7 +319,12 @@ class CurrentCampsPage extends StatelessWidget {
   }
 
 
-  Widget _buildTextField(String labelText, String hintText, TextEditingController controller, {int? maxLength, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+
+
+
+  Widget _buildTextField(
+      String labelText, String hintText, TextEditingController controller,
+      {int? maxLength, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       maxLength: maxLength,
@@ -315,6 +338,37 @@ class CurrentCampsPage extends StatelessWidget {
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+    );
+  }
+  Widget _buildDateField(BuildContext context, String labelText, String hintText, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2101),
+        );
+        if (pickedDate != null) {
+          String formattedDate = "${pickedDate.toLocal()}".split(' ')[0];
+          controller.text = formattedDate;
+        }
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            hintText: hintText,
+            hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+            alignLabelWithHint: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
         ),
       ),
     );
