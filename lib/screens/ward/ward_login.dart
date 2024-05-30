@@ -68,14 +68,15 @@ class _WardLoginPageState extends State<WardLoginPage> {
                           if (ward != null) {
                             await wardUserProvider.fetchUser(ward.wardId);
                             final db_ward = wardUserProvider.user;
-                            if(db_ward == null){
+                            if (db_ward == null) {
                               await wardUserProvider.addUser(ward);
                             }
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => WardMenuPage(),
                               ),
+                                  (route) => false,
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(

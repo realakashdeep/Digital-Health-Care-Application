@@ -111,8 +111,8 @@ class _WardMenuPageState extends State<WardMenuPage> {
   Widget buildMenuButton(BuildContext context, String label, String assetPath, Widget? page) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double iconSize = constraints.maxWidth * 0.25; // Increased icon size factor
-        double textSize = constraints.maxWidth * 0.05; // Increased text size factor
+        double iconSize = constraints.maxWidth * 0.35; // Increased icon size factor
+        double textSize = constraints.maxWidth * 0.12; // Increased text size factor
 
         return ElevatedButton(
           onPressed: () {
@@ -156,7 +156,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double iconSize = constraints.maxWidth * 0.25; // Increased icon size factor
-        double textSize = constraints.maxWidth * 0.05; // Increased text size factor
+        double textSize = constraints.maxWidth * 0.10; // Increased text size factor
 
         return ElevatedButton(
           onPressed: () {
