@@ -56,11 +56,11 @@ class CampsList extends StatelessWidget {
                 onTap: () {
                   _showCampDetails(context, camp);
                 },
-                child: Card(
-                  margin: EdgeInsets.all(30.0),
-                  elevation: 4.0,
+                child:  Card(
+                  margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 15.0),
+                  elevation: 2.0,
                   child: Padding(
-                    padding: EdgeInsets.all(20.0),
+                    padding: EdgeInsets.all(25.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -73,22 +73,27 @@ class CampsList extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 12.0),
+                        SizedBox(height: 20.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Start Date: ${camp.startDate}',
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.grey[600],
+                            Expanded(
+                              child: Text(
+                                'Start Date: ${camp.startDate}',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
-                            Text(
-                              'End Date: ${camp.lastDate}',
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                color: Colors.grey[600],
+                            Expanded(
+                              child: Text(
+                                'End Date: ${camp.lastDate}',
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
                           ],
