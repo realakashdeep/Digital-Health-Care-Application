@@ -1,10 +1,11 @@
-import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:final_year_project/provider/auth_provider.dart' as MyAuthProvider;
-import 'package:final_year_project/screens/user/user_home.dart';
-import 'package:final_year_project/screens/welcome.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../screens/user/user_home.dart';
+import '../screens/ward/ward_menu.dart';
+import '../screens/welcome.dart';
+import 'auth_provider.dart' as MyAuthProvider;
 
 class AuthChecker extends StatelessWidget {
   @override
@@ -21,14 +22,57 @@ class AuthChecker extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
-          if(snapshot.data?.email == null){
-            return UserHome();
-          }
-            return WardMenuPage();
+          return FutureBuilder<String?>(
+            future: _getUserType(snapshot.data),
+            builder: (context, userTypeSnapshot) {
+              if (userTypeSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              } else if (userTypeSnapshot.hasData) {
+                final userType = userTypeSnapshot.data;
+                if (userType == 'user') {
+                  return UserHome();
+                } else if (userType == 'ward') {
+                  return WardMenuPage();
+                } else {
+                  return WelcomePage();
+                }
+              } else {
+                return WelcomePage();
+              }
+            },
+          );
         } else {
           return WelcomePage();
         }
       },
     );
+  }
+
+  Future<String?> _getUserType(User? user) async {
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(user.uid).get();
+      DocumentSnapshot userDoc2 = await FirebaseFirestore.instance.collection('Wards').doc(user.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+        if (userData != null) {
+          if (userData.containsKey('phoneNumber')) {
+            return 'user';
+          }
+        }
+      }
+      if (userDoc2.exists) {
+        Map<String, dynamic>? userData = userDoc2.data() as Map<String, dynamic>?;
+        if (userData != null) {
+          if (userData.containsKey('wardId')) {
+            return 'ward';
+          }
+        }
+      }
+    }
+    return null;
   }
 }
