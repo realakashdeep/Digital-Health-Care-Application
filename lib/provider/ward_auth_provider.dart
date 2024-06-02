@@ -1,4 +1,4 @@
-// providers/auth_provider.dart
+
 import 'package:final_year_project/models/ward_model.dart';
 import 'package:flutter/material.dart';
 import '../services/ward_auth_services.dart';
@@ -9,8 +9,24 @@ class WardAuthProvider with ChangeNotifier {
 
   WardModel? get ward => _ward;
 
+  // extracts ward number from ward email
+  String? extractWardNumber(String email) {
+    final regex = RegExp(r'^ward(\d+)@mail\.com$');
+    final match = regex.firstMatch(email);
+
+    if (match != null) {
+      return match.group(1);
+    } else {
+      return "-1";
+    }
+  }
+
   Future<void> signIn(String email, String password) async {
-    _ward = await _authService.signIn(email, password);
+    int wardNumber = int.parse(extractWardNumber(email).toString());
+    if(wardNumber == -1){
+      return;
+    }
+    _ward = await _authService.signIn(email, password,wardNumber.toString());
     notifyListeners();
   }
 

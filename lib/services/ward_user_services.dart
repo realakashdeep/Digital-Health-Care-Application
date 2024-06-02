@@ -3,15 +3,23 @@ import 'package:final_year_project/models/ward_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class WardUserServices {
-   FirebaseAuth _auth = FirebaseAuth.instance;
+   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 
+   Future<String?> getCurrentUserId() async {
+     try {
+       User? user = _auth.currentUser;
+       return user?.uid;
+     } catch (e) {
+       throw Exception('Error fetching user ID: $e');
+     }
+   }
 
   // Create a new ward in Firebase Auth and Firestore
   Future<void> createward(WardModel ward) async {
     try {
-      // Save ward details to Firestore
+      // Save ward details to Fi  restore
       await _firestore.collection('Wards').doc(ward.wardId).set(ward.toJson());
     } catch (e) {
       throw Exception('Error creating ward: $e');
@@ -55,7 +63,6 @@ class WardUserServices {
       throw Exception('Error deleting ward: $e');
     }
   }
-
 
 
   // Sign out the current ward

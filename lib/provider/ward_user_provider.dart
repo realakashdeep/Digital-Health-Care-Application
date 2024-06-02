@@ -1,4 +1,3 @@
-// lib/providers/user_provider.dart
 import 'package:final_year_project/models/ward_model.dart';
 import 'package:final_year_project/services/ward_user_services.dart';
 import 'package:flutter/material.dart';
@@ -30,4 +29,9 @@ class WardUserProvider with ChangeNotifier {
     _user = null;
     notifyListeners();
   }
+
+  Future<String?> getCurrentUserId() async {
+    return await _wardService.getCurrentUserId();
+  }
+
 }

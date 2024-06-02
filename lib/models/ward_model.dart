@@ -5,12 +5,14 @@ class WardModel {
   String wardEmail;
   String wardAddress;
   String wardPassword;
+  String wardNumber;
 
   WardModel({
     required this.wardId,
     required this.wardEmail,
     required this.wardAddress,
-    required this.wardPassword
+    required this.wardPassword,
+    required this.wardNumber
   });
 
 
@@ -20,6 +22,7 @@ class WardModel {
     wardEmail : '',
     wardAddress : '',
     wardPassword : '',
+    wardNumber: ''
   );
 
   // Convert model to JSON structure for storing data in Firestore
@@ -29,6 +32,7 @@ class WardModel {
       'wardEmail' : wardEmail,
       'wardAddress' : wardAddress,
       'wardPassword' : wardPassword,
+      'wardNumber' : wardNumber
     };
   }
 
@@ -40,6 +44,7 @@ class WardModel {
         wardEmail: data['wardEmail'] ?? '',
         wardAddress: data['wardAddress'] ?? '',
         wardPassword: data['wardPassword'] ?? '',
+        wardNumber: data['wardNumber'] ?? ''
       );
     } else {
       return WardModel.empty();
