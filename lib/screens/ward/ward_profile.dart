@@ -51,7 +51,7 @@ class _WardProfilePageState extends State<WardProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Ward Profile Page'),
+          title: Text('Ward Details'),
           centerTitle: true,
       ),
       body: _isLoading
