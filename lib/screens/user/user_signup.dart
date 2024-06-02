@@ -350,7 +350,6 @@ class _UserSignUpState extends State<UserSignUp> {
 
   Widget buildWardDropdown(String hintText) {
     if (selectedDistrict == null) {
-      // If no district is selected, show an empty dropdown
       return Container();
     }
     List<String>? wards = wardsByDistrict[selectedDistrict!];
@@ -360,7 +359,8 @@ class _UserSignUpState extends State<UserSignUp> {
         value: _controller.ward_no.text.isNotEmpty ? _controller.ward_no.text : null, // Set the initial value to the controller's value if it's not empty
         onChanged: (String? newValue) {
           setState(() {
-            _controller.ward_no.text = newValue ?? ''; // Update the controller's value
+            final number = int.tryParse(newValue!.replaceAll(RegExp(r'[^0-9]'), ''));
+            _controller.ward_no.text = number != null ? number.toString() : '';
           });
         },
         validator: (value) {
@@ -370,8 +370,10 @@ class _UserSignUpState extends State<UserSignUp> {
           return null;
         },
         items: wards!.map<DropdownMenuItem<String>>((String value) {
+          // Extract the number from each ward option
+          final number = int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), ''));
           return DropdownMenuItem<String>(
-            value: value,
+            value: number != null ? number.toString() : '', // Send only the number as the value
             child: Text(value),
           );
         }).toList(),
@@ -390,4 +392,5 @@ class _UserSignUpState extends State<UserSignUp> {
       ),
     );
   }
+
 }
