@@ -1,10 +1,15 @@
+import 'dart:io';
+
+import 'package:final_year_project/screens/user/user_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../constants/text_strings.dart';
 import '../../../models/user_model.dart';
 import '../../../services/user_services.dart';
 import '../../welcome.dart';
 import 'edit_profile.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -14,7 +19,7 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   final UserService _userService = UserService();
   MyUser? _user;
-
+  File? _imageFile;
   @override
   void initState() {
     super.initState();
@@ -30,7 +35,6 @@ class _UserProfileState extends State<UserProfile> {
           _user = user;
         });
       } else {
-        // Handle case where user data is not found
       }
     } catch (e) {
       throw(e);
@@ -103,7 +107,7 @@ class _UserProfileState extends State<UserProfile> {
                     size: 24,
                   ),
                 ),
-                label: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 20)),
+                label: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
           ],
@@ -111,24 +115,65 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+
+      await _uploadImageToStorage();
+    } else {
+      print('No image selected.');
+    }
+  }
+  Future<void> _uploadImageToStorage() async {
+    try {
+      if (_imageFile != null) {
+        final Reference storageReference = FirebaseStorage.instance.ref().child('pfp/${_user!.userId}');
+
+        final TaskSnapshot uploadTask = await storageReference.putFile(_imageFile!);
+
+        final String downloadURL = await uploadTask.ref.getDownloadURL();
+
+        await _userService.updateUserProfilePicture(_user!.userId, downloadURL);
+      }
+    } catch (error) {
+      print('Error uploading image to Firestore Storage: $error');
+    }
+  }
 
   Widget _buildUserProfile() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          // Profile photo (Replace with actual user photo)
           Container(
             width: 150.0,
             height: 150.0,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage('assets/rwd.jpeg'), // Replace with actual image
+              color: Colors.grey[300],
+              image: _imageFile != null
+                  ? DecorationImage(
+                image: FileImage(_imageFile!),
                 fit: BoxFit.cover,
-              ),
+              )
+                  : _user?.profilePictureURL != null
+                  ? DecorationImage(
+                image: NetworkImage(_user!.profilePictureURL!),
+                fit: BoxFit.cover,
+              )
+                  : null,
+            ),
+            child: Stack(
+              children: [
+              ],
             ),
           ),
+
           const SizedBox(height: 20.0),
 
           // User name
@@ -141,10 +186,10 @@ class _UserProfileState extends State<UserProfile> {
           buildUserInfo('Phone Number', _user!.phoneNumber),
           const SizedBox(height: 10.0),
 
-          buildUserInfo(tGender, _user!.gender),
+          buildUserInfo('Gender', _user!.gender),
           const SizedBox(height: 10.0),
 
-          buildUserInfo('Ward', _user!.ward),
+          buildUserInfo('Ward', 'Ward ' + _user!.ward),
           const SizedBox(height: 10.0),
 
           buildUserInfo(tAddress, _user!.district + ", " + _user!.state),
@@ -155,6 +200,7 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
+
 
   Widget _buildLoadingIndicator() {
     return const Center(
@@ -191,7 +237,7 @@ class _UserProfileState extends State<UserProfile> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
-                backgroundColor: Colors.greenAccent,
+                backgroundColor: Colors.blue,
               ),
               child: Text('No', style: TextStyle(fontSize: 14, color: Colors.white)),
             ),

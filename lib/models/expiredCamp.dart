@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Camp {
+class ExpiredCamp {
   final String id;
   final String name;
   final String description;
@@ -10,9 +10,9 @@ class Camp {
   final String lastDate;
   final String uploadedBy;
   final String uploadedOn;
-  final String wardId; 
+  final String wardId;
 
-  Camp({
+  ExpiredCamp({
     required this.id,
     required this.name,
     required this.description,
@@ -25,9 +25,9 @@ class Camp {
     required this.wardId,
   });
 
-  factory Camp.fromSnapshot(DocumentSnapshot snapshot) {
+  factory ExpiredCamp.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
-    return Camp(
+    return ExpiredCamp(
       id: snapshot.id,
       name: data['campName'] ?? '',
       description: data['description'] ?? '',
@@ -37,7 +37,7 @@ class Camp {
       lastDate: data['lastDate'] ?? '',
       uploadedBy: data['uploadedBy'] ?? '',
       uploadedOn: data['uploadedOn'] ?? '',
-      wardId: data['wardId'] ?? '', // New field
+      wardId: data['wardId'] ?? '',
     );
   }
 
@@ -51,7 +51,7 @@ class Camp {
       'lastDate': lastDate,
       'uploadedBy': uploadedBy,
       'uploadedOn': uploadedOn,
-      'wardId': wardId, // New field
+      'wardId': wardId,
     };
   }
 }

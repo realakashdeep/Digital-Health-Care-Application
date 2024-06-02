@@ -11,11 +11,11 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  final TextEditingController _nameController = TextEditingController(text: 'Robert Downey Jr');
-  final TextEditingController _emailController = TextEditingController(text: 'robert.downeyjr@example.com');
-  final TextEditingController _genderController = TextEditingController(text: 'Male');
-  final TextEditingController _addressController = TextEditingController(text: '123 Main Street, Anytown, CA');
-  final TextEditingController _aadharController = TextEditingController(text: '1234 5678 9012');
+  final TextEditingController _nameController = TextEditingController(text: '');
+  final TextEditingController _emailController = TextEditingController(text: '');
+  final TextEditingController _genderController = TextEditingController(text: '');
+  final TextEditingController _addressController = TextEditingController(text: '');
+  final TextEditingController _aadharController = TextEditingController(text: '');
   File? _imageFile;
 
   @override
@@ -66,13 +66,17 @@ class _EditProfileState extends State<EditProfile> {
       height: 150.0,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        image: DecorationImage(
-          image: _imageFile == null ? const AssetImage(ImgProfile) : FileImage(_imageFile!) as ImageProvider,
-          fit: BoxFit.cover,
-        ),
+        color: Colors.grey[300],
       ),
       child: Stack(
         children: [
+          Center(
+            child: Icon(
+              Icons.account_circle,
+              size: 100.0,
+              color: Colors.white,
+            ),
+          ),
           Positioned(
             bottom: 0,
             right: 0,
@@ -88,6 +92,9 @@ class _EditProfileState extends State<EditProfile> {
       ),
     );
   }
+
+
+
 
   Widget _buildTextField({
     required TextEditingController controller,

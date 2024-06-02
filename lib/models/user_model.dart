@@ -7,11 +7,11 @@ class MyUser {
   String password;
   String dob;
   String gender;
-  // String address;
   String aadhaarNumber;
   String state;
   String district;
   String ward;
+  String? profilePictureURL; // Add profileImageUrl property
 
   MyUser({
     required this.userId,
@@ -24,6 +24,7 @@ class MyUser {
     required this.state,
     required this.district,
     required this.ward,
+    this.profilePictureURL, // Initialize profileImageUrl
   });
 
   static MyUser empty() => MyUser(
@@ -33,7 +34,6 @@ class MyUser {
     password: "pass@",
     dob: "12/12/12",
     gender: "male",
-    // address: "",
     aadhaarNumber: "123456789012",
     state: "bihar",
     district: "alipurduar",
@@ -48,11 +48,11 @@ class MyUser {
       'password': password,
       'dob': dob,
       'gender': gender,
-      // 'address': address,
       'aadhaarNumber': aadhaarNumber,
       'state': state,
       'district': district,
       'ward': ward,
+      'profilePictureURL': profilePictureURL, // Include profileImageUrl in the map
     };
   }
 
@@ -66,11 +66,11 @@ class MyUser {
         password: data['password'] ?? '',
         dob: data['dob'] ?? '',
         gender: data['gender'] ?? '',
-        // address: data['address'] ?? '',
         aadhaarNumber: data['aadhaarNumber'] ?? '',
         state: data['state'] ?? '',
         district: data['district'] ?? '',
         ward: data['ward'] ?? '',
+        profilePictureURL: data['profilePictureURL'], // Initialize profileImageUrl
       );
     } else {
       return MyUser.empty();
