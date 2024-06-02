@@ -55,6 +55,21 @@ class MyUser {
       'profilePictureURL': profilePictureURL, // Include profileImageUrl in the map
     };
   }
+  factory MyUser.fromJson(Map<String, dynamic> json) {
+    return MyUser(
+      userId: json['userId'],
+      name: json['name'],
+      phoneNumber: json['phoneNumber'],
+      gender: json['gender'],
+      dob: json['dob'] ?? '',
+      ward: json['ward'],
+      district: json['district'],
+      state: json['state'],
+      aadhaarNumber: json['aadhaarNumber'],
+      profilePictureURL: json['profilePictureURL'],
+      password: json['password'] ?? '',
+    );
+  }
 
   factory MyUser.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if (document.data() != null) {

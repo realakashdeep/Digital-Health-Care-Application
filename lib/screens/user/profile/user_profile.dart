@@ -42,6 +42,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -52,8 +53,12 @@ class _UserProfileState extends State<UserProfile> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: _user != null ? _buildUserProfile() : _buildLoadingIndicator(),
+      body: RefreshIndicator(
+        onRefresh: _fetchUserData, // Function to call when refreshing
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(), // Enable scrolling even when there's not enough content
+          child: _user != null ? _buildUserProfile() : _buildLoadingIndicator(),
+        ),
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -65,7 +70,7 @@ class _UserProfileState extends State<UserProfile> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const EditProfile()),
+                    MaterialPageRoute(builder: (context) => EditProfile(user: _user, userService: _userService)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -115,6 +120,7 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
