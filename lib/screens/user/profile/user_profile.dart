@@ -121,36 +121,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-
-      await _uploadImageToStorage();
-    } else {
-      print('No image selected.');
-    }
-  }
-  Future<void> _uploadImageToStorage() async {
-    try {
-      if (_imageFile != null) {
-        final Reference storageReference = FirebaseStorage.instance.ref().child('pfp/${_user!.userId}');
-
-        final TaskSnapshot uploadTask = await storageReference.putFile(_imageFile!);
-
-        final String downloadURL = await uploadTask.ref.getDownloadURL();
-
-        await _userService.updateUserProfilePicture(_user!.userId, downloadURL);
-      }
-    } catch (error) {
-      print('Error uploading image to Firestore Storage: $error');
-    }
-  }
-
   Widget _buildUserProfile() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -176,6 +146,14 @@ class _UserProfileState extends State<UserProfile> {
             ),
             child: Stack(
               children: [
+                if (_user!.profilePictureURL == null)
+                  Center(
+                    child: Icon(
+                      Icons.account_circle,
+                      size: 100.0,
+                      color: Colors.white,
+                    ),
+                  ),
               ],
             ),
           ),

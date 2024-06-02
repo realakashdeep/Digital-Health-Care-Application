@@ -97,6 +97,7 @@ class AuthProvider extends ChangeNotifier {
               password: userData['password'] ?? '',
               dob: userData['dob'] ?? '',
               ward: userData['ward'] ?? '',
+              profilePictureURL: userData['profilePictureURL'] ?? '',
             );
             Navigator.push(
               context,

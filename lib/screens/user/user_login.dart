@@ -91,8 +91,8 @@ class _UserLoginState extends State<UserLogin> {
                     minimumSize: Size(300, 40),
                   ),
                   child: Text(
-                    tLogin,
-                    style: TextStyle(color: Colors.white),
+                    'Log in',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                 ),
               ],
