@@ -74,7 +74,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
                           'Add Patient Health Record',
                           Icons.medical_information,
                           PatientInfoForm(),
-                        ),
+                        )
                       ],
                     ),
                     SizedBox(height: 40),

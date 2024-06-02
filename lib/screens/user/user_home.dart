@@ -1,6 +1,8 @@
 import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
+import 'package:final_year_project/screens/user/user_ehr_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserHome extends StatelessWidget {
@@ -8,28 +10,37 @@ class UserHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(tHome),
+        title: const Text(
+          tHome,
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 34.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenSize.width * 0.05,
+          vertical: screenSize.height * 0.05,
+        ),
         child: Column(
           children: [
             const SizedBox(height: 15),
             Expanded(
               child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 25.0,
-                mainAxisSpacing: 30.0,
+                crossAxisCount: screenSize.width > 600 ? 4 : 2,
+                crossAxisSpacing: screenSize.width * 0.05,
+                mainAxisSpacing: screenSize.height * 0.05,
                 children: <Widget>[
                   _buildSquareButton(
                     context,
                     icon: Icons.account_circle_rounded,
                     label: 'View Profile',
                     onPressed: () {
-                      // Navigate to the UserProfile page
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => UserProfile()),
@@ -41,8 +52,13 @@ class UserHome extends StatelessWidget {
                     icon: Icons.health_and_safety,
                     label: 'Get Your EHR',
                     onPressed: () {
-                      // Define your function here
-                      print('Get Your EHR button pressed');
+                      User? user = _auth.currentUser;
+                      if (user != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => UserHealthRecordListPage(userId: user.uid.toString())),
+                        );
+                      }
                     },
                   ),
                   _buildSquareButton(
@@ -50,7 +66,6 @@ class UserHome extends StatelessWidget {
                     icon: Icons.local_hospital,
                     label: 'Get HealthCare Details',
                     onPressed: () {
-                      // Define your function here
                       print('Get HealthCare Details button pressed');
                     },
                   ),
@@ -59,7 +74,6 @@ class UserHome extends StatelessWidget {
                     icon: Icons.campaign,
                     label: 'View Ongoing Camps',
                     onPressed: () {
-                      // Navigate to ViewCampsPage
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ViewCamps()),

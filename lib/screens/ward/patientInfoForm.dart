@@ -1,7 +1,8 @@
+import 'package:final_year_project/models/health_record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../provider/patient_data_provider.dart';
+import '../../provider/health_record_data_provider.dart';
 
 class PatientInfoForm extends StatefulWidget {
   @override
@@ -10,11 +11,11 @@ class PatientInfoForm extends StatefulWidget {
 
 class _PatientInfoFormState extends State<PatientInfoForm> {
   final _formKey = GlobalKey<FormState>();
-  final Map<String, dynamic> _patientData = {};
+  final PatientHealthRecord _patientHealthRecord = PatientHealthRecord();
 
   @override
   Widget build(BuildContext context) {
-    final patientDataProvider = Provider.of<PatientDataProvider>(context);
+    final _patientDataProvider = Provider.of<HealthRecordDataProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Patient Information Form'),
@@ -28,15 +29,15 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: 20),
-                PatientIdentificationInfo(patientData: _patientData),
+                PatientIdentificationInfo(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
-                DemographicInfo(patientData: _patientData),
+                DemographicInfo(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
-                MedicalHistory(patientData: _patientData),
+                MedicalHistory(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
-                CurrentHealthStatus(patientData: _patientData),
+                CurrentHealthStatus(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
-                EmergencyContactInfo(patientData: _patientData),
+                EmergencyContactInfo(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
@@ -44,7 +45,7 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         try {
-                          await patientDataProvider.addPatientData(_patientData);
+                          await _patientDataProvider.addPatientData(_patientHealthRecord);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Data successfully saved!'),
@@ -52,7 +53,6 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
                             ),
                           );
 
-                          // Navigate back after a short delay to allow the user to see the SnackBar
                           Future.delayed(Duration(seconds: 2), () {
                             Navigator.pop(context);
                           });
@@ -80,9 +80,9 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
 }
 
 class PatientIdentificationInfo extends StatefulWidget {
-  final Map<String, dynamic> patientData;
+  final PatientHealthRecord healthRecord;
 
-  PatientIdentificationInfo({required this.patientData});
+  PatientIdentificationInfo({required this.healthRecord});
 
   @override
   _PatientIdentificationInfoState createState() =>
@@ -120,7 +120,7 @@ class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
             }
             return null;
           },
-          onSaved: (value) => widget.patientData['userId'] = value,
+          onSaved: (value) => widget.healthRecord.userId = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -135,7 +135,7 @@ class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
             }
             return null;
           },
-          onSaved: (value) => widget.patientData['fullName'] = value,
+          onSaved: (value) => widget.healthRecord.fullName = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -162,7 +162,7 @@ class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
               setState(() {
                 _dobController.text =
                 '${pickedDate.year}-${pickedDate.month}-${pickedDate.day}';
-                widget.patientData['dob'] = _dobController.text;
+                widget.healthRecord.dob = _dobController.text;
               });
             }
           },
@@ -185,19 +185,19 @@ class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
             }
             return null;
           },
-          onSaved: (value) => widget.patientData['gender'] = value,
+          onSaved: (value) => widget.healthRecord.gender = value,
         ),
       ],
     );
   }
 }
 
-// Other Widget classes remain the same
+// Other Widget classes remain the same, using PatientHealthRecord model
 
 class DemographicInfo extends StatelessWidget {
-  final Map<String, dynamic> patientData;
+  final PatientHealthRecord healthRecord;
 
-  DemographicInfo({required this.patientData});
+  DemographicInfo({required this.healthRecord});
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +221,7 @@ class DemographicInfo extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['address'] = value,
+          onSaved: (value) => healthRecord.address = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -239,7 +239,7 @@ class DemographicInfo extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['phoneNumber'] = value,
+          onSaved: (value) => healthRecord.phoneNumber = value,
         ),
       ],
     );
@@ -247,9 +247,9 @@ class DemographicInfo extends StatelessWidget {
 }
 
 class MedicalHistory extends StatelessWidget {
-  final Map<String, dynamic> patientData;
+  final PatientHealthRecord healthRecord;
 
-  MedicalHistory({required this.patientData});
+  MedicalHistory({required this.healthRecord});
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +274,7 @@ class MedicalHistory extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['medicalConditions'] = value,
+          onSaved: (value) => healthRecord.medicalConditions = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -290,7 +290,7 @@ class MedicalHistory extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['surgicalHistory'] = value,
+          onSaved: (value) => healthRecord.surgicalHistory = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -306,7 +306,7 @@ class MedicalHistory extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['familyHistory'] = value,
+          onSaved: (value) => healthRecord.familyHistory = value,
         ),
         SizedBox(height: 16.0),
         TextFormField(
@@ -322,7 +322,7 @@ class MedicalHistory extends StatelessWidget {
             }
             return null;
           },
-          onSaved: (value) => patientData['allergies'] = value,
+          onSaved: (value) => healthRecord.allergies = value,
         ),
       ],
     );
@@ -330,9 +330,9 @@ class MedicalHistory extends StatelessWidget {
 }
 
 class CurrentHealthStatus extends StatelessWidget {
-  final Map<String, dynamic> patientData;
+  final PatientHealthRecord healthRecord;
 
-  CurrentHealthStatus({required this.patientData});
+  CurrentHealthStatus({required this.healthRecord});
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +363,7 @@ class CurrentHealthStatus extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['height'] = value,
+              onSaved: (value) => healthRecord.height = value,
             ),
           ),
           SizedBox(height: 16.0),
@@ -384,7 +384,7 @@ class CurrentHealthStatus extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['weight'] = value,
+              onSaved: (value) => healthRecord.weight = value,
             ),
           ),
           SizedBox(height: 16.0),
@@ -402,7 +402,7 @@ class CurrentHealthStatus extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['bloodPressure'] = value,
+              onSaved: (value) => healthRecord.bloodPressure = value,
             ),
           ),
           SizedBox(height: 16.0),
@@ -423,7 +423,7 @@ class CurrentHealthStatus extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['heartRate'] = value,
+              onSaved: (value) => healthRecord.heartRate = value,
             ),
           ),
         ],
@@ -431,10 +431,11 @@ class CurrentHealthStatus extends StatelessWidget {
     );
   }
 }
-class EmergencyContactInfo extends StatelessWidget {
-  final Map<String, dynamic> patientData;
 
-  EmergencyContactInfo({required this.patientData});
+class EmergencyContactInfo extends StatelessWidget {
+  final PatientHealthRecord healthRecord;
+
+  EmergencyContactInfo({required this.healthRecord});
 
   @override
   Widget build(BuildContext context) {
@@ -462,7 +463,7 @@ class EmergencyContactInfo extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['emergencyContactName'] = value,
+              onSaved: (value) => healthRecord.emergencyContactName = value,
             ),
           ),
           SizedBox(height: 16.0),
@@ -480,7 +481,7 @@ class EmergencyContactInfo extends StatelessWidget {
                 }
                 return null;
               },
-              onSaved: (value) => patientData['relationship'] = value,
+              onSaved: (value) => healthRecord.relationship = value,
             ),
           ),
           SizedBox(height: 16.0),
@@ -502,7 +503,7 @@ class EmergencyContactInfo extends StatelessWidget {
                 return null;
               },
               onSaved: (value) =>
-              patientData['emergencyContactPhone'] = value,
+              healthRecord.emergencyContactPhone = value,
             ),
           ),
         ],
@@ -510,4 +511,3 @@ class EmergencyContactInfo extends StatelessWidget {
     );
   }
 }
-
