@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -21,25 +22,22 @@ class CampsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('Camp').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+          if (userSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          if (snapshot.data!.docs.isEmpty) {
+          if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
             return Center(
               child: Text(
-                'There Are No Current Camps Going On.',
+                'User data not found!',
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 18.0,
@@ -49,67 +47,103 @@ class CampsList extends StatelessWidget {
             );
           }
 
-          return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Camp camp = Camp.fromSnapshot(document);
-              return GestureDetector(
-                onTap: () {
-                  _showCampDetails(context, camp);
-                },
-                child:  Card(
-                  margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 15.0),
-                  elevation: 2.0,
-                  child: Padding(
-                    padding: EdgeInsets.all(25.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: Text(
-                            camp.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          var userDocument = userSnapshot.data!;
+          var userWard = userDocument['ward'];
+
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Camp')
+                .where('uploadedBy', isEqualTo: userWard)
+                .snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.data!.docs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'There Are No Current Camps Going On.',
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 18.0,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              return ListView(
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  Camp camp = Camp.fromSnapshot(document);
+                  return GestureDetector(
+                    onTap: () {
+                      _showCampDetails(context, camp);
+                    },
+                    child: Card(
+                      margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 15.0),
+                      elevation: 2.0,
+                      child: Padding(
+                        padding: EdgeInsets.all(25.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
+                            Center(
                               child: Text(
-                                'Start Date: ${camp.startDate}',
+                                camp.name,
                                 style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20.0,
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: Text(
-                                'End Date: ${camp.lastDate}',
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey[600],
+                            SizedBox(height: 20.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Start Date: ${camp.startDate}',
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Expanded(
+                                  child: Text(
+                                    'End Date: ${camp.lastDate}',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }).toList(),
               );
-              ;
-            }).toList(),
+            },
           );
         },
       ),
     );
   }
+
   void _showCampDetails(BuildContext context, Camp camp) {
     String formattedStartDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.startDate));
     String formattedEndDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.lastDate));

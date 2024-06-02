@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,7 +44,10 @@ class _CurrentCampsPageState extends State<CurrentCampsPage> {
       ),
       drawer: AppDrawer(), // Use the AppDrawer widget here
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('Camp').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('Camp')
+            .where('wardId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -213,7 +217,7 @@ class _CurrentCampsPageState extends State<CurrentCampsPage> {
                             minimumSize: Size(300, 40),
                           ),
                           child: _isSaving
-                              ? CircularProgressIndicator() // Show loading indicator when _isSaving is true
+                              ? CircularProgressIndicator()
                               : Text(
                             'Save',
                             style: TextStyle(
@@ -337,18 +341,19 @@ class _CurrentCampsPageState extends State<CurrentCampsPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                deleteCampFromDatabase(camp.id);
+              onPressed: () async {
+                await deleteCampFromDatabase(camp);
                 Navigator.of(context).pop();
               },
               child: Text(
                 'Delete',
                 style: TextStyle(
-                  color: Colors.red, // Change the color to red for better visibility
+                  color: Colors.red,
                   fontSize: 16.0,
                 ),
               ),
-            ),
+            )
+            ,
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -428,29 +433,63 @@ class _CurrentCampsPageState extends State<CurrentCampsPage> {
     String headDoctor = _headDoctorController.text;
     String lastDate = _lastDateController.text;
 
-    FirebaseFirestore.instance.collection('Camp').add({
-      'campName': campName,
-      'description': description,
-      'startDate': startDate,
-      'address': address,
-      'headDoctor': headDoctor,
-      'lastDate': lastDate,
-    }).then((value) {
-      // Camp data saved successfully
-      print('Camp data saved successfully');
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      print('Error: No user is logged in');
+      return;
+    }
+
+    String uploadedOn = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    FirebaseFirestore.instance.collection('Wards').doc(currentUser.uid).get().then((wardDoc) {
+      if (wardDoc.exists) {
+        String wardNumber = wardDoc.data()?['wardNumber'] ?? '';
+        String wardId = wardDoc.id;
+
+        FirebaseFirestore.instance.collection('Camp').add({
+          'campName': campName,
+          'description': description,
+          'startDate': startDate,
+          'address': address,
+          'headDoctor': headDoctor,
+          'lastDate': lastDate,
+          'uploadedBy': wardNumber,
+          'uploadedOn': uploadedOn,
+          'wardId': wardId,
+        }).then((value) {
+          print('Camp data saved successfully');
+          _campNameController.clear();
+          _descriptionController.clear();
+          _startDateController.clear();
+          _addressController.clear();
+          _headDoctorController.clear();
+          _lastDateController.clear();
+          setState(() {});
+        }).catchError((error) {
+          print('Error saving camp data: $error');
+        });
+      } else {
+        print('Error: Ward document does not exist');
+      }
     }).catchError((error) {
-      // Error occurred while saving camp data
-      print('Error saving camp data: $error');
+      print('Error fetching ward document: $error');
     });
   }
 
-  void deleteCampFromDatabase(String campId) {
-    final firestoreInstance = FirebaseFirestore.instance;
-    final campReference = firestoreInstance.collection('Camp').doc(campId);
-    campReference.delete().then((_) {
-      print('Camp deleted successfully');
-    }).catchError((error) {
-      print('Error deleting camp: $error');
-    });
+  Future<void> deleteCampFromDatabase(Camp camp) async {
+    try {
+      // Add the camp to the ExpiredCamps collection
+      await FirebaseFirestore.instance.collection('expiredCamp').add(camp.toJson());
+
+      // Delete the camp from the Camp collection
+      await FirebaseFirestore.instance.collection('Camp').doc(camp.id).delete();
+
+      print('Camp moved to ExpiredCamps collection and deleted from Camp collection');
+    } catch (error) {
+      print('Failed to delete camp: $error');
+    }
   }
+
+
 }
