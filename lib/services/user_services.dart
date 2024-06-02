@@ -55,6 +55,13 @@ class UserService {
       throw Exception('Error deleting user: $e');
     }
   }
+   Future<void> updateUserProfilePicture(String userId, String profilePictureURL) async {
+     try {
+       await _firestore.collection('Users').doc(userId).update({'profilePictureURL': profilePictureURL});
+     } catch (e) {
+       throw Exception('Error updating user profile picture URL: $e');
+     }
+   }
 
 
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WardModel {
+
   String wardId;
   String wardEmail;
   String wardAddress;

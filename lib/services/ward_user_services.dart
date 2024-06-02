@@ -6,12 +6,8 @@ class WardUserServices {
    FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
-
-  // Create a new ward in Firebase Auth and Firestore
   Future<void> createward(WardModel ward) async {
     try {
-      // Save ward details to Firestore
       await _firestore.collection('Wards').doc(ward.wardId).set(ward.toJson());
     } catch (e) {
       throw Exception('Error creating ward: $e');

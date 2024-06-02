@@ -4,10 +4,13 @@ class Camp {
   final String id;
   final String name;
   final String description;
-  final String startDate; // Change type to String
+  final String startDate;
   final String address;
   final String headDoctor;
-  final String lastDate; // Change type to String
+  final String lastDate;
+  final String uploadedBy;
+  final String uploadedOn;
+  final String wardId; 
 
   Camp({
     required this.id,
@@ -17,6 +20,9 @@ class Camp {
     required this.address,
     required this.headDoctor,
     required this.lastDate,
+    required this.uploadedBy,
+    required this.uploadedOn,
+    required this.wardId,
   });
 
   factory Camp.fromSnapshot(DocumentSnapshot snapshot) {
@@ -29,6 +35,9 @@ class Camp {
       address: data['address'] ?? '',
       headDoctor: data['headDoctor'] ?? '',
       lastDate: data['lastDate'] ?? '',
+      uploadedBy: data['uploadedBy'] ?? '',
+      uploadedOn: data['uploadedOn'] ?? '',
+      wardId: data['wardId'] ?? '', // New field
     );
   }
 
@@ -40,6 +49,9 @@ class Camp {
       'address': address,
       'headDoctor': headDoctor,
       'lastDate': lastDate,
+      'uploadedBy': uploadedBy,
+      'uploadedOn': uploadedOn,
+      'wardId': wardId, // New field
     };
   }
 }
