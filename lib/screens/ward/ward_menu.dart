@@ -1,4 +1,5 @@
 import 'package:final_year_project/screens/ward/patientInfoForm.dart';
+import 'package:final_year_project/screens/ward/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -58,9 +59,9 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'Update HealthCentre',
+                          'View And Update Ward Details',
                           Icons.local_hospital,
-                          null,
+                          WardProfilePage(),
                         ),
                         buildMenuButtonWithIcon(
                           context,

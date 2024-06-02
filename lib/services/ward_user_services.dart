@@ -14,7 +14,6 @@ class WardUserServices {
     }
   }
 
-  // Retrieve a ward from Firestore using the wardId
   Future<WardModel?> getward(String wardId) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> doc = await _firestore.collection('Wards').doc(wardId).get();
@@ -28,7 +27,6 @@ class WardUserServices {
     }
   }
 
-  // Update ward details in Firestore
   Future<void> updateward(WardModel ward) async {
     try {
       await _firestore.collection('Wards').doc(ward.wardId).update(ward.toJson());
@@ -37,7 +35,6 @@ class WardUserServices {
     }
   }
 
-  // Delete a ward from Firebase Auth and Firestore
   Future<void> deleteward(String wardId) async {
     try {
       // Delete ward from Firebase Auth
@@ -45,16 +42,12 @@ class WardUserServices {
       if (ward != null && ward.uid == wardId) {
         await ward.delete();
       }
-      // Delete ward document from Firestore
       await _firestore.collection('Wards').doc(wardId).delete();
     } catch (e) {
       throw Exception('Error deleting ward: $e');
     }
   }
 
-
-
-  // Sign out the current ward
   Future<void> signOut() async {
     try {
       await _auth.signOut();
@@ -62,4 +55,14 @@ class WardUserServices {
       throw Exception('Error signing out: $e');
     }
   }
+
+   Future<String?> getCurrentUserId() async {
+     try {
+       User? user = _auth.currentUser;
+       return user?.uid;
+     } catch (e) {
+       throw Exception('Error fetching user ID: $e');
+     }
+   }
+
 }
