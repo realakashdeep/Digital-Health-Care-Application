@@ -1,9 +1,12 @@
-
 import 'package:final_year_project/provider/ward_user_provider.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/ward_auth_provider.dart';
+import '../../provider/care_givers_auth_provider.dart';
+import '../../provider/doctors_auth_provider.dart';
+import 'care_givers/careGiversMenu.dart';
+import 'doctors/doctorsMenuPage.dart';
 
 class WardLoginPage extends StatefulWidget {
   @override
@@ -11,20 +14,17 @@ class WardLoginPage extends StatefulWidget {
 }
 
 class _WardLoginPageState extends State<WardLoginPage> {
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _wardIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-
   bool _isLoading = false;
+  bool _obscureText = true; // Initially obscure the password
+  String _selectedRole = 'Ward'; // Default selected role
 
   @override
   Widget build(BuildContext context) {
-    final wardAuthProvider = Provider.of<WardAuthProvider>(context);
-    final wardUserProvider = Provider.of<WardUserProvider>(context);
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -43,13 +43,38 @@ class _WardLoginPageState extends State<WardLoginPage> {
                 children: [
                   SizedBox(height: 22),
                   Text(
-                    'Ward Login',
+                    'Login',
                     style: TextStyle(fontSize: 24),
                   ),
                   SizedBox(height: 40),
-                  buildTextField(_emailController, 'Email', 'Enter Ward Email'),
+                  // Dropdown menu
+                  DropdownButtonFormField<String>(
+                    value: _selectedRole,
+                    items: <String>['Ward', 'Care Givers', 'Doctor']
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedRole = newValue!;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Log In As',
+                      contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 16),
-                  buildTextField(_passwordController, 'Password', 'Enter Ward Password', obscureText: true),
+                  buildTextField(_emailController, 'Email', 'Enter Email'),
+                  SizedBox(height: 16),
+                  buildTextField(_passwordController, 'Password', 'Enter Password', obscureText: _obscureText),
                   SizedBox(height: 30),
                   _isLoading
                       ? CircularProgressIndicator()
@@ -59,29 +84,18 @@ class _WardLoginPageState extends State<WardLoginPage> {
                         setState(() {
                           _isLoading = true;
                         });
+
                         try {
-                          await wardAuthProvider.signIn(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
-                          final ward = wardAuthProvider.ward;
-                          if (ward != null) {
-                            await wardUserProvider.fetchUser(ward.wardId);
-                            final db_ward = wardUserProvider.user;
-                            if (db_ward == null) {
-                              await wardUserProvider.addUser(ward);
-                            }
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WardMenuPage(),
-                              ),
-                                  (route) => false,
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Login failed: Wrong Credentials')),
-                            );
+                          switch (_selectedRole) {
+                            case 'Ward':
+                              await _handleWardLogin(context);
+                              break;
+                            case 'Care Givers':
+                              await _handleCareGiversLogin(context);
+                              break;
+                            case 'Doctor':
+                              await _handleDoctorLogin(context);
+                              break;
                           }
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -110,6 +124,79 @@ class _WardLoginPageState extends State<WardLoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleWardLogin(BuildContext context) async {
+    final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
+    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
+
+    await wardAuthProvider.signIn(_emailController.text, _passwordController.text);
+    final ward = wardAuthProvider.ward;
+
+    if (ward != null) {
+      await wardUserProvider.fetchUser(ward.wardId);
+      final db_ward = wardUserProvider.user;
+
+      if (db_ward == null) {
+        await wardUserProvider.addUser(ward);
+      }
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => WardMenuPage()),
+            (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: Wrong Credentials')),
+      );
+    }
+  }
+
+  Future<void> _handleCareGiversLogin(BuildContext context) async {
+    final careGiversAuthProvider = Provider.of<CareGiversAuthProvider>(context, listen: false);
+
+    try {
+      await careGiversAuthProvider.signIn(_emailController.text, _passwordController.text);
+      final user = careGiversAuthProvider.user;
+
+      if (user != null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => CareGiversMenuPage()),
+              (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: Wrong Credentials')),
+        );
+      }
+    } catch (error) {
+      // Handle any errors that occur during the sign-in process
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: $error')),
+      );
+    }
+  }
+
+
+  Future<void> _handleDoctorLogin(BuildContext context) async {
+    final doctorsAuthProvider = Provider.of<DoctorsAuthProvider>(context, listen: false);
+
+    await doctorsAuthProvider.signIn(_emailController.text, _passwordController.text);
+    final doctor = doctorsAuthProvider.doctor;
+
+    if (doctor != null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => DoctorsMenuPage()),
+            (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: Wrong Credentials')),
+      );
+    }
   }
 
   Widget buildTextField(TextEditingController controller, String labelText, String hintText, {bool obscureText = false}) {
@@ -157,6 +244,16 @@ class _WardLoginPageState extends State<WardLoginPage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
+          suffixIcon: labelText == 'Password'
+              ? IconButton(
+            icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+          )
+              : null,
         ),
       ),
     );

@@ -106,7 +106,7 @@ class _EditProfileState extends State<EditProfile> {
       ),
       child: Stack(
         children: [
-          if (_imageFile == null && widget.user?.profilePictureURL == null)
+          if ((_imageFile == null && widget.user?.profilePictureURL == null) || (widget.user?.profilePictureURL == ''))
             Center(
               child: Icon(
                 Icons.account_circle,

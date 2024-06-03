@@ -17,15 +17,15 @@ class UserHome extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           tHome,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 24),
         ),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: screenSize.width * 0.05,
-          vertical: screenSize.height * 0.05,
+          horizontal: screenSize.width * 0.1,
+          vertical: screenSize.height * 0.06,
         ),
         child: Column(
           children: [
@@ -34,7 +34,7 @@ class UserHome extends StatelessWidget {
               child: GridView.count(
                 crossAxisCount: screenSize.width > 600 ? 4 : 2,
                 crossAxisSpacing: screenSize.width * 0.05,
-                mainAxisSpacing: screenSize.height * 0.05,
+                mainAxisSpacing: screenSize.height * 0.03,
                 children: <Widget>[
                   _buildSquareButton(
                     context,
@@ -94,8 +94,6 @@ class UserHome extends StatelessWidget {
         required String label,
         required VoidCallback onPressed}) {
     return SizedBox(
-      width: 80, // Reduced button width
-      height: 120, // Reduced button height
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -108,7 +106,7 @@ class UserHome extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(icon, size: 55.0, color: Colors.white), // Icon size and color
+            Icon(icon, size: 45.0, color: Colors.white), // Icon size and color
             const SizedBox(height: 8.0),
             Text(
               label,

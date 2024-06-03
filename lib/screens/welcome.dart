@@ -58,15 +58,15 @@ class WelcomePage extends StatelessWidget {
                 child: Text('Sign Up',style: TextStyle(color: Colors.white, fontSize: 20)),
                 ),
               SizedBox(height: 12),  // Fill the available space between buttons and "Skip" text
-              GestureDetector(
-                onTap: () {
-                  // Handle the "Skip" action
-                },
-                child: Text(
-                  tSkip,
-                  style: TextStyle(fontSize: 20, color: Colors.blue),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     // Handle the "Skip" action
+              //   },
+              //   child: Text(
+              //     tSkip,
+              //     style: TextStyle(fontSize: 20, color: Colors.blue),
+              //   ),
+              // ),
               Spacer(),
               ElevatedButton(
                 onPressed: () {

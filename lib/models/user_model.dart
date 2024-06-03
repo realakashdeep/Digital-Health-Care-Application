@@ -11,7 +11,7 @@ class MyUser {
   String state;
   String district;
   String ward;
-  String? profilePictureURL; // Add profileImageUrl property
+  String? profilePictureURL;
 
   MyUser({
     required this.userId,

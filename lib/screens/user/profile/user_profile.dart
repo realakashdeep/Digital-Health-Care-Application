@@ -145,7 +145,7 @@ class _UserProfileState extends State<UserProfile> {
             ),
             child: Stack(
               children: [
-                if (_user!.profilePictureURL == null)
+                if (_user!.profilePictureURL == null || _user!.profilePictureURL == '')
                   Center(
                     child: Icon(
                       Icons.account_circle,
