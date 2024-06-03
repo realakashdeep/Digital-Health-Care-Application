@@ -1,6 +1,8 @@
 import 'package:final_year_project/provider/health_record_data_provider.dart';
 import 'package:final_year_project/provider/ward_auth_provider.dart';
 import 'package:final_year_project/provider/ward_user_provider.dart';
+import 'package:final_year_project/provider/care_givers_auth_provider.dart'; // Add this import
+import 'package:final_year_project/provider/doctors_auth_provider.dart'; // Add this import
 import 'package:final_year_project/screens/ward/patientInfoForm.dart';
 import 'package:final_year_project/screens/user/user_signup.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
@@ -27,7 +29,9 @@ void main() async {
         ChangeNotifierProvider(create: (context) => MyAuthProvider.AuthProvider()),
         ChangeNotifierProvider(create: (context) => WardAuthProvider()),
         ChangeNotifierProvider(create: (context) => WardUserProvider()),
-        ChangeNotifierProvider(create: (context) => HealthRecordDataProvider())
+        ChangeNotifierProvider(create: (context) => HealthRecordDataProvider()),
+        ChangeNotifierProvider(create: (context) => CareGiversAuthProvider()), // Add this provider
+        ChangeNotifierProvider(create: (context) => DoctorsAuthProvider()), // Add this provider
       ],
       child: MyApp(),
     ),

@@ -15,7 +15,6 @@ class WardLoginPage extends StatefulWidget {
 
 class _WardLoginPageState extends State<WardLoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _wardIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
@@ -127,6 +126,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
   }
 
   Future<void> _handleWardLogin(BuildContext context) async {
+
     final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
     final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
 
@@ -157,6 +157,13 @@ class _WardLoginPageState extends State<WardLoginPage> {
     final careGiversAuthProvider = Provider.of<CareGiversAuthProvider>(context, listen: false);
 
     try {
+      if (!isCareGiverEmail(_emailController.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please provide a valid care giver email.')),
+        );
+        return;
+      }
+
       await careGiversAuthProvider.signIn(_emailController.text, _passwordController.text);
       final user = careGiversAuthProvider.user;
 
@@ -180,24 +187,40 @@ class _WardLoginPageState extends State<WardLoginPage> {
   }
 
 
+
   Future<void> _handleDoctorLogin(BuildContext context) async {
     final doctorsAuthProvider = Provider.of<DoctorsAuthProvider>(context, listen: false);
 
-    await doctorsAuthProvider.signIn(_emailController.text, _passwordController.text);
-    final doctor = doctorsAuthProvider.doctor;
+    try {
+      if (!isDoctorEmail(_emailController.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please provide a valid doctor email.')),
+        );
+        return;
+      }
 
-    if (doctor != null) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => DoctorsMenuPage()),
-            (route) => false,
-      );
-    } else {
+      await doctorsAuthProvider.signIn(_emailController.text, _passwordController.text);
+      final doctor = doctorsAuthProvider.doctor;
+
+      if (doctor != null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => DoctorsMenuPage()),
+              (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: Wrong Credentials')),
+        );
+      }
+    } catch (error) {
+      // Handle any errors that occur during the sign-in process
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: Wrong Credentials')),
+        SnackBar(content: Text('Login failed: $error')),
       );
     }
   }
+
 
   Widget buildTextField(TextEditingController controller, String labelText, String hintText, {bool obscureText = false}) {
     return Container(
@@ -257,5 +280,15 @@ class _WardLoginPageState extends State<WardLoginPage> {
         ),
       ),
     );
+  }
+
+  bool isCareGiverEmail(String email) {
+    String lowercaseEmail = email.toLowerCase();
+    return lowercaseEmail.contains('care');
+  }
+
+  bool isDoctorEmail(String email) {
+    String lowercaseEmail = email.toLowerCase();
+    return lowercaseEmail.contains('care');
   }
 }
