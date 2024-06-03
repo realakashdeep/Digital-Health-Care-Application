@@ -10,7 +10,7 @@ class WardUserProvider with ChangeNotifier {
   WardModel? get user => _user;
 
   Future<void> fetchUser(String id) async {
-    _user = await _wardService.getward(id);
+    _user = await _wardService.getWard(id);
     notifyListeners();
   }
 

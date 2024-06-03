@@ -14,20 +14,21 @@ class WardUserServices {
     }
   }
 
-  Future<WardModel?> getward(String wardId) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> doc = await _firestore.collection('Wards').doc(wardId).get();
-      if (doc.exists) {
-        return WardModel.fromSnapshot(doc);
-      } else {
-        return null;
-      }
-    } catch (e) {
-      throw Exception('Error fetching ward: $e');
-    }
-  }
+   Future<WardModel?> getWard(String wardId) async {
+     try {
+       DocumentSnapshot<Map<String, dynamic>> doc = await _firestore.collection('Wards').doc(wardId).get();
+       if (doc.exists) {
+         return WardModel.fromSnapshot(doc);
+       } else {
+         return null;
+       }
+     } catch (e) {
+       throw Exception('Error fetching ward: $e');
+     }
+   }
 
-  Future<void> updateward(WardModel ward) async {
+
+   Future<void> updateward(WardModel ward) async {
     try {
       await _firestore.collection('Wards').doc(ward.wardId).update(ward.toJson());
     } catch (e) {

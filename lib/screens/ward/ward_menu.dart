@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/screens/ward/patientInfoForm.dart';
 import 'package:final_year_project/screens/ward/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../models/doctors_model.dart';
+import '../../models/ward_model.dart';
 import '../../provider/ward_auth_provider.dart';
+import '../../provider/ward_user_provider.dart';
+import '../../services/doctor_services.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
 
@@ -74,7 +79,14 @@ class _WardMenuPageState extends State<WardMenuPage> {
                           'Add Patient Health Record',
                           Icons.medical_information,
                           PatientInfoForm(),
-                        )
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
+                          'Register Care Giver/Doctor',
+                          Icons.medical_information,
+                          null,
+                          onTap: () => _showCareGiverDoctorDialog(context),
+                        ),
                       ],
                     ),
                     SizedBox(height: 40),
@@ -111,7 +123,6 @@ class _WardMenuPageState extends State<WardMenuPage> {
       ),
     );
   }
-
   Widget buildMenuButton(BuildContext context, String label, String assetPath, Widget? page) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -156,14 +167,14 @@ class _WardMenuPageState extends State<WardMenuPage> {
     );
   }
 
-  Widget buildMenuButtonWithIcon(BuildContext context, String label, IconData icon, Widget? page) {
+  Widget buildMenuButtonWithIcon(BuildContext context, String label, IconData icon, Widget? page, {VoidCallback? onTap}) {
     return LayoutBuilder(
       builder: (context, constraints) {
         double iconSize = constraints.maxWidth * 0.25; // Increased icon size factor
         double textSize = constraints.maxWidth * 0.10; // Increased text size factor
 
         return ElevatedButton(
-          onPressed: () {
+          onPressed: onTap ?? () {
             if (page != null) {
               Navigator.push(
                 context,
@@ -198,6 +209,183 @@ class _WardMenuPageState extends State<WardMenuPage> {
       },
     );
   }
+
+  void _showCareGiverDoctorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Register')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.person_add),
+                title: Text('Register Care Giver'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showRegisterCareGiverDialog(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person_add),
+                title: Text('Register Doctor'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showRegisterDoctorDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showRegisterCareGiverDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Register Care Giver')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                decoration: InputDecoration(labelText: 'Care Giver Name'),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Ward Number'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle the registration logic here
+                  Navigator.of(context).pop();
+                },
+                child: Text('Register'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showRegisterDoctorDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
+    final DoctorsService _doctorsService = DoctorsService();
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    late WardModel _ward;
+    final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
+    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Register Doctor')),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(labelText: 'Doctor Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the doctor\'s name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the email';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the password';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      String? userId = await wardUserProvider.getCurrentUserId();
+
+                      if (userId != null) {
+                        WardModel? wardUser = await wardUserProvider.getWard(userId);
+
+                        if (wardUser != null) {
+                          String? wardNumber = wardUser.wardNumber;
+
+                          Doctor doctor = Doctor(
+                            name: _nameController.text,
+                            email: _emailController.text,
+                            wardNumber: wardNumber,
+                            password: _passwordController.text,
+                          );
+                          await _doctorsService.addDoctor(doctor);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Doctor registered successfully')),
+                          );
+                          Navigator.of(context).pop();
+                        } else {
+                          // Handle the case when the ward user is not available
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: Ward information not available')),
+                          );
+                        }
+                      } else {
+                        // Handle the case when the user ID is not available
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: User ID not available')),
+                        );
+                      }
+                    }
+                  },
+
+
+
+
+
+
+
+                  child: Text('Register'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
+
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
