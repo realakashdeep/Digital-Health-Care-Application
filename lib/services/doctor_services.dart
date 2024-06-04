@@ -1,19 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import '../models/doctors_model.dart';
 
 class DoctorsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Add a new doctor document to Firestore
   Future<void> addDoctor(Doctor doctor) async {
+    final querySnapshot = await _firestore.collection('doctors').where('email', isEqualTo: doctor.email).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      throw Exception('A doctor with this email already exists');
+    }
     try {
-      await _firestore.collection('doctors').doc(doctor.email).set(doctor.toMap());
+      await _firestore.collection('doctors').add(doctor.toMap());
+
     } catch (e) {
+      print(e);
       throw e;
     }
   }
+
 
   // Retrieve doctor data from Firestore based on email
   Future<Doctor?> getDoctor(String email) async {

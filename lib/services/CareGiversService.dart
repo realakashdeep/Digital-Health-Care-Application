@@ -6,30 +6,57 @@ class CareGiversService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Sign in method
+  Future<bool> checkIfUserExists(String email) async {
+      List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
+      return signInMethods.isNotEmpty;
+  }
+
+  // Sign in or create a user
   Future<User?> signIn(String email, String password) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential.user;
+      bool userExists = await checkIfUserExists(email);
+
+      if (userExists) {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        return userCredential.user;
+      } else {
+        // User does not exist, create user
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        return userCredential.user;
+      }
     } catch (e) {
+      // Handle errors
+      print('Error during sign-in or sign-up: $e');
       throw e;
     }
   }
 
-  // Add a new caregiver document to Firestore
-  Future<void> addCareGiver(String uid, String name, String email, String wardNumber) async {
+  Future<void> addCareGiver(String name, String email, String wardNumber, String password) async {
+    User? currentUser = _auth.currentUser;
+
     try {
-      await _firestore.collection('caregivers').doc(uid).set({
+      // Check if a caregiver with the same email already exists
+      final querySnapshot = await _firestore.collection('caregivers').where('email', isEqualTo: email).get();
+      if (querySnapshot.docs.isNotEmpty) {
+        throw Exception('A caregiver with this email already exists');
+      }
+      await _firestore.collection('caregivers').add({
         'name': name,
         'email': email,
         'wardNumber': wardNumber,
+        'password': password,
       });
     } catch (e) {
       throw e;
     }
   }
+
 
   // Retrieve caregiver data from Firestore based on UID
   Future<Map<String, dynamic>?> getCareGiver(String uid) async {

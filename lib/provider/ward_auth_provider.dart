@@ -29,29 +29,39 @@ class WardAuthProvider with ChangeNotifier {
     }
 
     // Perform authentication
-    final signInResult = await _authService.signIn(email, password, wardNumber.toString());
+    WardModel? signInResult = await _authService.signIn(email, password, wardNumber.toString());
 
     if (signInResult != null) {
-      _ward = await fetchWardInfo(wardNumber);
-    } else {
+      print("signed in as Ward");
+      _ward = await fetchWardInfo(email);
     }
-
+    else {
+    }
     notifyListeners();
   }
 
-  Future<WardModel?> fetchWardInfo(int wardNumber) async {
+  Future<WardModel?> fetchWardInfo(String email) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('Wards').doc('wardNumber').get();
-      if (snapshot.exists) {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('Wards')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot<Map<String, dynamic>> snapshot = querySnapshot.docs.first;
+
         return WardModel.fromSnapshot(snapshot);
+      } else {
+        print("ward is null");
+        return null;
       }
-      return null;
     } catch (e) {
       print("Error fetching ward information: $e");
       return null;
     }
   }
+
+
 
   Future<void> signOut() async {
     await _authService.signOut();

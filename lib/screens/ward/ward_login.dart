@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:final_year_project/provider/ward_user_provider.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/ward_auth_provider.dart';
@@ -126,100 +131,145 @@ class _WardLoginPageState extends State<WardLoginPage> {
   }
 
   Future<void> _handleWardLogin(BuildContext context) async {
-
-    final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
-    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
-
-    await wardAuthProvider.signIn(_emailController.text, _passwordController.text);
-    final ward = wardAuthProvider.ward;
-
-    if (ward != null) {
-      await wardUserProvider.fetchUser(ward.wardId);
-      final db_ward = wardUserProvider.user;
-
-      if (db_ward == null) {
-        await wardUserProvider.addUser(ward);
+    try {
+      // Check if the ward email exists
+      bool exists = await _checkWardEmailExists('Wards', _emailController.text);
+      if (!exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ward email not found')),
+        );
+        return;
       }
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => WardMenuPage()),
-            (route) => false,
-      );
-    } else {
+      // Sign in the ward user
+      final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
+      await wardAuthProvider.signIn(_emailController.text, _passwordController.text);
+      final ward = wardAuthProvider.ward;
+
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => WardMenuPage()),
+              (route) => false,
+        );
+
+    } catch (error) {
+      // Handle other errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: Wrong Credentials')),
+        SnackBar(content: Text('failed login: $error')),
       );
     }
   }
+
+
 
   Future<void> _handleCareGiversLogin(BuildContext context) async {
     final careGiversAuthProvider = Provider.of<CareGiversAuthProvider>(context, listen: false);
 
     try {
-      if (!isCareGiverEmail(_emailController.text)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please provide a valid care giver email.')),
-        );
-        return;
-      }
 
-      await careGiversAuthProvider.signIn(_emailController.text, _passwordController.text);
-      final user = careGiversAuthProvider.user;
+      bool exists = await _checkEmailExists('caregivers', _emailController.text);
+      bool passExists = await _checkPassExists('caregivers', _passwordController.text);
+      print(exists);
+      if (exists && passExists) {
+        print("mail & pass exists");
+        await careGiversAuthProvider.signIn(_emailController.text, _passwordController.text);
 
-      if (user != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => CareGiversMenuPage()),
-              (route) => false,
-        );
+
+          print("user is  not null ");
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => CareGiversMenuPage()),
+                (route) => false,
+          );
+
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: Wrong Credentials')),
-        );
+        print("Wrong Credentials");
+        if(exists && !passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Password does not match.')),
+          );
+        else if(!exists && passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Mail does not exist. Register First.')),
+          );
+        else if(!exists && !passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Wrong Credentials')),
+          );
       }
     } catch (error) {
-      // Handle any errors that occur during the sign-in process
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: $error')),
       );
     }
   }
-
-
-
   Future<void> _handleDoctorLogin(BuildContext context) async {
+    User? _user;
     final doctorsAuthProvider = Provider.of<DoctorsAuthProvider>(context, listen: false);
+    bool passExists = await _checkPassExists('doctors', _passwordController.text);
+    bool exists = await _checkEmailExists('doctors', _emailController.text);
 
     try {
-      if (!isDoctorEmail(_emailController.text)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please provide a valid doctor email.')),
-        );
-        return;
-      }
+      print(exists && passExists);
 
-      await doctorsAuthProvider.signIn(_emailController.text, _passwordController.text);
-      final doctor = doctorsAuthProvider.doctor;
+      if (exists && passExists) {
+        print("exists.");
+        _user = await doctorsAuthProvider.signIn(_emailController.text, _passwordController.text);
 
-      if (doctor != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => DoctorsMenuPage()),
-              (route) => false,
-        );
+        if (_user != null) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DoctorsMenuPage()),
+                (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: User not found after sign-in')),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: Wrong Credentials')),
-        );
+        if(exists && !passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Password does not match.')),
+          );
+        else if(!exists && passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Mail does not exist. Register First.')),
+          );
+        else if(!exists && !passExists)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Wrong Credentials')),
+          );
       }
     } catch (error) {
-      // Handle any errors that occur during the sign-in process
+      print("Error during login: $error"); // Log the error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $error')),
+        SnackBar(content: Text('Login failed: ${error.toString()}')),
       );
+      if(exists && !passExists)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Password does not match.')),
+        );
+      else if(!exists && passExists)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Mail does not exist. Register First.')),
+        );
+      else if(!exists && !passExists)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Wrong Credentials')),
+        );
     }
   }
+
+
+  String _encryptPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    print(digest);
+    return digest.toString();
+  }
+
 
 
   Widget buildTextField(TextEditingController controller, String labelText, String hintText, {bool obscureText = false}) {
@@ -282,13 +332,41 @@ class _WardLoginPageState extends State<WardLoginPage> {
     );
   }
 
-  bool isCareGiverEmail(String email) {
-    String lowercaseEmail = email.toLowerCase();
-    return lowercaseEmail.contains('care');
+  Future<bool> _checkEmailExists(String collection, String email) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+    if(querySnapshot.docs.isNotEmpty)
+      print("email exists");
+    else
+      print("email does not exist");
+    return querySnapshot.docs.isNotEmpty;
+  }
+  Future<bool> _checkPassExists(String collection, String email) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .where('password', isEqualTo: email)
+        .limit(1)
+        .get();
+    if(querySnapshot.docs.isNotEmpty)
+      print("pass exists");
+    else
+      print("pass does not exist");
+    return querySnapshot.docs.isNotEmpty;
   }
 
-  bool isDoctorEmail(String email) {
-    String lowercaseEmail = email.toLowerCase();
-    return lowercaseEmail.contains('care');
+  Future<bool> _checkWardEmailExists(String collection, String email) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .where('wardEmail', isEqualTo: email)
+        .limit(1)
+        .get();
+    if(querySnapshot.docs.isNotEmpty)
+      print("email exists");
+    else
+      print("email does not exist");
+    return querySnapshot.docs.isNotEmpty;
   }
 }
