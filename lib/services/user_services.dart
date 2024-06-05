@@ -6,13 +6,33 @@ class UserService {
    FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+   Future<String?> getCurrentUserId() async {
+     return _auth.currentUser?.uid;
+   }
 
+   Future<MyUser?> getUserByAadhaar(String aadhaarNumber) async {
+     try {
+       final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+           .collection('Users').where('aadhaarNumber', isEqualTo: aadhaarNumber).get();
+
+       if (snapshot.docs.isNotEmpty) {
+         final userDoc = snapshot.docs.first;
+         return MyUser.fromSnapshot(userDoc);
+       } else {
+         return null; // No user found with the given Aadhaar number
+       }
+     } catch (e) {
+       print('Error retrieving user by Aadhaar number: $e');
+       return null;
+     }
+   }
 
   // Create a new user in Firebase Auth and Firestore
   Future<void> createUser(MyUser user) async {
     try {
       // Save user details to Firestore
       await _firestore.collection('Users').doc(user.userId).set(user.toJson());
+      await _firestore.collection('BasicUser').doc(user.userId).set(user.toJson());
     } catch (e) {
       throw Exception('Error creating user: $e');
     }

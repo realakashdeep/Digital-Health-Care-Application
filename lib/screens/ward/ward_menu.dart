@@ -81,12 +81,6 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'Add Patient Health Record',
-                          Icons.medical_information,
-                          PatientInfoForm(),
-                        ),
-                        buildMenuButtonWithIcon(
-                          context,
                           'Register Care Giver/Doctor',
                           Icons.medical_information,
                           null,

@@ -1,7 +1,13 @@
 import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/models/health_record_model.dart';
+import 'package:final_year_project/screens/user/health_centre_details.dart';
 import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
 import 'package:final_year_project/screens/user/user_ehr_list.dart';
+import 'package:final_year_project/screens/ward/care_givers/careGiversForm.dart';
+import 'package:final_year_project/screens/ward/care_givers/appointment_list.dart';
+import 'package:final_year_project/screens/ward/doctors/appointment.dart';
+import 'package:final_year_project/screens/ward/patientInfoForm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,24 +55,13 @@ class UserHome extends StatelessWidget {
                   ),
                   _buildSquareButton(
                     context,
-                    icon: Icons.health_and_safety,
-                    label: 'Get Your EHR',
-                    onPressed: () {
-                      User? user = _auth.currentUser;
-                      if (user != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => UserHealthRecordListPage(userId: user.uid.toString())),
-                        );
-                      }
-                    },
-                  ),
-                  _buildSquareButton(
-                    context,
                     icon: Icons.local_hospital,
-                    label: 'Get HealthCare Details',
+                    label: 'HealthCare Details',
                     onPressed: () {
-                      print('Get HealthCare Details button pressed');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HealthCentreDetailsPage()),
+                      );
                     },
                   ),
                   _buildSquareButton(
@@ -77,6 +72,39 @@ class UserHome extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ViewCamps()),
+                      );
+                    },
+                  ),
+                  _buildSquareButton(
+                    context,
+                    icon: Icons.campaign,
+                    label: 'Add Basic HealthRecord',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PatientInfoForm()),
+                      );
+                    },
+                  ),
+                  _buildSquareButton(
+                    context,
+                    icon: Icons.campaign,
+                    label: 'CareGivers Medical Form',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CareGiversForm()),
+                      );
+                    },
+                  ),
+                  _buildSquareButton(
+                    context,
+                    icon: Icons.campaign,
+                    label: 'Doctor\'s Appointments',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AppointmentList()),
                       );
                     },
                   ),

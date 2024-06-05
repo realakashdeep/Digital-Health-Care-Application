@@ -14,6 +14,8 @@ class AuthProvider extends ChangeNotifier {
   // Getter for authStateChanges stream
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+
+
   Future<bool> checkIfNumberRegistered(String phoneNumber) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance

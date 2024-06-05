@@ -1,9 +1,8 @@
 class PatientHealthRecord {
   String? userId;
   String? fullName;
-  String? dob;
   String? gender;
-  String? address;
+  String? dob;
   String? phoneNumber;
   String? medicalConditions;
   String? surgicalHistory;
@@ -11,19 +10,16 @@ class PatientHealthRecord {
   String? allergies;
   String? height;
   String? weight;
-  String? bloodPressure;
-  String? heartRate;
   String? emergencyContactName;
   String? relationship;
   String? emergencyContactPhone;
-  String? timeStamp;
+  String? lastUpdated;
 
   PatientHealthRecord({
     this.userId,
     this.fullName,
-    this.dob,
     this.gender,
-    this.address,
+    this.dob,
     this.phoneNumber,
     this.medicalConditions,
     this.surgicalHistory,
@@ -31,43 +27,37 @@ class PatientHealthRecord {
     this.allergies,
     this.height,
     this.weight,
-    this.bloodPressure,
-    this.heartRate,
     this.emergencyContactName,
     this.relationship,
     this.emergencyContactPhone,
-    this.timeStamp
+    this.lastUpdated
   });
 
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
       'fullName': fullName,
-      'dob': dob,
-      'gender': gender,
-      'address': address,
-      'phoneNumber': phoneNumber,
+      'gender' : gender,
+      'dob' : dob,
+      'phoneNumber' : phoneNumber,
       'medicalConditions': medicalConditions,
       'surgicalHistory': surgicalHistory,
       'familyHistory': familyHistory,
       'allergies': allergies,
       'height': height,
       'weight': weight,
-      'bloodPressure': bloodPressure,
-      'heartRate': heartRate,
       'emergencyContactName': emergencyContactName,
       'relationship': relationship,
       'emergencyContactPhone': emergencyContactPhone,
-      'timeStamp': timeStamp
+      'timeStamp': lastUpdated
     };
   }
   factory PatientHealthRecord.fromJson(Map<String, dynamic> json) {
     return PatientHealthRecord(
       userId: json['userId'],
       fullName: json['fullName'],
-      dob: json['dob'],
       gender: json['gender'],
-      address: json['address'],
+      dob: json['dob'],
       phoneNumber: json['phoneNumber'],
       medicalConditions: json['medicalConditions'],
       surgicalHistory: json['surgicalHistory'],
@@ -75,12 +65,10 @@ class PatientHealthRecord {
       allergies: json['allergies'],
       height: json['height'],
       weight: json['weight'],
-      bloodPressure: json['bloodPressure'],
-      heartRate: json['heartRate'],
       emergencyContactName: json['emergencyContactName'],
       relationship: json['relationship'],
       emergencyContactPhone: json['emergencyContactPhone'],
-      timeStamp: json['timeStamp']
+      lastUpdated: json['lastUpdated']
     );
   }
 }

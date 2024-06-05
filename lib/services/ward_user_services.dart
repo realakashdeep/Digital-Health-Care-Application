@@ -13,6 +13,24 @@ class WardUserServices {
       throw Exception('Error creating ward: $e');
     }
   }
+   Future<WardModel?> getUserByWardNumber(String WardNumber) async {
+     try {
+       final QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+           .collection('Wards')
+           .where('wardNumber', isEqualTo: WardNumber)
+           .get();
+
+       if (snapshot.docs.isNotEmpty) {
+         final userDoc = snapshot.docs.first;
+         return WardModel.fromSnapshot(userDoc);
+       } else {
+         return null; // No user found with the given Aadhaar number
+       }
+     } catch (e) {
+       print('Error retrieving user by Ward number: $e');
+       return null;
+     }
+   }
 
    Future<WardModel?> getWard(String wardId) async {
      try {

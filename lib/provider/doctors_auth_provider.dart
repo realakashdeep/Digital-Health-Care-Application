@@ -80,4 +80,5 @@ class DoctorsAuthProvider with ChangeNotifier {
     _user = null;
     notifyListeners();
   }
+
 }
