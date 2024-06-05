@@ -5,12 +5,14 @@ class Doctor {
   final String email;
   final String wardNumber;
   final String password;
+  final bool isDoctor; // New field
 
   Doctor({
     required this.name,
     required this.email,
     required this.wardNumber,
     required this.password,
+    required this.isDoctor, // Include the new field in the constructor
   });
 
   // Convert a Doctor object into a Map object
@@ -20,6 +22,7 @@ class Doctor {
       'email': email,
       'wardNumber': wardNumber,
       'password': password,
+      'isDoctor': isDoctor, // Include the new field in the map
     };
   }
 
@@ -30,6 +33,7 @@ class Doctor {
       email: map['email'] ?? '',
       wardNumber: map['wardNumber'] ?? '',
       password: map['password'] ?? '',
+      isDoctor: map['isDoctor'] ?? false, // Extract the new field from the map
     );
   }
 

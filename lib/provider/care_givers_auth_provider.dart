@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import '../services/CareGiversService.dart';
 
@@ -15,39 +14,79 @@ class CareGiversAuthProvider extends ChangeNotifier {
 
   User? get user => _user;
 
-  Future<void> signIn(String email, String password) async {
+  Future<bool> checkIfUserExists2(String email,password) async {
     try {
-      User? user = await _service.signIn(email, password);
-      _user = user;
-      notifyListeners();
-    } catch (e) {
-      throw e;
+      print("trying dummy");
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: 'dummy_password', // Use a dummy password
+      );
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      print("logging in");
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        return true; // User created successfully
+      } catch (e) {
+        print("Error creating user: $e");
+        return false; // User creation failed
+      }
     }
   }
 
-  String _encryptPassword(String password) {
-    var bytes = utf8.encode(password);
-    var digest = sha256.convert(bytes);
-    return digest.toString();
+
+  Future<bool> checkIfUserExists(String email, String password) async {
+    List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
+    if(signInMethods.isNotEmpty){
+      return true; // User exists
+    } else {
+      try {
+        // Create a new user if no sign-in methods are found
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        return true; // User created successfully
+      } catch (e) {
+        print("Error creating user: $e");
+        return false; // User creation failed
+      }
+    }
   }
 
+  Future<User?> signIn(String email, String password) async {
+    if (await checkIfUserExists(email, password)) {
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        _user = userCredential.user;
+        notifyListeners();
+        print("logged in");
+        return _user; // Return the user after successful sign-in
+      } on FirebaseAuthException catch (e) {
+        print("Exception during sign-in: ${e.message}");
+        throw e; // Rethrow the exception
+      }
+    } else {
+      print("returning null");
+      return null;
+    }
+  }
   Future<void> signOut() async {
-    await _auth.signOut();
-    _user = null;
-    notifyListeners();
-  }
-  Future<bool> _checkPassword(String collection, String password) async {
-    final querySnapshot = await _firestore
-        .collection(collection)
-        .where('password', isEqualTo: password)
-        .limit(1)
-        .get();
-
-    if(querySnapshot.docs.isNotEmpty)
-      print("password matched"+ password);
-    else
-      print(" password does not matched" + password);
-
-    return querySnapshot.docs.isNotEmpty;
+    try {
+      await _auth.signOut();
+      _user = null;
+      notifyListeners();
+      print("User signed out");
+    } catch (e) {
+      print("Error during sign-out: $e");
+      throw e;
+    }
   }
 }

@@ -9,19 +9,30 @@ class DoctorsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<bool> checkIfUserExists(String email) async {
+    List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
+    if(signInMethods.isNotEmpty)
+      print("user exists");
+    return signInMethods.isNotEmpty;
+  }
+
   Future<void> addDoctor(Doctor doctor) async {
+    UserCredential? userCredential;
     final querySnapshot = await _firestore.collection('doctors').where('email', isEqualTo: doctor.email).get();
     if (querySnapshot.docs.isNotEmpty) {
       throw Exception('A doctor with this email already exists');
     }
     try {
-      await _firestore.collection('doctors').add(doctor.toMap());
-
+      bool userExists = await checkIfUserExists(doctor.email);
+      if (!userExists) {
+        await _firestore.collection('doctors').add(doctor.toMap());
+      }
     } catch (e) {
       print(e);
       throw e;
     }
   }
+
 
 
   // Retrieve doctor data from Firestore based on email

@@ -44,7 +44,7 @@ class WardAuthProvider with ChangeNotifier {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
           .collection('Wards')
-          .where('email', isEqualTo: email)
+          .where('wardEmail', isEqualTo: email)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {

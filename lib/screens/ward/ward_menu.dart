@@ -368,17 +368,17 @@ class _WardMenuPageState extends State<WardMenuPage> {
     final _nameController = TextEditingController();
     final _emailController = TextEditingController();
     final _passwordController = TextEditingController();
-    final DoctorsService _doctorsService = DoctorsService();
+    final _doctorsService = DoctorsService();
     final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
 
     bool _obscurePassword = true;
+    bool _isRegistering = false; // Flag to track registration process
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
-
             return AlertDialog(
               title: Center(child: Text('Register Doctor')),
               content: Form(
@@ -429,42 +429,49 @@ class _WardMenuPageState extends State<WardMenuPage> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () async {
+                      onPressed: _isRegistering // Disable button if already registering
+                          ? null
+                          : () async {
                         if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            _isRegistering = true; // Set flag to true when registration starts
+                          });
+
                           String? userId = await wardUserProvider.getCurrentUserId();
 
                           if (userId != null) {
-                            WardModel? wardUser = await WardUserServices().getWard(userId); // Create an instance and call the method
+                            WardModel? wardUser = await WardUserServices().getWard(userId);
 
                             if (wardUser != null) {
                               String? wardNumber = wardUser.wardNumber;
-
-                              // Encrypt the password before registering the doctor
-                              String encryptedPassword = _encryptPassword(_passwordController.text);
 
                               Doctor doctor = Doctor(
                                 name: _nameController.text,
                                 email: _emailController.text,
                                 wardNumber: wardNumber,
                                 password: _passwordController.text,
+                                isDoctor: true,
                               );
+
                               await _doctorsService.addDoctor(doctor);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Doctor registered successfully')),
                               );
                               Navigator.of(context).pop();
                             } else {
-                              // Handle the case when the ward user is not available
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Error: Ward information not available')),
                               );
                             }
                           } else {
-                            // Handle the case when the user ID is not available
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Error: User ID not available')),
                             );
                           }
+
+                          setState(() {
+                            _isRegistering = false; // Reset flag when registration completes
+                          });
                         }
                       },
                       child: Text('Register'),
@@ -478,6 +485,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
       },
     );
   }
+
 
 
   void _showLogoutConfirmationDialog(BuildContext context) {
