@@ -21,13 +21,13 @@ class DoctorsMenuPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navigate to the doctor's profile page or another functionality
+
               },
               child: Text('View Profile'),
             ),
             ElevatedButton(
               onPressed: () {
-                // Navigate to another doctor's functionality
+                
               },
               child: Text('View Appointments'),
             ),

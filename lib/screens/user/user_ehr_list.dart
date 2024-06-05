@@ -19,7 +19,7 @@ class _UserHealthRecordListPageState extends State<UserHealthRecordListPage> {
   @override
   void initState() {
     super.initState();
-    _futureHealthRecords = Provider.of<HealthRecordDataProvider>(context, listen: false).getUserHealthRecords(widget.userId);
+    // _futureHealthRecords = Provider.of<HealthRecordDataProvider>(context, listen: false).getUserHealthRecords(widget.userId);
   }
 
   @override
@@ -51,7 +51,8 @@ class _UserHealthRecordListPageState extends State<UserHealthRecordListPage> {
                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
                     title: Text(
-                      'Record on ${healthRecord.timeStamp}',
+                      '',
+                      // 'Record on ${healthRecord.timeStamp}',
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {

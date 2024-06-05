@@ -57,4 +57,5 @@ class DoctorsAuthProvider with ChangeNotifier {
     await _firebaseAuth.signOut();
     notifyListeners();
   }
+
 }

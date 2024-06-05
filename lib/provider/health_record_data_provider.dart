@@ -5,23 +5,19 @@ import 'package:intl/intl.dart';
 
 
 class HealthRecordDataProvider extends ChangeNotifier {
-  late FirebaseFirestore _firestore;
+  late final CollectionReference _healthRecords ;
 
   HealthRecordDataProvider() {
-    _firestore = FirebaseFirestore.instance;
+      _healthRecords = FirebaseFirestore.instance.collection('healthRecords');
   }
 
   Future<void> addPatientData(PatientHealthRecord healthRecord) async {
     try {
       DateTime now = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
-      healthRecord.timeStamp = formattedDate.toString();
-      await _firestore.
-        collection('Records').
-        doc(healthRecord.userId).
-        collection("health_records").
-        doc(formattedDate).
-        set(healthRecord.toJson());
+      healthRecord.lastUpdated = formattedDate.toString();
+      final String documentId = _healthRecords.doc().id;
+      await _healthRecords.doc(documentId).set(healthRecord.toJson());
       notifyListeners();
     } catch (error) {
       print("Error adding patient data: $error");
@@ -29,12 +25,9 @@ class HealthRecordDataProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<PatientHealthRecord>> getUserHealthRecords(String userId) async {
+  Future<List<PatientHealthRecord>> getUserHealthRecords() async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('Records')
-          .doc(userId)
-          .collection("health_records")
+      QuerySnapshot querySnapshot = await _healthRecords
           .orderBy('timeStamp', descending: true)
           .get();
 

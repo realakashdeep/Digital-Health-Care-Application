@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/models/health_record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../models/user_model.dart';
 import '../../provider/health_record_data_provider.dart';
+import '../../services/user_services.dart';
 
 class PatientInfoForm extends StatefulWidget {
   @override
@@ -11,10 +15,12 @@ class PatientInfoForm extends StatefulWidget {
 
 class _PatientInfoFormState extends State<PatientInfoForm> {
   final _formKey = GlobalKey<FormState>();
+  final _aadhaarController = TextEditingController();
   final PatientHealthRecord _patientHealthRecord = PatientHealthRecord();
 
   @override
   Widget build(BuildContext context) {
+    final UserService _userService = UserService();
     final _patientDataProvider = Provider.of<HealthRecordDataProvider>(context);
     return Scaffold(
       appBar: AppBar(
@@ -29,9 +35,7 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: 20),
-                PatientIdentificationInfo(healthRecord: _patientHealthRecord),
-                SizedBox(height: 20),
-                DemographicInfo(healthRecord: _patientHealthRecord),
+                PatientIdentificationInfo(aadharController: _aadhaarController),
                 SizedBox(height: 20),
                 MedicalHistory(healthRecord: _patientHealthRecord),
                 SizedBox(height: 20),
@@ -44,28 +48,52 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-                        try {
-                          await _patientDataProvider.addPatientData(_patientHealthRecord);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Data successfully saved!'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
 
-                          Future.delayed(Duration(seconds: 2), () {
-                            Navigator.pop(context);
-                          });
-                        } catch (error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to save data: $error'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Data Processing'),
+                                  backgroundColor: Colors.green,
+                                ),
+                        );
+
+                        MyUser? user = await _userService.getUserByAadhaar(_aadhaarController.text.toString());
+
+                        if (user != null) {
+                            DateTime now = DateTime.now();
+                            String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+
+                            _patientHealthRecord.gender = user.gender;
+                            _patientHealthRecord.phoneNumber = user.phoneNumber;
+                            _patientHealthRecord.fullName = user.name;
+                            _patientHealthRecord.dob = user.dob;
+                            _patientHealthRecord.userId = user.userId;
+                            _patientHealthRecord.lastUpdated = formattedDate;
+
+                            try {
+                              final CollectionReference _healthRecords = FirebaseFirestore.instance.collection('healthRecord');
+
+                              final String documentId = _healthRecords.doc().id;
+                              await _healthRecords.doc(documentId).set(_patientHealthRecord.toJson());
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Data saved successfully')),
+                                );
+                                
+                                Navigator.pop(context);
+
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Failed to save data: $e')),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('No user found with this Aadhaar number, try with new Aadhar number')),
+                            );
+                          }
                         }
                       }
-                    },
+                    ,
                     child: Text('Submit'),
                   ),
                 ),
@@ -80,9 +108,8 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
 }
 
 class PatientIdentificationInfo extends StatefulWidget {
-  final PatientHealthRecord healthRecord;
-
-  PatientIdentificationInfo({required this.healthRecord});
+  final TextEditingController aadharController;
+  PatientIdentificationInfo({required this.aadharController});
 
   @override
   _PatientIdentificationInfoState createState() =>
@@ -90,11 +117,9 @@ class PatientIdentificationInfo extends StatefulWidget {
 }
 
 class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
-  final TextEditingController _dobController = TextEditingController();
 
   @override
   void dispose() {
-    _dobController.dispose();
     super.dispose();
   }
 
@@ -109,143 +134,37 @@ class _PatientIdentificationInfoState extends State<PatientIdentificationInfo> {
         ),
         SizedBox(height: 16.0),
         TextFormField(
+          controller: widget.aadharController,
           decoration: InputDecoration(
-            labelText: 'User ID',
-            border: OutlineInputBorder(),
+            labelText: 'Aadhaar Number',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.blue),
+            ),
           ),
-          keyboardType: TextInputType.name,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter User ID';
-            }
-            return null;
-          },
-          onSaved: (value) => widget.healthRecord.userId = value,
-        ),
-        SizedBox(height: 16.0),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'Full Name',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.name,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter Full Name';
-            }
-            return null;
-          },
-          onSaved: (value) => widget.healthRecord.fullName = value,
-        ),
-        SizedBox(height: 16.0),
-        TextFormField(
-          controller: _dobController,
-          decoration: InputDecoration(
-            labelText: 'Date of Birth',
-            border: OutlineInputBorder(),
-          ),
-          readOnly: true,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter Date of Birth';
-            }
-            return null;
-          },
-          onTap: () async {
-            DateTime? pickedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(1900),
-              lastDate: DateTime.now(),
-            );
-            if (pickedDate != null) {
-              setState(() {
-                _dobController.text =
-                '${pickedDate.year}-${pickedDate.month}-${pickedDate.day}';
-                widget.healthRecord.dob = _dobController.text;
-              });
-            }
-          },
-        ),
-        SizedBox(height: 16.0),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            labelText: 'Gender',
-            border: OutlineInputBorder(),
-          ),
-          items: [
-            DropdownMenuItem(child: Text('Male'), value: 'Male'),
-            DropdownMenuItem(child: Text('Female'), value: 'Female'),
-            DropdownMenuItem(child: Text('Other'), value: 'Other'),
-          ],
-          onChanged: (String? value) {},
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select Gender';
-            }
-            return null;
-          },
-          onSaved: (value) => widget.healthRecord.gender = value,
-        ),
-      ],
-    );
-  }
-}
-
-// Other Widget classes remain the same, using PatientHealthRecord model
-
-class DemographicInfo extends StatelessWidget {
-  final PatientHealthRecord healthRecord;
-
-  DemographicInfo({required this.healthRecord});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          'Demographic Information',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 16.0),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'Address',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.streetAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter Address';
-            }
-            return null;
-          },
-          onSaved: (value) => healthRecord.address = value,
-        ),
-        SizedBox(height: 16.0),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: 'Phone Number',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(12),
           ],
+          keyboardType: TextInputType.number,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter Phone Number';
+            if (value!.isEmpty) {
+              return 'Please enter Aadhaar number';
+            }
+            if (!RegExp(r'^\d{12}$').hasMatch(value)) {
+              return 'Please enter a valid Aadhaar number (12 digits)';
             }
             return null;
-          },
-          onSaved: (value) => healthRecord.phoneNumber = value,
+          }
         ),
+        SizedBox(height: 16.0),
       ],
     );
   }
 }
-
 class MedicalHistory extends StatelessWidget {
   final PatientHealthRecord healthRecord;
 
@@ -388,44 +307,6 @@ class CurrentHealthStatus extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Blood Pressure',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.text,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Blood Pressure';
-                }
-                return null;
-              },
-              onSaved: (value) => healthRecord.bloodPressure = value,
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Heart Rate (bpm)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Heart Rate';
-                }
-                return null;
-              },
-              onSaved: (value) => healthRecord.heartRate = value,
-            ),
-          ),
         ],
       ),
     );

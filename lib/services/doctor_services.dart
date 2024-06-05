@@ -33,8 +33,6 @@ class DoctorsService {
     }
   }
 
-
-
   // Retrieve doctor data from Firestore based on email
   Future<Doctor?> getDoctor(String email) async {
     try {
