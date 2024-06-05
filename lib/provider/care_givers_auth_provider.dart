@@ -4,78 +4,78 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import '../models/caregivers_model.dart';
+import '../models/doctors_model.dart';
 import '../services/CareGiversService.dart';
+import '../services/doctor_services.dart';
 
 class CareGiversAuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CareGiversService _service = CareGiversService();
   User? _user;
-
+  final CareGiversService _careGiversService = CareGiversService();
   User? get user => _user;
-
-  Future<bool> checkIfUserExists2(String email,password) async {
-    try {
-      print("trying dummy");
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: 'dummy_password', // Use a dummy password
-      );
-
-      return true;
-    } on FirebaseAuthException catch (e) {
-      print("logging in");
-      try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        return true; // User created successfully
-      } catch (e) {
-        print("Error creating user: $e");
-        return false; // User creation failed
-      }
-    }
-  }
 
 
   Future<bool> checkIfUserExists(String email, String password) async {
-    List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
-    if(signInMethods.isNotEmpty){
-      return true; // User exists
-    } else {
-      try {
-        // Create a new user if no sign-in methods are found
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        return true; // User created successfully
-      } catch (e) {
-        print("Error creating user: $e");
-        return false; // User creation failed
+    try {
+      List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
+      print(signInMethods);
+
+      if (signInMethods.isNotEmpty) {
+        print("user exists");
+        return true; // User exists
+      } else {
+        return false;
       }
+    } catch (e) {
+      print("Error checking sign-in methods: $e");
+      return false;
     }
   }
-
   Future<User?> signIn(String email, String password) async {
-    if (await checkIfUserExists(email, password)) {
+    if (await _careGiversService.checkIfUserExists(email)) {
       try {
         UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
         _user = userCredential.user;
-        notifyListeners();
-        print("logged in");
-        return _user; // Return the user after successful sign-in
+        print("Logged in: $userCredential");
+        return _user;
       } on FirebaseAuthException catch (e) {
         print("Exception during sign-in: ${e.message}");
-        throw e; // Rethrow the exception
+        throw e;
       }
     } else {
-      print("returning null");
-      return null;
+      print("new cg creating");
+      CareGiver? caregiver = await _careGiversService.getCareGiver(email);
+
+      String? id = await _careGiversService.getCareGiverId(email);
+
+
+      if (caregiver != null) {
+        print("adding to firebase auth");
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        _user = userCredential.user;
+
+        // Add new user details to Firestore
+        await _firestore.collection('caregivers').doc(_user!.uid).set(caregiver.toMap());
+
+        // Delete the old doctor document using its ID
+        await _firestore.collection('caregivers').doc(id).delete();
+
+        print("Logged in: $userCredential");
+        return _user;
+      } else {
+        print("caregiver details not found in Firestore.");
+        return null;
+      }
     }
   }
   Future<void> signOut() async {

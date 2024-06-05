@@ -33,9 +33,8 @@ class DoctorsMenuPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Log out the doctor
                 await Provider.of<DoctorsAuthProvider>(context, listen: false).signOut();
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
               },
               child: Text('Log Out'),
             ),

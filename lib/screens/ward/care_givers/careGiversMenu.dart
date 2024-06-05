@@ -34,7 +34,7 @@ class CareGiversMenuPage extends StatelessWidget {
               onPressed: () async {
                 // Log out the care giver
                 await Provider.of<CareGiversAuthProvider>(context, listen: false).signOut();
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
               },
               child: Text('Log Out'),
             ),

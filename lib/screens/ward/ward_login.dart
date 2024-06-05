@@ -304,6 +304,9 @@ class _WardLoginPageState extends State<WardLoginPage> {
               (route) => false,
         );
       }
+      else{
+        print("user is null");
+      }
     } catch (e) {
       if (e is FirebaseAuthException && e.code == 'wrong-password') {
         ScaffoldMessenger.of(context).showSnackBar(

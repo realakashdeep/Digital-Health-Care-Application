@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/caregivers_model.dart';
+
 class CareGiversService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -41,17 +43,42 @@ class CareGiversService {
 
 
   // Retrieve caregiver data from Firestore based on UID
-  Future<Map<String, dynamic>?> getCareGiver(String uid) async {
+  Future<CareGiver?> getCareGiver(String email) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore.collection('caregivers').doc(uid).get();
-      if (snapshot.exists) {
-        return snapshot.data();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('caregivers')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return CareGiver.fromMap(querySnapshot.docs.first.data());
       }
+      print("caregiver empty");
+      return null;
+    } catch (e) {
+      print("Error getting caregiver: $e");
+      return null; // or throw e; depending on your error handling strategy
+    }
+  }
+
+  Future<String?> getCareGiverId(String email) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collection('caregivers')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final caregiverId = querySnapshot.docs.first.id;
+        return caregiverId;
+      }
+      print("caregiver empty");
       return null;
     } catch (e) {
       throw e;
     }
   }
+
 
   // Update caregiver data in Firestore
   Future<void> updateCareGiver(String uid, Map<String, dynamic> updatedData) async {

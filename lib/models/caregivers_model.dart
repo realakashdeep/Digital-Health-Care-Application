@@ -6,7 +6,7 @@ class CareGiver {
   final String email;
   final String wardNumber;
   final String password;
-  final bool isCaregiver; // New field to indicate caregiver status
+  final bool isCaregiver;
 
   CareGiver({
     required this.id,
@@ -14,7 +14,7 @@ class CareGiver {
     required this.email,
     required this.wardNumber,
     required this.password,
-    required this.isCaregiver, // Include isCaregiver field in the constructor
+    required this.isCaregiver,
   });
 
   factory CareGiver.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -25,7 +25,17 @@ class CareGiver {
       email: data['email'] ?? '',
       wardNumber: data['wardNumber'] ?? '',
       password: data['password'] ?? '',
-      isCaregiver: data['isCaregiver'] ?? false, // Retrieve isCaregiver from Firestore
+      isCaregiver: data['isCaregiver'] ?? false,
+    );
+  }
+  factory CareGiver.fromMap(Map<String, dynamic> map) {
+    return CareGiver(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      wardNumber: map['wardNumber'] ?? '',
+      password: map['password'] ?? '',
+      isCaregiver: map['isCaregiver'] ?? false, // Extract the new field from the map
     );
   }
 
@@ -35,7 +45,7 @@ class CareGiver {
       'email': email,
       'wardNumber': wardNumber,
       'password': password,
-      'isCaregiver': isCaregiver, // Include isCaregiver in map
+      'isCaregiver': isCaregiver,
     };
   }
 }
