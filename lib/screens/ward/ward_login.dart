@@ -1,18 +1,15 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
-import 'package:final_year_project/provider/ward_user_provider.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import '../../provider/auth_provider.dart';
-import '../../provider/auth_provider.dart';
 import '../../provider/ward_auth_provider.dart';
 import '../../provider/care_givers_auth_provider.dart';
 import '../../provider/doctors_auth_provider.dart';
+import 'care_givers/appointment_list.dart';
+import 'care_givers/careGiversForm.dart';
 import 'care_givers/careGiversMenu.dart';
 import 'doctors/doctorsMenuPage.dart';
 
@@ -246,7 +243,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
       if (authProvider.user != null) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => CareGiversMenuPage()),
+          MaterialPageRoute(builder: (context) => CareGiverMenuPage()),
               (route) => false,
         );
       }

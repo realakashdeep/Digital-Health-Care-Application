@@ -36,6 +36,8 @@ class _CareGiversFormState extends State<CareGiversForm> {
     'AB-',
     'A-',
     'B-',
+    'O+',
+    'O-'
   ];
 
   @override
