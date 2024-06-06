@@ -1,16 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/doctors_model.dart';
+import '../../services/doctor_services.dart';
 
-import '../models/doctors_model.dart';
-import '../services/doctor_services.dart';
 
 class DoctorsAuthProvider with ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final DoctorsService _doctorsService = DoctorsService();
+
   User? _user;
+
+  User? get user => _firebaseAuth.currentUser;
+
 
   Future<User?> signIn(String email, String password) async {
     if (await _doctorsService.checkIfUserExists(email)) {

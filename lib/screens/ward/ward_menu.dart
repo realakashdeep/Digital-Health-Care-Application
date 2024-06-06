@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
-import 'package:final_year_project/screens/ward/patientInfoForm.dart';
-import 'package:final_year_project/screens/ward/ward_profile.dart';
+import 'package:final_year_project/screens/ward/care_givers/patientInfoForm.dart';
+import 'package:final_year_project/screens/ward/profile/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 import '../../models/caregivers_model.dart';
 import '../../models/doctors_model.dart';
 import '../../models/ward_model.dart';
-import '../../provider/ward_auth_provider.dart';
-import '../../provider/ward_user_provider.dart';
+import '../../provider/ward/ward_auth_provider.dart';
+import '../../provider/ward/ward_user_provider.dart';
 import '../../services/CareGiversService.dart';
 import '../../services/doctor_services.dart';
 import '../../services/ward_user_services.dart';
@@ -122,6 +122,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
       ),
     );
   }
+
   Widget buildMenuButton(BuildContext context, String label, String assetPath, Widget? page) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -444,7 +445,9 @@ class _WardMenuPageState extends State<WardMenuPage> {
                                 email: _emailController.text,
                                 wardNumber: wardNumber,
                                 password: _passwordController.text,
-                                isDoctor: true,
+                                aboutDoctor: '',
+                                doctorContactNumber: '',
+                                doctorImageUrl: '',
                               );
 
                               await _doctorsService.addDoctor(doctor);

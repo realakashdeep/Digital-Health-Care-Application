@@ -1,6 +1,6 @@
 import 'package:final_year_project/constants/text_strings.dart';
+import 'package:final_year_project/screens/user/login&signup/signup_controller.dart';
 import 'package:flutter/material.dart';
-import 'signup_controller.dart';
 
 class UserSignUp extends StatefulWidget {
   const UserSignUp({Key? key}) : super(key: key);

@@ -7,17 +7,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 class WardAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<WardModel?> signIn(String email, String password, String wardNumber) async {
+  Future<User?> signIn(String email, String password, String wardNumber) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       User? user = result.user;
-      return WardModel(wardId: user!.uid, wardEmail: user.email!, wardPassword: password, wardAddress: '', wardNumber: wardNumber);
+      if(user != null){
+        return user;
+      }
     } catch (e) {
       throw Exception('Sign-in failed: $e');
     }
+    return null;
   }
 
 

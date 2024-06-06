@@ -1,8 +1,7 @@
-// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import '../user/login&signup/signup_controller.dart';
 
-import '../user/signup_controller.dart';
 
 class RegisterUserPage extends StatefulWidget {
   const RegisterUserPage({super.key});

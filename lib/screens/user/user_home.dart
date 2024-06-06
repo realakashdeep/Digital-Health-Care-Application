@@ -5,9 +5,9 @@ import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
 import 'package:final_year_project/screens/user/user_ehr_list.dart';
 import 'package:final_year_project/screens/ward/care_givers/careGiversForm.dart';
-import 'package:final_year_project/screens/ward/care_givers/appointment_list.dart';
-import 'package:final_year_project/screens/ward/doctors/appointment.dart';
-import 'package:final_year_project/screens/ward/patientInfoForm.dart';
+import 'package:final_year_project/screens/ward/doctors/appointment_list.dart';
+import 'package:final_year_project/screens/ward/doctors/DoctorsForm.dart';
+import 'package:final_year_project/screens/ward/care_givers/patientInfoForm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -72,17 +72,6 @@ class UserHome extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ViewCamps()),
-                      );
-                    },
-                  ),
-                  _buildSquareButton(
-                    context,
-                    icon: Icons.campaign,
-                    label: 'Add Basic HealthRecord',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PatientInfoForm()),
                       );
                     },
                   ),

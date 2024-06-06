@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppointmentModel {
@@ -11,10 +13,17 @@ class AppointmentModel {
   String heartRate;
   String spO2;
   String assignedTo;
+
+  String doctorMail;
+
+  String careMail;
+  String wardNumber;
+
   String status;
   String symptoms;
   String prescriptions;
   String tests;
+
 
   AppointmentModel({
     required this.appointmentId,
@@ -26,10 +35,13 @@ class AppointmentModel {
     required this.heartRate,
     required this.spO2,
     required this.assignedTo,
+    required this.doctorMail,
     required this.symptoms,
     required this.status,
     required this.prescriptions,
-    required this.tests
+    required this.tests,
+    required this.careMail,
+    required this.wardNumber
   });
 
   static AppointmentModel empty() => AppointmentModel(
@@ -45,7 +57,10 @@ class AppointmentModel {
       prescriptions: '',
       tests: '',
       patientName: '',
-      symptoms: ''
+      symptoms: '',
+      doctorMail: '',
+      careMail: '',
+      wardNumber: ''
   );
 
   Map<String, dynamic> toJson() {
@@ -62,7 +77,11 @@ class AppointmentModel {
       'prescriptions' : prescriptions,
       'tests' : tests,
       'patientName' : patientName,
-      'symptoms' : symptoms
+      'symptoms' : symptoms,
+      'doctorMail' : doctorMail,
+      'careMail' : careMail,
+      'wardNumber' : wardNumber
+
     };
   }
 
@@ -82,7 +101,10 @@ class AppointmentModel {
           prescriptions: data['prescriptions'] ?? '',
           tests: data['tests'] ?? '',
           patientName: data['patientName'] ?? '',
-          symptoms: data['symptoms'] ?? ''
+          symptoms: data['symptoms'] ?? '',
+          doctorMail: data['doctorMail'] ?? '',
+          careMail: data['careMail'] ?? '',
+          wardNumber: data['wardNumber'] ?? ''
       );
     } else {
       return AppointmentModel.empty();

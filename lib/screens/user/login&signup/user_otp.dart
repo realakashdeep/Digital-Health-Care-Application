@@ -3,7 +3,7 @@ import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../services/user_services.dart';
+import '../../../services/user_services.dart';
 
 class Otp extends StatefulWidget {
   final String verificationid;

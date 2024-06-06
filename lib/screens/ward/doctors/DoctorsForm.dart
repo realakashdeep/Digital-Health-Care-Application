@@ -14,7 +14,6 @@ class DoctorMedicalForm extends StatefulWidget {
 }
 
 class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
-  final TextEditingController _symptomsController = TextEditingController();
   final TextEditingController _prescriptionController = TextEditingController();
   final TextEditingController _testsController = TextEditingController();
   late PatientHealthRecord patientHealthRecord;
@@ -63,7 +62,6 @@ class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
 
   @override
   void dispose() {
-    _symptomsController.dispose();
     _prescriptionController.dispose();
     _testsController.dispose();
     super.dispose();
@@ -112,18 +110,11 @@ class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
               _buildDetailCard('Heart Rate', widget.appointment.heartRate),
               _buildDetailCard('SpO2', widget.appointment.spO2),
               _buildDetailCard('Status', widget.appointment.status),
+              _buildDetailCard('Symptoms', widget.appointment.symptoms),
               SizedBox(height: 16.0),
               Form(
                 child: Column(
                   children: [
-                    TextFormField(
-                      controller: _symptomsController,
-                      decoration: InputDecoration(
-                        labelText: "Symptoms",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
                     TextFormField(
                       controller: _prescriptionController,
                       decoration: InputDecoration(
@@ -143,7 +134,6 @@ class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
                     ElevatedButton(
                       onPressed: () async {
                         widget.appointment.prescriptions = _prescriptionController.text;
-                        widget.appointment.symptoms = _symptomsController.text;
                         widget.appointment.tests = _testsController.text;
                         widget.appointment.status = 'Finished';
                         try {

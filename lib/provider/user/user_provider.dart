@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
-import '../services/user_services.dart';
+import '../../models/user_model.dart';
+import '../../services/user_services.dart';
 
 class UserProvider with ChangeNotifier {
   final UserService _userService = UserService();
@@ -10,19 +10,19 @@ class UserProvider with ChangeNotifier {
   MyUser? get user => _user;
 
   Future<void> fetchUser(String id) async {
-    await _userService.getUser(id);
+    _user = await _userService.getUser(id);
     notifyListeners();
   }
 
   Future<void> addUser(MyUser user) async {
     await _userService.createUser(user);
-    fetchUser(user.userId); // Refresh the user
+    fetchUser(user.userId);
   }
 
   Future<void> updateUser(MyUser user) async {
 
     await _userService.updateUser(user);
-    fetchUser(user.userId); // Refresh the user
+    fetchUser(user.userId);
   }
 
   Future<void> deleteUser(String id) async {

@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-
 import '../models/doctors_model.dart';
-import '../provider/ward_user_provider.dart';
 
 class DoctorsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

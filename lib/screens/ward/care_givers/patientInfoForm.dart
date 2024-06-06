@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../models/user_model.dart';
-import '../../provider/health_record_data_provider.dart';
-import '../../services/user_services.dart';
+import '../../../models/user_model.dart';
+import '../../../provider/health_record_data_provider.dart';
+import '../../../services/user_services.dart';
 
 class PatientInfoForm extends StatefulWidget {
   @override
@@ -21,7 +21,6 @@ class _PatientInfoFormState extends State<PatientInfoForm> {
   @override
   Widget build(BuildContext context) {
     final UserService _userService = UserService();
-    final _patientDataProvider = Provider.of<HealthRecordDataProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Patient Information Form'),

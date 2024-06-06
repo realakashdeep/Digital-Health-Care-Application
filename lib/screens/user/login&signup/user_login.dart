@@ -1,5 +1,5 @@
 import 'package:final_year_project/constants/text_strings.dart';
-import 'package:final_year_project/provider/auth_provider.dart';
+import 'package:final_year_project/provider/user/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

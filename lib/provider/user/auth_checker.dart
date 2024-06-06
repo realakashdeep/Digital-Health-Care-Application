@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/user/user_home.dart';
-import '../screens/ward/care_givers/appointment_list.dart';
-import '../screens/ward/doctors/doctorsMenuPage.dart';
-import '../screens/ward/ward_menu.dart';
-import '../screens/welcome.dart';
+import '../../screens/user/user_home.dart';
+import '../../screens/ward/doctors/doctorsMenuPage.dart';
+import '../../screens/ward/ward_menu.dart';
+import '../../screens/welcome.dart';
 import 'auth_provider.dart' as MyAuthProvider;
 
 class AuthChecker extends StatefulWidget {

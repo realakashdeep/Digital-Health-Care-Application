@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/doctors_model.dart';
-import '../services/doctor_services.dart';
+import '../../models/doctors_model.dart';
+import '../../services/doctor_services.dart';
 
 class DoctorProvider extends ChangeNotifier {
   final DoctorsService _doctorService = DoctorsService();
@@ -53,7 +53,9 @@ class DoctorProvider extends ChangeNotifier {
           name: '',
           wardNumber: '',
           password: '',
-          isDoctor: false,
+          aboutDoctor: '',
+          doctorContactNumber: '',
+          doctorImageUrl: '',
         );
       }
     } catch (e) {

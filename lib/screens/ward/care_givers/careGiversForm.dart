@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/models/appointment_model.dart';
 import 'package:final_year_project/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '../../../models/doctors_model.dart';
 import '../../../services/user_services.dart';
 
 class CareGiversForm extends StatefulWidget {
@@ -12,6 +14,9 @@ class CareGiversForm extends StatefulWidget {
 }
 
 class _CareGiversFormState extends State<CareGiversForm> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final _formKey = GlobalKey<FormState>();
   final _aadhaarController = TextEditingController();
   final _symptomsController = TextEditingController();
@@ -19,16 +24,15 @@ class _CareGiversFormState extends State<CareGiversForm> {
   final _spo2Controller = TextEditingController();
   final _tempController = TextEditingController();
   final _heartRateController = TextEditingController();
-  late String _assignedTo;
+  late String? _assignedTo;
   late String _bloodGroup;
-  final int minHeartRate = 30; // Example: Minimum heart rate
-  final int maxHeartRate = 220; // Example: Maximum heart rate
+  final int minHeartRate = 30;
+  final int maxHeartRate = 220;
 
-  final List<String> _assignedToList = [
-    'Dr Sushant',
-    'Dr Akash',
-    'Dr Swarup',
-  ];
+  List<String> _assignedToList = [];
+  List<Doctor> doctors = [];
+  String? _selectedDoctorEmail;
+
   final List<String> _bloodGroupList = [
     'A+',
     'B+',
@@ -39,12 +43,81 @@ class _CareGiversFormState extends State<CareGiversForm> {
     'O+',
     'O-'
   ];
+  User? caregiver;
+  String? wardNumber;
 
   @override
   void initState() {
     super.initState();
-    _assignedTo = _assignedToList.first;
+    fetchDoctors();
     _bloodGroup = _bloodGroupList.first;
+    _assignedTo = null; // Initialize _assignedTo as null
+    _selectedDoctorEmail = null; // Initialize _selectedDoctorEmail as null
+  }
+
+  Future<void> fetchDoctors() async {
+    try {
+      caregiver = _auth.currentUser;
+      if (caregiver != null) {
+        wardNumber = await getWardNumber(caregiver!.email!);
+        if (wardNumber != null) {
+          final List<Doctor> fetchedDoctors = await getDoctorsByWardNumber(wardNumber!);
+          setState(() {
+            doctors = fetchedDoctors;
+            _assignedToList = fetchedDoctors.map((doctor) => doctor.name).toList();
+            _assignedTo = _assignedToList.isNotEmpty ? _assignedToList.first : null;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching doctors: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching doctors: $e')),
+      );
+    }
+  }
+
+  Future<List<Doctor>> getDoctorsByWardNumber(String wardNumber) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('doctors')
+          .where('wardNumber', isEqualTo: wardNumber)
+          .get();
+
+      return querySnapshot.docs.map((doc) => Doctor.fromMap(doc.data())).toList();
+    } catch (e) {
+      print('Error getting doctors by ward number: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error getting doctors: $e')),
+      );
+      return [];
+    }
+  }
+
+  Future<String?> getWardNumber(String caregiverEmail) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('caregivers')
+          .where('email', isEqualTo: caregiverEmail) // Fixed field name to 'email'
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        Map<String, dynamic> data = querySnapshot.docs.first.data();
+        return data['wardNumber'] as String?;
+      } else {
+        print('Caregiver not found');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Caregiver not found')),
+        );
+        return null;
+      }
+    } catch (e) {
+      print('Error getting ward number: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error getting ward number: $e')),
+      );
+      return null;
+    }
   }
 
   @override
@@ -179,15 +252,17 @@ class _CareGiversFormState extends State<CareGiversForm> {
               SizedBox(height: 16),
               _buildDropdown(
                 labelText: 'Assigned To',
-                value: _assignedTo,
+                value: _assignedTo ?? '',
                 items: _assignedToList,
                 onChanged: (newValue) {
                   setState(() {
-                    _assignedTo = newValue!;
+                    _assignedTo = newValue;
+                    final selectedDoctor = doctors.firstWhere((doctor) => doctor.name == newValue);
+                    _selectedDoctorEmail = selectedDoctor.email;
                   });
                 },
                 validator: (value) {
-                  if (value == null) {
+                  if (value == null || value.isEmpty) {
                     return 'Please select a Doctor';
                   }
                   return null;
@@ -215,54 +290,53 @@ class _CareGiversFormState extends State<CareGiversForm> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')),
-                      );
-
-                      MyUser? user = await _userService.getUserByAadhaar(_aadhaarController.text.toString());
-
-                      if (user != null) {
-                        DateTime now = DateTime.now();
-                        String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
-
-                        AppointmentModel appointment = AppointmentModel(
-                            appointmentId: '',
-                            appointmentDate: formattedDate,
-                            patientId: user.userId,
-                            patientName: user.name,
-                            bp: _bpController.text.toString(),
-                            temp: _tempController.text.toString(),
-                            heartRate: _heartRateController.text.toString(),
-                            spO2: _spo2Controller.text.toString(),
-                            assignedTo: _assignedTo,
-                            status: 'assigned to $_assignedTo',
-                            prescriptions: '',
-                            tests: '',
-                            symptoms: ''
-                        );
-
-                        try {
-                          final CollectionReference appointments = FirebaseFirestore.instance.collection('appointments');
-
-                          // Generate a unique ID for the document
-                          final String documentId = appointments.doc().id;
-
-                          appointment.appointmentId = documentId; // Set the appointment ID in the model
-                          await appointments.doc(documentId).set(appointment.toJson());
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Data saved successfully')),
-                          );
-                          Navigator.pop(context);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to save data: $e')),
-                          );
-                        }
-                      } else {
+                      try {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('No user found with this Aadhaar number, try with new Aadhar number')),
+                          SnackBar(content: Text('Processing Data')),
+                        );
+                        if (caregiver != null) {
+                          final user = await _userService.getUserByAadhaar(_aadhaarController.text.toString());
+                          if (user != null) {
+                            final now = DateTime.now();
+                            final formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+
+                            final appointment = AppointmentModel(
+                              appointmentId: '',
+                              appointmentDate: formattedDate,
+                              patientId: user.userId,
+                              patientName: user.name,
+                              bp: _bpController.text.toString(),
+                              temp: _tempController.text.toString(),
+                              heartRate: _heartRateController.text.toString(),
+                              spO2: _spo2Controller.text.toString(),
+                              assignedTo: _assignedTo ?? '',
+                              status: 'assigned to $_assignedTo',
+                              prescriptions: '',
+                              tests: '',
+                              symptoms: '',
+                              doctorMail: _selectedDoctorEmail ?? '',
+                              careMail: caregiver?.email ?? '',
+                              wardNumber: wardNumber ?? '',
+                            );
+
+                            final CollectionReference appointments = FirebaseFirestore.instance.collection('appointments');
+                            final documentId = appointments.doc().id;
+                            appointment.appointmentId = documentId;
+                            await appointments.doc(documentId).set(appointment.toJson());
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Data saved successfully')),
+                            );
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('No user found with this Aadhaar number, try with new Aadhar number')),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to save data: $e')),
                         );
                       }
                     }

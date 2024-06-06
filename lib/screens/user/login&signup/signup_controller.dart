@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:final_year_project/models/user_model.dart';
 import 'package:provider/provider.dart';
-import 'package:final_year_project/provider/auth_provider.dart';
+import 'package:final_year_project/provider/user/auth_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 

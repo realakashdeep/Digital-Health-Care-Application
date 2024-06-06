@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -131,17 +130,7 @@ class _UserProfileState extends State<UserProfile> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.grey[300],
-              image: _imageFile != null
-                  ? DecorationImage(
-                image: FileImage(_imageFile!),
-                fit: BoxFit.cover,
-              )
-                  : _user?.profilePictureURL != null
-                  ? DecorationImage(
-                image: NetworkImage(_user!.profilePictureURL!),
-                fit: BoxFit.cover,
-              )
-                  : null,
+              image: _imageFile != null ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover,) : _user?.profilePictureURL != null ? DecorationImage(image: NetworkImage(_user!.profilePictureURL!), fit: BoxFit.cover,) : null,
             ),
             child: Stack(
               children: [

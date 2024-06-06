@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:developer' as devLog;
 import 'package:crypto/crypto.dart';
-import '../models/user_model.dart';
-import '../screens/user/user_otp.dart';
+import '../../models/user_model.dart';
+import '../../screens/user/login&signup/user_otp.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;

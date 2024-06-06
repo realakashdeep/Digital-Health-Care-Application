@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:final_year_project/constants/text_strings.dart';
-import 'package:final_year_project/provider/auth_checker.dart';
+import 'package:final_year_project/provider/user/auth_checker.dart';
 
 class SplashScreen extends StatelessWidget {
   @override

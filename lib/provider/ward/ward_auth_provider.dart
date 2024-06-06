@@ -1,13 +1,15 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/models/ward_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../services/ward_auth_services.dart';
+import '../../services/ward_auth_services.dart';
 
 class WardAuthProvider with ChangeNotifier {
   final WardAuthService _authService = WardAuthService();
   WardModel? _ward;
   WardModel? get ward => _ward;
+  User? user;
 
 
   // extracts ward number from ward email
@@ -28,14 +30,13 @@ class WardAuthProvider with ChangeNotifier {
       return;
     }
 
-    // Perform authentication
-    WardModel? signInResult = await _authService.signIn(email, password, wardNumber.toString());
+    user = await _authService.signIn(email, password, wardNumber.toString());
 
-    if (signInResult != null) {
-      print("signed in as Ward");
+    if (user != null) {
       _ward = await fetchWardInfo(email);
     }
     else {
+      print("unable to signin");
     }
     notifyListeners();
   }

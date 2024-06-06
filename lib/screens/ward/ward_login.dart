@@ -5,13 +5,14 @@ import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../provider/ward_auth_provider.dart';
-import '../../provider/care_givers_auth_provider.dart';
-import '../../provider/doctors_auth_provider.dart';
-import 'care_givers/appointment_list.dart';
-import 'care_givers/careGiversForm.dart';
+import '../../models/ward_model.dart';
+import '../../provider/caregivers/care_givers_auth_provider.dart';
+import '../../provider/doctor/doctors_auth_provider.dart';
+import '../../provider/ward/ward_auth_provider.dart';
+import '../../provider/ward/ward_user_provider.dart';
 import 'care_givers/careGiversMenu.dart';
 import 'doctors/doctorsMenuPage.dart';
+import 'new_ward_page.dart';
 
 class WardLoginPage extends StatefulWidget {
   @override
@@ -185,18 +186,13 @@ class _WardLoginPageState extends State<WardLoginPage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          suffixIcon: labelText == 'Password'
-              ? IconButton(
-            icon: Icon(obscureText
-                ? Icons.visibility
-                : Icons.visibility_off),
+          suffixIcon: labelText == 'Password' ? IconButton(icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
             onPressed: () {
               setState(() {
                 _obscureText = !_obscureText;
               });
             },
-          )
-              : null,
+          ) : null,
         ),
       ),
     );
@@ -204,20 +200,46 @@ class _WardLoginPageState extends State<WardLoginPage> {
 
   Future<void> _handleWardLogin(BuildContext context) async {
     final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
+    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
 
     try {
       await wardAuthProvider.signIn(
         _emailController.text,
         _passwordController.text,
       );
-      if (wardAuthProvider.ward != null) {
+      WardModel? ward = wardAuthProvider.ward;
+
+      if (ward != null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => WardMenuPage()),
             (route)=>false,
         );
       }
+      else{
+        User? user = wardAuthProvider.user;
+        if(user != null){
+          WardModel myward = WardModel(
+              wardId: user.uid,
+              wardEmail: _emailController.text.toString(),
+              wardAddress: '',
+              wardPassword: _passwordController.text.toString(),
+              wardNumber: '',
+              wardImageUrl: '',
+              wardSubtitle: '',
+              wardSummary: '',
+              wardContactNumber: '');
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => NewWardForm(ward: myward,)),
+                (route)=>false,
+          );
+        }
+      }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error : $e')),
+      );
       throw Exception('Ward login failed: ${e.toString()}');
     }
   }
