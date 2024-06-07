@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
@@ -200,7 +199,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
 
   Future<void> _handleWardLogin(BuildContext context) async {
     final wardAuthProvider = Provider.of<WardAuthProvider>(context, listen: false);
-    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
+    Provider.of<WardUserProvider>(context, listen: false);
 
     try {
       await wardAuthProvider.signIn(

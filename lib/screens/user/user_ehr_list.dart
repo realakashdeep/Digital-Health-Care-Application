@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:final_year_project/models/health_record_model.dart';
-import 'package:provider/provider.dart';
-import '../../provider/health_record_data_provider.dart';
 import '../HealthRecordDetails.dart';
 
 class UserHealthRecordListPage extends StatefulWidget {

@@ -34,7 +34,7 @@ class WardUserProvider with ChangeNotifier {
     return await _wardService.getCurrentUserId();
   }
 
-  Future<WardModel?> getWardByNumber(String wardNumber) async {
+  Future<void> getWardByNumber(String wardNumber) async {
     _user = await _wardService.getUserByWardNumber(wardNumber);
     notifyListeners();
   }

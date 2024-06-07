@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../constants/text_strings.dart';
 import '../../../models/user_model.dart';
 import '../../../services/user_services.dart';
 import '../../welcome.dart';
 import 'edit_profile.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class UserProfile extends StatefulWidget {
   @override

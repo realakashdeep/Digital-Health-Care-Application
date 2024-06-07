@@ -1,4 +1,4 @@
-import 'dart:ui';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,12 +13,9 @@ class AppointmentModel {
   String heartRate;
   String spO2;
   String assignedTo;
-
   String doctorMail;
-
   String careMail;
   String wardNumber;
-
   String status;
   String symptoms;
   String prescriptions;

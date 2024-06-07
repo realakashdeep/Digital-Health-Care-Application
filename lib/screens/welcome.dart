@@ -1,4 +1,3 @@
-import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/screens/user/login&signup/user_login.dart';
 import 'package:final_year_project/screens/user/login&signup/user_signup.dart';
 import 'package:final_year_project/screens/ward/ward_login.dart';

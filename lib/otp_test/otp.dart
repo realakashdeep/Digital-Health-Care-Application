@@ -3,25 +3,19 @@ import 'package:final_year_project/screens/user/user_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class MyOtp extends StatefulWidget {
+class MyOtp extends StatelessWidget {
   String verificationid; 
   MyOtp({super.key,required this.verificationid}); 
 
- 
-  @override
-  State<MyOtp> createState() => _MyWidgetState();
-}
-
-class _MyWidgetState extends State<MyOtp> {
-
   TextEditingController otpController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("OTP Screen"),
         centerTitle: true,
-         
+
       ),
       body: Column(
         children: [
@@ -41,7 +35,7 @@ class _MyWidgetState extends State<MyOtp> {
           ElevatedButton(
             onPressed: () async{
               try{
-                PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  widget.verificationid, smsCode: otpController.text.toString());
+                PhoneAuthCredential credential = await PhoneAuthProvider.credential(verificationId:  verificationid, smsCode: otpController.text.toString());
                 FirebaseAuth.instance.signInWithCredential(credential).then(
                   (value) => Navigator.push(context,MaterialPageRoute(builder: (context)=>UserHome()))
                 );

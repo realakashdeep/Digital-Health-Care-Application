@@ -1,4 +1,4 @@
-import 'package:final_year_project/screens/user/tests.dart';
+
 import 'package:final_year_project/screens/ward/doctors/appointment_list.dart';
 import 'package:final_year_project/screens/ward/doctors/doctor_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -112,7 +112,6 @@ class DoctorsMenuPage extends StatelessWidget {
             children: <Widget>[
               SvgPicture.asset(
                 assetPath,
-                color: Colors.white,
                 width: iconSize,
                 height: iconSize,
               ),

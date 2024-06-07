@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:convert';
 import '../models/doctors_model.dart';
 
 class DoctorsService {
@@ -17,8 +14,6 @@ class DoctorsService {
   }
 
   Future<void> addDoctor(Doctor doctor) async {
-
-    UserCredential? userCredential;
     final querySnapshot = await _firestore.collection('doctors').where('email', isEqualTo: doctor.email).get();
     if (querySnapshot.docs.isNotEmpty) {
       throw Exception('A doctor with this email already exists');

@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +9,6 @@ import '../../services/CareGiversService.dart';
 class CareGiversAuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CareGiversService _service = CareGiversService();
   User? _user;
   final CareGiversService _careGiversService = CareGiversService();
   User? get user => _user;

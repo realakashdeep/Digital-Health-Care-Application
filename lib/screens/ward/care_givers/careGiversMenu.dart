@@ -1,7 +1,8 @@
 import 'package:final_year_project/screens/ward/care_givers/DailyActivity.dart';
+import 'package:final_year_project/screens/welcome.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'ViewUserDetails.dart';
 
 class CareGiverMenuPage extends StatefulWidget {
@@ -14,7 +15,7 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  Future<void> _checkAadhaarNumber(String aadhaarNumber) async {
+  Future<bool> _checkAadhaarNumber(String aadhaarNumber) async {
     setState(() {
       _isLoading = true;
     });
@@ -31,9 +32,10 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
 
       if (querySnapshot.docs.isNotEmpty) {
         print("already registered");
+        return true;
       } else {
-        // Aadhaar number not found, show dialog
         _showAadhaarNotRegisteredDialog();
+        return false;
       }
     } catch (e) {
       setState(() {
@@ -43,8 +45,10 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error checking Aadhaar number: $e')),
       );
+      return false;
     }
   }
+
 
   void _showAadhaarNotRegisteredDialog() {
     showDialog(
@@ -87,7 +91,7 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('CareGiver Menu'),
+        title: Text('Care Givers Menu'),
         centerTitle: true,
       ),
       body: Center(
@@ -100,14 +104,14 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: 300, // Adjust the width as needed
+                  width: inputWidth, // Adjust the width as needed
                   child: TextFormField(
                     controller: _aadhaarController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: 'Please Enter Aadhaar Number',
                       hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-                      labelText: 'Aadhaar Number',
+                      labelText: 'Enter Patient\'s Aadhaar Number',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12), // Rounded corners
                       ),
@@ -126,15 +130,17 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        _checkAadhaarNumber(_aadhaarController.text);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ViewUserDetails(aadhaarNumber: _aadhaarController.text),
-                          ),
-                        );
+                       if(await _checkAadhaarNumber(_aadhaarController.text)){
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(
+                             builder: (context) => ViewUserDetails(aadhaarNumber: _aadhaarController.text),
+                           ),
+                         );
+                       }
+
                       }
 
                     },
@@ -153,7 +159,7 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height:10),
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
@@ -179,6 +185,29 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
                     ),
                   ),
                 ),
+                Spacer(),
+
+                SizedBox(
+                  width: buttonWidth,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      _showLogoutConfirmationDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                      minimumSize: Size(100, 20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 15)),
+                        SizedBox(width: 0),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
                 if (_isLoading)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -189,6 +218,50 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Are you sure you want to log out?', style: TextStyle(fontSize: 20, color: Colors.black)),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.blue,
+              ),
+              child: Text('No', style: TextStyle(fontSize: 14, color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                FirebaseAuth.instance.signOut();
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => WelcomePage()),
+                      (Route<dynamic> route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.redAccent,
+              ),
+              child: Text('Yes', style: TextStyle(fontSize: 14, color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

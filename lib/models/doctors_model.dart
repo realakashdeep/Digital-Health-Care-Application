@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class Doctor {
+  final String id;
   final String name;
   final String email;
   final String wardNumber;
@@ -10,6 +11,7 @@ class Doctor {
   final String doctorImageUrl;
 
   Doctor({
+    required this.id,
     required this.name,
     required this.email,
     required this.wardNumber,
@@ -22,6 +24,7 @@ class Doctor {
   // Convert a Doctor object into a Map object
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'email': email,
       'wardNumber': wardNumber,
@@ -35,6 +38,7 @@ class Doctor {
   // Extract a Doctor object from a Map object
   factory Doctor.fromMap(Map<String, dynamic> map) {
     return Doctor(
+      id: map['id'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       wardNumber: map['wardNumber'] ?? '',

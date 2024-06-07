@@ -92,9 +92,9 @@ class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
           child: Column(
             children: [
               _buildDetailCard('Patient Name', widget.appointment.patientName),
-              _buildDetailCard('Gender', user.gender ?? 'N/A'),
-              _buildDetailCard('DOB', user.dob ?? 'N/A'),
-              _buildDetailCard('Phone Number', user.phoneNumber ?? 'N/A'),
+              _buildDetailCard('Gender', user.gender),
+              _buildDetailCard('DOB', user.dob),
+              _buildDetailCard('Phone Number', user.phoneNumber),
               _buildDetailCard('Allergies', patientHealthRecord.allergies ?? 'N/A'),
               _buildDetailCard('Height', patientHealthRecord.height ?? 'N/A'),
               _buildDetailCard('Weight', patientHealthRecord.weight ?? 'N/A'),

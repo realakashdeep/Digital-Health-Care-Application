@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/models/ward_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/doctors_model.dart';
@@ -147,7 +146,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        doctor.name ?? '',
+                        doctor.name,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -183,7 +182,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
               ),
             ),
             SizedBox(height: 8),
-            Text(doctor.aboutDoctor ?? ''),
+            Text(doctor.aboutDoctor),
             SizedBox(height: 16),
             Row(
               children: [
@@ -227,22 +226,22 @@ class _DoctorProfileState extends State<DoctorProfile> {
             ListTile(
               leading: Icon(Icons.confirmation_number),
               title: Text('Ward Number'),
-              subtitle: Text(ward.wardNumber ?? ''),
+              subtitle: Text(ward.wardNumber),
             ),
             ListTile(
               leading: Icon(Icons.location_on),
               title: Text('Ward Address'),
-              subtitle: Text(ward.wardAddress ?? ''),
+              subtitle: Text(ward.wardAddress),
             ),
             ListTile(
               leading: Icon(Icons.phone),
               title: Text('Ward Contact'),
-              subtitle: Text(ward.wardContactNumber ?? ''),
+              subtitle: Text(ward.wardContactNumber),
             ),
             ListTile(
               leading: Icon(Icons.description),
               title: Text('Ward Subtitle'),
-              subtitle: Text(ward.wardSubtitle ?? ''),
+              subtitle: Text(ward.wardSubtitle),
             ),
           ],
         ),

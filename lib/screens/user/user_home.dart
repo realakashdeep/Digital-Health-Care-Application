@@ -1,14 +1,9 @@
 import 'package:final_year_project/constants/text_strings.dart';
-import 'package:final_year_project/models/health_record_model.dart';
 import 'package:final_year_project/screens/user/health_centre_details.dart';
 import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
-import 'package:final_year_project/screens/user/user_ehr_list.dart';
 import 'package:final_year_project/screens/ward/care_givers/careGiversForm.dart';
 import 'package:final_year_project/screens/ward/doctors/appointment_list.dart';
-import 'package:final_year_project/screens/ward/doctors/DoctorsForm.dart';
-import 'package:final_year_project/screens/ward/care_givers/patientInfoForm.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserHome extends StatelessWidget {
@@ -16,7 +11,6 @@ class UserHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
     final Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(

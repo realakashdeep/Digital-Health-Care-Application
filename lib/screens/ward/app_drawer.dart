@@ -31,7 +31,6 @@ class AppDrawer extends StatelessWidget {
               'assets/add_user.svg',
               width: 24,
               height: 24,
-              color: Colors.black,
             ),
             title: Text(
               'Register New User',
@@ -51,7 +50,6 @@ class AppDrawer extends StatelessWidget {
               'assets/camp.svg',
               width: 24,
               height: 24,
-              color: Colors.black,
             ),
             title: Text(
               'Current Camps',

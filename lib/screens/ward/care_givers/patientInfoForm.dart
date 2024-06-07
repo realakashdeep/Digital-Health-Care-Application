@@ -3,9 +3,7 @@ import 'package:final_year_project/models/health_record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../../../models/user_model.dart';
-import '../../../provider/health_record_data_provider.dart';
 import '../../../services/user_services.dart';
 
 class PatientInfoForm extends StatefulWidget {

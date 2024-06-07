@@ -27,7 +27,6 @@ class SplashScreen extends StatelessWidget {
               'assets/local_hospital_outlined.svg',
               width: 100,
               height: 100,
-              color: Colors.white,
             ),
             SizedBox(height: 16),
             Text(

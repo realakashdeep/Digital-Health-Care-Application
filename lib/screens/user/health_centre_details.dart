@@ -11,7 +11,6 @@ class HealthCentreDetailsPage extends StatefulWidget {
 }
 
 class _HealthCentreDetailsPageState extends State<HealthCentreDetailsPage> {
-  final _formKey = GlobalKey<FormState>();
   late WardModel _ward;
   bool _isLoading = true;
   String? _errorMessage;

@@ -49,6 +49,7 @@ class DoctorProvider extends ChangeNotifier {
       await _doctorService.updateDoctor(email, updatedData);
       if (_doctor != null) {
         _doctor = Doctor(
+          id: '',
           email: email,
           name: '',
           wardNumber: '',
