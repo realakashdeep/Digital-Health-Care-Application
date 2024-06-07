@@ -445,6 +445,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
                               String? wardNumber = wardUser.wardNumber;
 
                               Doctor doctor = Doctor(
+                                id: '',
                                 name: _nameController.text,
                                 email: _emailController.text,
                                 wardNumber: wardNumber,
