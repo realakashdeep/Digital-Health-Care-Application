@@ -1,12 +1,22 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:final_year_project/screens/ward/bar_graph.dart';
 import 'package:final_year_project/screens/ward/profile/ward_profile.dart';
+import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../provider/ward/ward_auth_provider.dart';
-import '../welcome.dart';
-import 'CareGiversDoctorsPage.dart';
-import 'RegisterUserPage.dart';
-import 'CurrentCampsPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../../models/doctors_model.dart';
+import '../../models/ward_model.dart';
+import '../../provider/ward/ward_auth_provider.dart';
+import '../../provider/ward/ward_user_provider.dart';
+import '../../services/CareGiversService.dart';
+import '../../services/doctor_services.dart';
+import '../../services/ward_user_services.dart';
+import 'CurrentCampsPage.dart';
+import 'RegisterUserPage.dart';
+import 'user_list.dart';
+
 
 class WardMenuPage extends StatefulWidget {
   @override
@@ -14,7 +24,9 @@ class WardMenuPage extends StatefulWidget {
 }
 
 class _WardMenuPageState extends State<WardMenuPage> {
+
   Widget build(BuildContext context) {
+    final wardAuthProvider = Provider.of<WardAuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Ward Menu'),
@@ -42,17 +54,11 @@ class _WardMenuPageState extends State<WardMenuPage> {
                       crossAxisSpacing: gridSpacing,
                       mainAxisSpacing: gridSpacing,
                       children: <Widget>[
-                        // buildMenuButton(
-                        //   context,
-                        //   'Register New User',
-                        //   'assets/add_user.svg',
-                        //   RegisterUserPage(),
-                        // ),
-                        buildMenuButtonWithIcon(
+                        buildMenuButton(
                           context,
-                          'View And Update Ward Details',
-                          Icons.local_hospital,
-                          WardProfilePage(),
+                          'Register New User',
+                          'assets/add_user.svg',
+                          RegisterUserPage(),
                         ),
                         buildMenuButton(
                           context,
@@ -68,15 +74,22 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'Generate Reports',
+                          'User Registration Report',
                           Icons.list_alt,
-                          null,
+                          FirebasePage(),
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'About Care Giver/Doctor',
+                          'Monthly User Registration Bar Graph',
+                          Icons.list_alt,
+                          ChartApp(wardNumber: "1"),
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
+                          'Register Care Giver/Doctor',
                           Icons.medical_information,
-                          CareGiversDoctorsPage(),
+                          null,
+                          onTap: () => _showCareGiverDoctorDialog(context),
                         ),
                       ],
                     ),
@@ -98,8 +111,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
             backgroundColor: Colors.redAccent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
-            ),
-            minimumSize: Size(300, 40),
+            )
           ),
           icon: Padding(
             padding: const EdgeInsets.only(left: 8.0),
@@ -142,6 +154,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
             children: <Widget>[
               SvgPicture.asset(
                 assetPath,
+                color: Colors.white,
                 width: iconSize,
                 height: iconSize,
               ),
@@ -201,6 +214,281 @@ class _WardMenuPageState extends State<WardMenuPage> {
     );
   }
 
+  void _showCareGiverDoctorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Register')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.person_add),
+                title: Text('Register Care Giver'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showRegisterCareGiverDialog(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person_add),
+                title: Text('Register Doctor'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showRegisterDoctorDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showRegisterCareGiverDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController(); // Add controller for password field
+    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
+    bool _obscurePassword = true;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Register Care Giver')),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(labelText: 'Care Giver Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the care giver\'s name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the email';
+                    }
+                    return null;
+                  },
+                ),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscurePassword,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the password';
+                  }
+                  return null;
+                },
+              ),
+
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      String name = _nameController.text;
+                      String email = _emailController.text;
+                      String password = _passwordController.text;
+                      String encryptedPassword = _encryptPassword(password);
+
+                      // generating wardNumber
+                      String? userId = await wardUserProvider.getCurrentUserId();
+                      if (userId != null) {
+                        WardModel? wardUser = await WardUserServices().getWard(userId);
+
+                        if (wardUser != null) {
+                          String? wardNumber = wardUser.wardNumber;
+
+
+                          try {
+                            // Call the service method to add the care giver to Firestore
+                            await CareGiversService().addCareGiver(name, email, wardNumber, _passwordController.text);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Care Giver registered successfully')),
+                            );
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: Ward information not available')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: User ID not available')),
+                        );
+                      }
+                    }
+                  },
+                  child: Text('Register'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
+  void _showRegisterDoctorDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
+    final _doctorsService = DoctorsService();
+    final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
+
+    bool _obscurePassword = true;
+    bool _isRegistering = false; // Flag to track registration process
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Center(child: Text('Register Doctor')),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(labelText: 'Doctor Name'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the doctor\'s name';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(labelText: 'Email'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the email';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: _obscurePassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the password';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _isRegistering // Disable button if already registering
+                          ? null
+                          : () async {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            _isRegistering = true; // Set flag to true when registration starts
+                          });
+
+                          String? userId = await wardUserProvider.getCurrentUserId();
+
+                          if (userId != null) {
+                            WardModel? wardUser = await WardUserServices().getWard(userId);
+
+                            if (wardUser != null) {
+                              String? wardNumber = wardUser.wardNumber;
+
+                              Doctor doctor = Doctor(
+                                name: _nameController.text,
+                                email: _emailController.text,
+                                wardNumber: wardNumber,
+                                password: _passwordController.text,
+                                aboutDoctor: '',
+                                doctorContactNumber: '',
+                                doctorImageUrl: '',
+                              );
+
+                              await _doctorsService.addDoctor(doctor);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Doctor registered successfully')),
+                              );
+                              Navigator.of(context).pop();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: Ward information not available')),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: User ID not available')),
+                            );
+                          }
+
+                          setState(() {
+                            _isRegistering = false; // Reset flag when registration completes
+                          });
+                        }
+                      },
+                      child: Text('Register'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -243,5 +531,11 @@ class _WardMenuPageState extends State<WardMenuPage> {
         );
       },
     );
+  }
+
+  String _encryptPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
   }
 }
