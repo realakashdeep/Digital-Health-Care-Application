@@ -1,14 +1,11 @@
 import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
-import 'package:final_year_project/screens/ward/care_givers/patientInfoForm.dart';
+import 'package:final_year_project/screens/ward/bar_graph.dart';
 import 'package:final_year_project/screens/ward/profile/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import '../../models/caregivers_model.dart';
 import '../../models/doctors_model.dart';
 import '../../models/ward_model.dart';
 import '../../provider/ward/ward_auth_provider.dart';
@@ -18,6 +15,7 @@ import '../../services/doctor_services.dart';
 import '../../services/ward_user_services.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
+import 'user_list.dart';
 
 
 class WardMenuPage extends StatefulWidget {
@@ -26,6 +24,7 @@ class WardMenuPage extends StatefulWidget {
 }
 
 class _WardMenuPageState extends State<WardMenuPage> {
+
   Widget build(BuildContext context) {
     final wardAuthProvider = Provider.of<WardAuthProvider>(context);
     return Scaffold(
@@ -75,9 +74,15 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'Generate Reports',
+                          'User Registration Report',
                           Icons.list_alt,
-                          null,
+                          FirebasePage(),
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
+                          'Monthly User Registration Bar Graph',
+                          Icons.list_alt,
+                          ChartApp(wardNumber: "1"),
                         ),
                         buildMenuButtonWithIcon(
                           context,
@@ -106,8 +111,7 @@ class _WardMenuPageState extends State<WardMenuPage> {
             backgroundColor: Colors.redAccent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
-            ),
-            minimumSize: Size(300, 40),
+            )
           ),
           icon: Padding(
             padding: const EdgeInsets.only(left: 8.0),
