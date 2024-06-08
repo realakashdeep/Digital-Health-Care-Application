@@ -30,6 +30,8 @@ class _WardMenuPageState extends State<WardMenuPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ward Menu'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         centerTitle: true,
       ),
       body: SafeArea(
@@ -64,11 +66,11 @@ class _WardMenuPageState extends State<WardMenuPage> {
                           context,
                           'Camps Details',
                           'assets/camp.svg',
-                          CurrentCampsPage(),
+                          CampsPage(),
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'View And Update Ward Details',
+                          'Ward Details',
                           Icons.local_hospital,
                           WardProfilePage(),
                         ),

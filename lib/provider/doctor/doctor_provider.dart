@@ -2,26 +2,21 @@ import 'package:flutter/material.dart';
 import '../../models/doctors_model.dart';
 import '../../services/doctor_services.dart';
 
-class DoctorProvider extends ChangeNotifier {
-  final DoctorsService _doctorService = DoctorsService();
-  Doctor? _doctor;
+class DoctorsProvider with ChangeNotifier {
+  final DoctorsService _doctorsService = DoctorsService();
+  List<Doctor> _doctors = [];
   bool _isLoading = false;
-  String _error = '';
 
-  Doctor? get doctor => _doctor;
+  List<Doctor> get doctors => _doctors;
   bool get isLoading => _isLoading;
-  String get error => _error;
 
-  Future<void> fetchDoctorByEmail(String email) async {
+  Future<void> fetchDoctorsByWardNumber(String wardNumber) async {
     try {
       _isLoading = true;
-      _error = '';
-      _doctor = await _doctorService.getDoctor(email);
-      if (_doctor == null) {
-        _error = 'Doctor not found';
-      }
+      notifyListeners();
+      _doctors = await _doctorsService.getDoctorsByWardNumber(wardNumber);
     } catch (e) {
-      _error = 'Failed to fetch doctor: $e';
+      print(e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -30,54 +25,28 @@ class DoctorProvider extends ChangeNotifier {
 
   Future<void> addDoctor(Doctor doctor) async {
     try {
-      _isLoading = true;
-      _error = '';
-      await _doctorService.addDoctor(doctor);
-      _doctor = doctor; // Set the current doctor to the added doctor
+      await _doctorsService.addDoctor(doctor);
+      await fetchDoctorsByWardNumber(doctor.wardNumber);
     } catch (e) {
-      _error = 'Failed to add doctor: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      print(e);
     }
   }
 
-  Future<void> updateDoctor(String email, Map<String, dynamic> updatedData) async {
+  Future<void> updateDoctor(Doctor doctor) async {
     try {
-      _isLoading = true;
-      _error = '';
-      await _doctorService.updateDoctor(email, updatedData);
-      if (_doctor != null) {
-        _doctor = Doctor(
-          id: '',
-          email: email,
-          name: '',
-          wardNumber: '',
-          password: '',
-          aboutDoctor: '',
-          doctorContactNumber: '',
-          doctorImageUrl: '',
-        );
-      }
+      await _doctorsService.updateDoctor(doctor.email, doctor.toMap());
+      await fetchDoctorsByWardNumber(doctor.wardNumber);
     } catch (e) {
-      _error = 'Failed to update doctor: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      print(e);
     }
   }
 
-  Future<void> deleteDoctor(String email) async {
+  Future<void> deleteDoctor(String email, String wardNumber) async {
     try {
-      _isLoading = true;
-      _error = '';
-      await _doctorService.deleteDoctor(email);
-      _doctor = null; // Remove the current doctor after deletion
+      await _doctorsService.deleteDoctor(email);
+      await fetchDoctorsByWardNumber(wardNumber);
     } catch (e) {
-      _error = 'Failed to delete doctor: $e';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      print(e);
     }
   }
 }

@@ -1,30 +1,36 @@
 import 'package:final_year_project/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/doctors_model.dart';
 import '../../models/ward_model.dart';
+import '../../provider/doctor/doctor_provider.dart';
 import '../../provider/user/user_provider.dart';
 import '../../provider/ward/ward_user_provider.dart';
 
-class HealthCentreDetailsPage extends StatefulWidget {
+class WardDetailsPage2 extends StatefulWidget {
   @override
-  _HealthCentreDetailsPageState createState() => _HealthCentreDetailsPageState();
+  _WardProfilePageState createState() => _WardProfilePageState();
 }
 
-class _HealthCentreDetailsPageState extends State<HealthCentreDetailsPage> {
+
+class _WardProfilePageState extends State<WardDetailsPage2> {
   late WardModel _ward;
   bool _isLoading = true;
   String? _errorMessage;
+  List<Doctor> _doctors = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchWard();
+    _fetchWardAndDoctors();
   }
 
-  Future<void> _fetchWard() async {
+  Future<void> _fetchWardAndDoctors() async {
     try {
       final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
       final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final doctorProvider = Provider.of<DoctorsProvider>(context, listen: false);
+
       String? userId = await userProvider.getCurrentUserId();
       if (userId != null) {
         await userProvider.fetchUser(userId);
@@ -32,13 +38,19 @@ class _HealthCentreDetailsPageState extends State<HealthCentreDetailsPage> {
 
         if (user != null) {
           int wardNumber = int.parse(user.ward);
+
+          // Fetch ward details
           await wardUserProvider.getWardByNumber(wardNumber.toString());
           WardModel? wardModel = wardUserProvider.user;
+
+          // Fetch doctors for the ward
+          await doctorProvider.fetchDoctorsByWardNumber(wardNumber.toString());
 
           if (wardModel != null) {
             if (mounted) {
               setState(() {
                 _ward = wardModel;
+                _doctors = doctorProvider.doctors; // Assign fetched doctors
                 _isLoading = false;
               });
             }
@@ -56,6 +68,8 @@ class _HealthCentreDetailsPageState extends State<HealthCentreDetailsPage> {
     }
   }
 
+
+
   void _setError(String message) {
     if (mounted) {
       setState(() {
@@ -71,167 +85,136 @@ class _HealthCentreDetailsPageState extends State<HealthCentreDetailsPage> {
       appBar: AppBar(
         title: Text('Ward Details'),
         centerTitle: true,
+        foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _errorMessage != null
-          ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
+          ? Center(
+        child: Text(
+          _errorMessage!,
+          style: TextStyle(color: Colors.red),
+        ),
+      )
           : SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(
+                  width: 1
+                ),
+              ),
+              child: Column(
+                children: <Widget>[
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8.0),
+                      topRight: Radius.circular(8.0),
                     ),
-                    elevation: 5,
+                    child: SizedBox(
+                      width: 400,
+                      height: 200,
+                      child: _ward.wardImageUrl != 'N/A'
+                          ? Image.network(_ward.wardImageUrl,
+                          fit: BoxFit.cover)
+                          : Image.network(
+                        'https://via.placeholder.com/400x200',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(8.0),
-                            topRight: Radius.circular(8.0),
-                          ),
-                          child: Image.network(
-                            'https://via.placeholder.com/400x200',
-                            fit: BoxFit.cover,
+                        Text(
+                          "Ward ${_ward.wardNumber}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                "Ward ${_ward.wardNumber}",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Subtitle',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: <Widget>[
-                                  Icon(Icons.location_on, color: Colors.grey),
-                                  SizedBox(width: 4),
-                                  Text(_ward.wardAddress),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: <Widget>[
-                                  Icon(Icons.directions_walk, color: Colors.grey),
-                                  SizedBox(width: 4),
-                                  Text('5km Away From Your Location'),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Handle View All Doctors button press
-                                    },
-                                    child: Text('View All Doctors'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                    ),
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: () {
-                                      // Handle Call button press
-                                    },
-                                    child: Text('Call'),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.blue, side: BorderSide(color: Colors.blue),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                        SizedBox(height: 4),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.location_on,
+                                color: Colors.grey),
+                            SizedBox(width: 4),
+                            Text(_ward.wardAddress),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.phone, color: Colors.grey),
+                            SizedBox(width: 4),
+                            Text(_ward.wardContactNumber),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'About Ward',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'A career as a doctor is a clinical professional that involves providing services in healthcare facilities. Individuals in the doctor’s career path are responsible for diagnosing, examining, and identifying diseases, disorders, and illnesses of patients.',
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Doctors',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                _buildCard(
-                  name: 'Sam Curren',
-                  date: '12/3/2023',
-                  review: 'Responsible for diagnosing, examining, and identifying diseases, disorders, and illnesses of patients.',
-                ),
-                _buildCard(
-                  name: 'Sam Curren',
-                  date: '12/3/2023',
-                  review: 'Responsible for diagnosing, examining, and identifying diseases, disorders, and illnesses of patients.',
-                ),
-                // Add more reviews as needed
-              ],
+                ],
+              ),
             ),
-          ),
-      );
-    }
-  
-  Widget _buildCard({required String name, required String date, required String review}) {
+            SizedBox(height: 16),
+            Text(
+              'Doctors',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(), // Prevent scrolling conflicts
+              itemCount: _doctors.length,
+              itemBuilder: (context, index) {
+                final doctor = _doctors[index];
+                return _buildCard(doctor: doctor);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required Doctor doctor}) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: NetworkImage('https://via.placeholder.com/50'),
+          backgroundImage: doctor.doctorImageUrl.isEmpty ? NetworkImage('https://via.placeholder.com/50') :NetworkImage(doctor.doctorImageUrl),
         ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(date, style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Text(
+              "Dr "+doctor.name,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Number : "+doctor.doctorContactNumber,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Mail : "+doctor.email,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-        subtitle: Text(review),
       ),
     );
   }

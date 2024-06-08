@@ -1,3 +1,4 @@
+import 'package:final_year_project/provider/doctor/doctor_provider.dart';
 import 'package:final_year_project/provider/doctor/doctors_auth_provider.dart';
 import 'package:final_year_project/provider/health_record_data_provider.dart';
 import 'package:final_year_project/provider/user/user_provider.dart';
@@ -32,7 +33,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => WardUserProvider()),
         ChangeNotifierProvider(create: (context) => HealthRecordDataProvider()),
         ChangeNotifierProvider(create: (context) => CareGiversAuthProvider()), // Add this provider
-        ChangeNotifierProvider(create: (context) => DoctorsAuthProvider()), // Add this provider
+        ChangeNotifierProvider(create: (context) => DoctorsAuthProvider()),
+        ChangeNotifierProvider(create: (context) => DoctorsProvider()),// Add this provider
       ],
       child: MyApp(),
     ),

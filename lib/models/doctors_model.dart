@@ -49,9 +49,7 @@ class Doctor {
     );
   }
 
-  // Convert a Doctor object into a JSON object
   String toJson() => json.encode(toMap());
 
-  // Extract a Doctor object from a JSON object
   factory Doctor.fromJson(String source) => Doctor.fromMap(json.decode(source));
 }

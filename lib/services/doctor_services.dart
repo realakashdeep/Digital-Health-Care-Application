@@ -8,8 +8,9 @@ class DoctorsService {
 
   Future<bool> checkIfUserExists(String email) async {
     List<String> signInMethods = await _auth.fetchSignInMethodsForEmail(email);
-    if(signInMethods.isNotEmpty)
+    if(signInMethods.isNotEmpty) {
       print("user exists");
+    }
     return signInMethods.isNotEmpty;
   }
 
@@ -32,7 +33,7 @@ class DoctorsService {
   // Retrieve doctor data from Firestore based on email
   Future<Doctor?> getDoctor(String email) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
           .collection('doctors')
           .where('email', isEqualTo: email)
           .get();
@@ -45,9 +46,10 @@ class DoctorsService {
       throw e;
     }
   }
+
   Future<String?> getDoctorId(String email) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
           .collection('doctors')
           .where('email', isEqualTo: email)
           .get();
@@ -62,20 +64,40 @@ class DoctorsService {
     }
   }
 
-
-  // Update doctor data in Firestore
   Future<void> updateDoctor(String email, Map<String, dynamic> updatedData) async {
     try {
-      await _firestore.collection('doctors').doc(email).update(updatedData);
+      String? doctorId = await getDoctorId(email);
+      if (doctorId != null) {
+        await _firestore.collection('doctors').doc(doctorId).update(updatedData);
+      } else {
+        throw Exception('Doctor not found');
+      }
     } catch (e) {
       throw e;
     }
   }
 
-  // Delete doctor data from Firestore
   Future<void> deleteDoctor(String email) async {
     try {
-      await _firestore.collection('doctors').doc(email).delete();
+      String? doctorId = await getDoctorId(email);
+      if (doctorId != null) {
+        await _firestore.collection('doctors').doc(doctorId).delete();
+      } else {
+        throw Exception('Doctor not found');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<List<Doctor>> getDoctorsByWardNumber(String wardNumber) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('doctors')
+          .where('wardNumber', isEqualTo: wardNumber)
+          .get();
+
+      return querySnapshot.docs.map((doc) => Doctor.fromMap(doc.data())).toList();
     } catch (e) {
       throw e;
     }

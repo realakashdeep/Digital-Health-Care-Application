@@ -1,9 +1,10 @@
-
-import 'package:final_year_project/screens/ward/profile/ward_update_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../models/ward_model.dart';
-import '../../../provider/ward/ward_user_provider.dart';
+import 'package:final_year_project/provider/doctor/doctor_provider.dart';
+import 'package:final_year_project/provider/ward/ward_user_provider.dart';
+import 'package:final_year_project/models/doctors_model.dart';
+import 'package:final_year_project/models/ward_model.dart';
+import 'ward_update_profile.dart';
 
 class WardProfilePage extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _WardProfilePageState extends State<WardProfilePage> {
   late WardModel _ward;
   bool _isLoading = true;
   String? _errorMessage;
+  List<Doctor> _doctors = [];
 
   @override
   void initState() {
@@ -23,8 +25,7 @@ class _WardProfilePageState extends State<WardProfilePage> {
 
   Future<void> _fetchWard() async {
     try {
-      final wardUserProvider = Provider.of<WardUserProvider>(
-          context, listen: false);
+      final wardUserProvider = Provider.of<WardUserProvider>(context, listen: false);
       String? userId = await wardUserProvider.getCurrentUserId();
       if (userId != null) {
         await wardUserProvider.fetchUser(userId);
@@ -32,12 +33,24 @@ class _WardProfilePageState extends State<WardProfilePage> {
           _ward = wardUserProvider.user!;
           _isLoading = false;
         });
+        _fetchDoctors();
       } else {
         _setError(
             'Error: Unable to fetch user ID. Please try logging in again.');
       }
+    } catch (e) {
+      _setError('Error: $e');
     }
-    catch(e){
+  }
+
+  Future<void> _fetchDoctors() async {
+    try {
+      final doctorProvider = Provider.of<DoctorsProvider>(context, listen: false);
+      await doctorProvider.fetchDoctorsByWardNumber(_ward.wardNumber);
+      setState(() {
+        _doctors = doctorProvider.doctors;
+      });
+    } catch (e) {
       _setError('Error: $e');
     }
   }
@@ -57,12 +70,18 @@ class _WardProfilePageState extends State<WardProfilePage> {
       appBar: AppBar(
         title: Text('Ward Details'),
         centerTitle: true,
+        foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _errorMessage != null
-          ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
+          ? Center(
+        child: Text(
+          _errorMessage!,
+          style: TextStyle(color: Colors.red),
+        ),
+      )
           : SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -81,104 +100,59 @@ class _WardProfilePageState extends State<WardProfilePage> {
                   ),
                 ],
               ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                elevation: 5,
-                child: Column(
-                  children: <Widget>[
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8.0),
-                        topRight: Radius.circular(8.0),
-                      ),
-                      child: SizedBox(
-                        width: 400,
-                        height: 200,
-                        child: _ward.wardImageUrl != 'N/A' ? Image.network(_ward.wardImageUrl, fit: BoxFit.cover) : Image.network('https://via.placeholder.com/400x200', fit: BoxFit.cover,),
+              child: Column(
+                children: <Widget>[
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8.0),
+                      topRight: Radius.circular(8.0),
+                    ),
+                    child: SizedBox(
+                      width: 400,
+                      height: 200,
+                      child: _ward.wardImageUrl != 'N/A'
+                          ? Image.network(_ward.wardImageUrl,
+                          fit: BoxFit.cover)
+                          : Image.network(
+                        'https://via.placeholder.com/400x200',
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "Ward ${_ward.wardNumber}",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Ward ${_ward.wardNumber}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            _ward.wardSubtitle,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.location_on, color: Colors.grey),
-                              SizedBox(width: 4),
-                              Text(_ward.wardAddress),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.directions_walk, color: Colors.grey),
-                              SizedBox(width: 4),
-                              Text(_ward.wardNumber),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => WardUpdateProfile(ward: _ward))
-                                  );
-                                },
-                                child: Text('Update'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                ),
-                              ),
-                              OutlinedButton(
-                                onPressed: () {
-                                  // Handle Call button press
-                                },
-                                child: Text('Call'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.blue, side: BorderSide(color: Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 4),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.location_on,
+                                color: Colors.grey),
+                            SizedBox(width: 4),
+                            Text(_ward.wardAddress),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.phone, color: Colors.grey),
+                            SizedBox(width: 4),
+                            Text(_ward.wardContactNumber),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'About Ward',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              _ward.wardSummary
             ),
             SizedBox(height: 16),
             Text(
@@ -189,39 +163,62 @@ class _WardProfilePageState extends State<WardProfilePage> {
               ),
             ),
             SizedBox(height: 8),
-            _buildCard(
-              name: 'Sam Curren',
-              date: '12/3/2023',
-              review: 'Responsible for diagnosing, examining, and identifying diseases, disorders, and illnesses of patients.',
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: _doctors.length,
+              itemBuilder: (context, index) {
+                final doctor = _doctors[index];
+                return _buildCard(doctor: doctor);
+              },
             ),
-            _buildCard(
-              name: 'Sam Curren',
-              date: '12/3/2023',
-              review: 'Responsible for diagnosing, examining, and identifying diseases, disorders, and illnesses of patients.',
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        WardUpdateProfile(ward: _ward),
+                  ),
+                );
+              },
+              child: Text('Update'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white),
             ),
-            // Add more reviews as needed
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCard({required String name, required String date, required String review}) {
+  Widget _buildCard({required Doctor doctor}) {
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: NetworkImage('https://via.placeholder.com/50'),
+          backgroundImage: doctor.doctorImageUrl.isEmpty ? NetworkImage('https://via.placeholder.com/50') :NetworkImage(doctor.doctorImageUrl),
         ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(date, style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Text(
+              "Dr "+doctor.name,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Number : "+doctor.doctorContactNumber,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Mail : "+doctor.email,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-        subtitle: Text(review),
       ),
     );
   }

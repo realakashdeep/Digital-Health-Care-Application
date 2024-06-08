@@ -3,14 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/camp_model.dart';
-import 'app_drawer.dart';
 
-class CurrentCampsPage extends StatefulWidget {
+class CampsPage extends StatefulWidget {
   @override
-  State<CurrentCampsPage> createState() => _CurrentCampsPageState();
+  State<CampsPage> createState() => _CampsPageState();
 }
 
-class _CurrentCampsPageState extends State<CurrentCampsPage> {
+class _CampsPageState extends State<CampsPage> {
   // Create TextEditingController instances for each text field
   final TextEditingController _campNameController = TextEditingController();
 
@@ -30,18 +29,7 @@ class _CurrentCampsPageState extends State<CurrentCampsPage> {
       appBar: AppBar(
         title: Text('Camps Details'),
         centerTitle: true,
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: Icon(Icons.menu, color: Colors.black, size: 30),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
-      ),
-      drawer: AppDrawer(), // Use the AppDrawer widget here
+      ),// Use the AppDrawer widget here
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Camp')

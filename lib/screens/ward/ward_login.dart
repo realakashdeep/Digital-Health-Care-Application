@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +10,6 @@ import '../../provider/ward/ward_auth_provider.dart';
 import '../../provider/ward/ward_user_provider.dart';
 import 'care_givers/careGiversMenu.dart';
 import 'doctors/doctorsMenuPage.dart';
-import 'new_ward_page.dart';
 
 class WardLoginPage extends StatefulWidget {
   @override
@@ -137,9 +135,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String labelText,
-      String hintText,
-      {bool obscureText = false}) {
+  Widget buildTextField(TextEditingController controller, String labelText, String hintText, {bool obscureText = false}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.0),
       child: TextFormField(
@@ -215,26 +211,6 @@ class _WardLoginPageState extends State<WardLoginPage> {
             (route)=>false,
         );
       }
-      else{
-        User? user = wardAuthProvider.user;
-        if(user != null){
-          WardModel myward = WardModel(
-              wardId: user.uid,
-              wardEmail: _emailController.text.toString(),
-              wardAddress: '',
-              wardPassword: _passwordController.text.toString(),
-              wardNumber: '',
-              wardImageUrl: '',
-              wardSubtitle: '',
-              wardSummary: '',
-              wardContactNumber: '');
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => NewWardForm(ward: myward,)),
-                (route)=>false,
-          );
-        }
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error : $e')),
@@ -256,7 +232,7 @@ class _WardLoginPageState extends State<WardLoginPage> {
         return;
       }
 
-      User? user = await authProvider.signIn(
+      await authProvider.signIn(
         _emailController.text,
         _passwordController.text,
       );
