@@ -74,8 +74,8 @@ class _PatientAppointmentReportState extends State<PatientAppointmentReport> {
                     Text('Assigned To: ${appointment.assignedTo}'),
                   ],
                 ),
-                trailing: Icon(Icons.arrow_forward),
-                onTap: () {
+                trailing: appointment.status == "finished" ? Icon(Icons.done) : Icon(Icons.arrow_forward),
+                onTap: appointment.status == "finished" ? null : () {
                   print(appointment);
                   Navigator.push(
                     context,
