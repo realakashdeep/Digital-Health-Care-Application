@@ -1,11 +1,10 @@
-
 import 'package:final_year_project/screens/ward/doctors/appointment_list.dart';
 import 'package:final_year_project/screens/ward/doctors/doctor_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
 import '../../welcome.dart';
+import 'appointment_report.dart';
 
 class DoctorsMenuPage extends StatelessWidget {
   @override
@@ -46,6 +45,12 @@ class DoctorsMenuPage extends StatelessWidget {
                           'Appointments',
                           Icons.list_alt,
                           AppointmentList(),
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
+                          'Appointment Report',
+                          Icons.list_alt,
+                          AppointmentPage(),
                         ),
                       ],
                     ),

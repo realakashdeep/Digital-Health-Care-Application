@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:final_year_project/dump/populate.dart';
 import 'package:final_year_project/screens/ward/bar_graph.dart';
 import 'package:final_year_project/screens/ward/profile/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
@@ -15,7 +16,7 @@ import '../../services/doctor_services.dart';
 import '../../services/ward_user_services.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
-import 'user_list.dart';
+import 'ward_user_list.dart';
 
 
 class WardMenuPage extends StatefulWidget {
@@ -26,7 +27,6 @@ class WardMenuPage extends StatefulWidget {
 class _WardMenuPageState extends State<WardMenuPage> {
 
   Widget build(BuildContext context) {
-    final wardAuthProvider = Provider.of<WardAuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Ward Menu'),
@@ -74,15 +74,21 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
+                          'Populate',
+                          Icons.list_alt,
+                          Populate(),
+                        ),
+                        buildMenuButtonWithIcon(
+                          context,
                           'User Registration Report',
                           Icons.list_alt,
-                          FirebasePage(),
+                          WardUserList(),
                         ),
                         buildMenuButtonWithIcon(
                           context,
                           'Monthly User Registration Bar Graph',
                           Icons.list_alt,
-                          ChartApp(wardNumber: "1"),
+                          BarGraphReport(),
                         ),
                         buildMenuButtonWithIcon(
                           context,
@@ -313,7 +319,6 @@ class _WardMenuPageState extends State<WardMenuPage> {
                       String name = _nameController.text;
                       String email = _emailController.text;
                       String password = _passwordController.text;
-                      String encryptedPassword = _encryptPassword(password);
 
                       // generating wardNumber
                       String? userId = await wardUserProvider.getCurrentUserId();

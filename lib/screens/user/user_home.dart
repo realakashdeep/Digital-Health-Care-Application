@@ -1,5 +1,6 @@
 import 'package:final_year_project/constants/text_strings.dart';
 import 'package:final_year_project/screens/user/health_centre_details.dart';
+import 'package:final_year_project/screens/user/patient_appointment.dart';
 import 'package:final_year_project/screens/user/profile/ViewCamps.dart';
 import 'package:final_year_project/screens/user/profile/user_profile.dart';
 import 'package:final_year_project/screens/ward/care_givers/careGiversForm.dart';
@@ -88,6 +89,17 @@ class UserHome extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => AppointmentList()),
+                      );
+                    },
+                  ),
+                  _buildSquareButton(
+                    context,
+                    icon: Icons.campaign,
+                    label: 'Appointments Report',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PatientAppointmentReport()),
                       );
                     },
                   ),

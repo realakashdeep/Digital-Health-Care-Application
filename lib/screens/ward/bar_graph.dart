@@ -1,20 +1,19 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_year_project/models/ward_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../models/user.dart';
 
-class ChartApp extends StatefulWidget {
-  final String wardNumber;
-
-  const ChartApp({Key? key, required this.wardNumber}) : super(key: key);
+class BarGraphReport extends StatefulWidget {
+  const BarGraphReport({Key? key}) : super(key: key);
 
   @override
-  ChartAppState createState() => ChartAppState();
+  BarGraphReportState createState() => BarGraphReportState();
 }
 
-class ChartAppState extends State<ChartApp> {
+class BarGraphReportState extends State<BarGraphReport> {
   late List<_ChartData> data;
   late TooltipBehavior _tooltip;
   late Future<void> _fetchUsersFuture;
@@ -27,15 +26,34 @@ class ChartAppState extends State<ChartApp> {
     _fetchUsersFuture = getMyUsersFromFirebase();
   }
 
+  Future<WardModel?> getWardModel() async {
+    String uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    if (uid.isEmpty) {
+      throw Exception("Ward User is not logged in.");
+    }
+
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await FirebaseFirestore.instance.collection('Wards').doc(uid).get();
+
+    if (documentSnapshot.exists) {
+      return WardModel.fromSnapshot(documentSnapshot);
+    } else {
+      return null;
+    }
+  }
+
   Future<void> getMyUsersFromFirebase() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
-          .collection('Users')
-          .where('ward', isEqualTo: widget.wardNumber)
-          .get();
+      WardModel? wardModel = await getWardModel();
+      if(wardModel != null){
+        QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+            .collection('Users')
+            .where('ward', isEqualTo: wardModel.wardNumber)
+            .get();
 
-      List<MyUser> users = querySnapshot.docs.map((doc) => MyUser.fromSnapshot(doc)).toList();
-      _processMyUserData(users);
+        List<MyUser> users = querySnapshot.docs.map((doc) => MyUser.fromSnapshot(doc)).toList();
+        _processMyUserData(users);
+      }
     } catch (e) {
       print('Error fetching users: $e');
     }
