@@ -11,7 +11,8 @@ class DoctorsMenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doctor\'s Menu'),
+        title: Text('Doctor\'s Menu', style: TextStyle(fontSize: 26),),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: LayoutBuilder(

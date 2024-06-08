@@ -524,6 +524,7 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
          'status': 'Assigned to $_selectedDoctorName',
          'symptoms': _symptomsController.text,
          'prescriptions': '',
+         'tests': '',
        });
 
        // Update the document to include the appointmentId

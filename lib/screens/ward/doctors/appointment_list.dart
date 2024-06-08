@@ -58,7 +58,11 @@ class _AppointmentListState extends State<AppointmentList> {
             return Center(child: Text('No appointments found.'));
           }
 
-          final appointments = snapshot.data!.docs.map((doc) => AppointmentModel.fromSnapshot(doc)).toList();
+          final appointments = snapshot.data!.docs
+              .map((doc) => AppointmentModel.fromSnapshot(doc))
+              .where((appointment) =>
+          appointment.status.toLowerCase() != 'finished')
+              .toList();
 
           return ListView.builder(
             itemCount: appointments.length,
@@ -74,12 +78,13 @@ class _AppointmentListState extends State<AppointmentList> {
                   ),
                   subtitle: Text('Status: ${appointment.status}'),
                   trailing: Icon(Icons.arrow_forward),
-                  onTap: appointment.status == "finished"
+                  onTap: appointment.status.toLowerCase() == "finished"
                       ? null
                       : () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DoctorMedicalForm(appointment: appointment),
+                      builder: (context) =>
+                          DoctorMedicalForm(appointment: appointment),
                     ),
                   ),
                 ),
