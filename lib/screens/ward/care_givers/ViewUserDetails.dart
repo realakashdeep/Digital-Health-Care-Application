@@ -15,6 +15,7 @@ class ViewUserDetails extends StatefulWidget {
 }
 
 class _ViewUserDetailsState extends State<ViewUserDetails> {
+  final _formKey = GlobalKey<FormState>();
    late String wardNo;
   bool _isLoading = true;
   PatientHealthRecord? _userDetails;
@@ -68,7 +69,7 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
           if (healthRecordSnapshot.docs.isNotEmpty) {
             _userDetails = PatientHealthRecord.fromJson(healthRecordSnapshot.docs.first.data());
             print(healthRecordSnapshot.docs.first.data());
-            print('hii');
+            print(_userDetails?.lastUpdated);
           } else {
             _userDetails = PatientHealthRecord(
               fullName: fullName,
@@ -196,24 +197,28 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailItem('Name', _userDetails?.fullName ?? '', context, editable: false),
+            _buildDetailItem('Name','', _userDetails?.fullName ?? '', context, editable: false),
             _buildDobField('Date of Birth', _userDetails?.dob, context),
-            _buildDetailItem('Gender', _userDetails?.gender ?? '', context, editable: false),
-            _buildDetailItem('Phone Number', _userDetails?.phoneNumber ?? '', context, editable: false),
-            _buildDetailItem('Medical Conditions', _userDetails?.medicalConditions ?? '', context),
-            _buildDetailItem('Surgical History', _userDetails?.surgicalHistory ?? '', context),
-            _buildDetailItem('Family History', _userDetails?.familyHistory ?? '', context),
-            _buildDetailItem('Allergies', _userDetails?.allergies ?? '', context),
-            _buildDetailItem('Height', _userDetails?.height ?? '', context),
-            _buildDetailItem('Weight', _userDetails?.weight ?? '', context),
-            _buildDetailItem('Emergency Contact Name', _userDetails?.emergencyContactName ?? '', context),
-            _buildDetailItem('Relationship', _userDetails?.relationship ?? '', context),
-            _buildDetailItem('Emergency Contact Phone', _userDetails?.emergencyContactPhone ?? '', context),
-            _buildDetailItem('Last Updated', _userDetails?.lastUpdated ?? '', context, editable: false),
+            _buildDetailItem('Gender','', _userDetails?.gender ?? '', context, editable: false),
+            _buildDetailItem('Phone Number','', _userDetails?.phoneNumber ?? '', context, editable: false),
+            _buildDetailItem('Medical Conditions','Enter Medical Conditions(if any)', _userDetails?.medicalConditions ?? '', context),
+            _buildDetailItem('Surgical History','Enter Surgical History(if any)', _userDetails?.surgicalHistory ?? '', context),
+            _buildDetailItem('Family History','Enter Family History(if any)', _userDetails?.familyHistory ?? '', context),
+            _buildDetailItem('Allergies','Enter Allergies(if any)', _userDetails?.allergies ?? '', context),
+            _buildDetailItem('Height','Enter Height (in CM)', _userDetails?.height ?? '', context),
+            _buildDetailItem('Weight','Enter Weight (in KG)', _userDetails?.weight ?? '', context),
+            _buildDetailItem('Emergency Contact Name','Enter Emergency Contact Name', _userDetails?.emergencyContactName ?? '', context),
+            _buildDetailItem('Relationship','Enter Emergency Contact\'s Relationship', _userDetails?.relationship ?? '', context),
+            _buildDetailItem('Emergency Contact Phone','Enter Emergency Contact\'s Phone', _userDetails?.emergencyContactPhone ?? '', context),
+            _buildDetailItem('Last Updated', _userDetails?.lastUpdated ?? '','', context),
             SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: () {
-                _showConfirmationDialog(context);
+                if (_formKey.currentState?.validate() ?? true) {
+                  _showConfirmationDialog(context);
+                }
+
               },
               child: Text('Save'),
             ),
@@ -224,160 +229,279 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
       isExpanded: _isExpanded[0],
     );
   }
+   Widget _buildDetailItem(String label, String hintText, String value, BuildContext context, {bool editable = true}) {
+     double boxWidth = MediaQuery.of(context).size.width * 0.9;
+     RegExp alphabetsOnly = RegExp(r'^[a-zA-Z]+$');
+     RegExp numbersOnly = RegExp(r'^[0-9]+$');
+     RegExp emergencyContactPhoneFormat = RegExp(r'^[0-9]{10}$');
 
-  ExpansionPanel _buildAssignToDoctorPanel() {
-    return ExpansionPanel(
-      headerBuilder: (BuildContext context, bool isExpanded) {
-        return ListTile(
-          title: Text(
-            'Assign to a Doctor',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
-      },
-      body: _userDetails != null
-          ? Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Blood Pressure', _bpController, 'e.g. 120/80'),
-            _buildTextField('Temperature', _tempController, 'e.g. 98.6 (in Fahrenheit)'),
-            _buildTextField('Heart Rate', _heartRateController, 'e.g. 75 (in bpm)'),
-            _buildTextField('SpO2', _spO2Controller, 'e.g. 95 (in %)'),
-            _buildDoctorDropdown(),
-            _buildStatusTextField(),
-            _buildTextField('Symptoms', _symptomsController, 'Enter Symptoms'),
-            //_buildTextField('Tests', _testsController,'', editable: false),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _assignToDoctor();
-              },
-              child: Text('Save'),
-            ),
-          ],
-        ),
-      )
-          : Container(),
-      isExpanded: _isExpanded[1],
-    );
-  }
+     return Padding(
+       padding: const EdgeInsets.only(bottom: 12.0),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Text(
+             label,
+             style: TextStyle(
+               fontSize: 16,
+               fontWeight: FontWeight.bold,
+             ),
+           ),
+           SizedBox(height: 5),
+           Container(
+             width: boxWidth,
+             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+             decoration: BoxDecoration(
+               borderRadius: BorderRadius.circular(12),
+               color: editable ? Colors.grey[200] : Colors.grey[300],
+             ),
+             child: editable
+                 ? TextFormField(
+               initialValue: value,
+               onChanged: (newValue) {
+                 setState(() {
+                   switch (label) {
+                     case 'Medical Conditions':
+                       _userDetails?.medicalConditions = newValue;
+                       break;
+                     case 'Surgical History':
+                       _userDetails?.surgicalHistory = newValue;
+                       break;
+                     case 'Family History':
+                       _userDetails?.familyHistory = newValue;
+                       break;
+                     case 'Allergies':
+                       _userDetails?.allergies = newValue;
+                       break;
+                     case 'Height':
+                       _userDetails?.height = newValue;
+                       break;
+                     case 'Weight':
+                       _userDetails?.weight = newValue;
+                       break;
+                     case 'Emergency Contact Name':
+                       _userDetails?.emergencyContactName = newValue;
+                       break;
+                     case 'Relationship':
+                       _userDetails?.relationship = newValue;
+                       break;
+                     case 'Emergency Contact Phone':
+                       _userDetails?.emergencyContactPhone = newValue;
+                       break;
+                     case 'Last Updated':
+                       _userDetails?.lastUpdated = DateFormat('yyyy-MM-dd').format(DateTime.now());
+                       break;
+                   }
+                 });
+               },
+               decoration: InputDecoration(
+                 hintText: hintText,
+                 border: InputBorder.none,
+               ),
+               validator: (value) {
+                 if (value == null || value.isEmpty) {
+                   return 'Please enter $label';
+                 }
 
-  Widget _buildTextField(String label, TextEditingController controller, String hintText, {bool editable = true}) {
-    double boxWidth = MediaQuery.of(context).size.width * 0.9;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 5),
-          Container(
-            width: boxWidth,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: editable ? Colors.grey[200] : Colors.grey[300],
-            ),
-            child: editable
-                ? TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hintText,
-                border: InputBorder.none,
-              ),
-            )
-                : Text(
-              hintText,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                 switch (label) {
+                   case 'Medical Conditions':
+                   case 'Surgical History':
+                   case 'Family History':
+                   case 'Allergies':
+                   case 'Emergency Contact Name':
+                   case 'Relationship':
+                     if (!alphabetsOnly.hasMatch(value)) {
+                       return 'Only alphabets are allowed';
+                     }
+                     break;
+                   case 'Height':
+                   case 'Weight':
+                     if (!numbersOnly.hasMatch(value)) {
+                       return 'Please enter a valid number';
+                     }
+                     break;
+                   case 'Emergency Contact Phone':
+                     if (!emergencyContactPhoneFormat.hasMatch(value)) {
+                       return 'Please enter a valid 10-digit phone number';
+                     }
+                     break;
+                 }
 
-  Widget _buildDetailItem(String label, String value, BuildContext context, {bool editable = true}) {
-    double boxWidth = MediaQuery.of(context).size.width * 0.9;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 5),
-          Container(
-            width: boxWidth,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: editable ? Colors.grey[200] : Colors.grey[300],
-            ),
-            child: editable
-                ? TextFormField(
-              initialValue: value,
-              onChanged: (newValue) {
-                setState(() {
-                  switch (label) {
-                    case 'Medical Conditions':
-                      _userDetails?.medicalConditions = newValue;
-                      break;
-                    case 'Surgical History':
-                      _userDetails?.surgicalHistory = newValue;
-                      break;
-                    case 'Family History':
-                      _userDetails?.familyHistory = newValue;
-                      break;
-                    case 'Allergies':
-                      _userDetails?.allergies = newValue;
-                      break;
-                    case 'Height':
-                      _userDetails?.height = newValue;
-                      break;
-                    case 'Weight':
-                      _userDetails?.weight = newValue;
-                      break;
-                    case 'Emergency Contact Name':
-                      _userDetails?.emergencyContactName = newValue;
-                      break;
-                    case 'Relationship':
-                      _userDetails?.relationship = newValue;
-                      break;
-                    case 'Emergency Contact Phone':
-                      _userDetails?.emergencyContactPhone = newValue;
-                      break;
+                 return null;
+               },
+             )
+                 : Text(value),
+           ),
+         ],
+       ),
+     );
+   }
 
-                  }
-                });
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-              ),
-            )
-                : Text(value),
-          ),
-        ],
-      ),
-    );
-  }
+   void _showConfirmationDialog(BuildContext context) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: Text('Save Changes'),
+           content: Text('Are you sure you want to save the changes?'),
+           actions: [
+             TextButton(
+               child: Text('Cancel'),
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+             ),
+             TextButton(
+               child: Text('Save'),
+               onPressed: () {
+                 Navigator.of(context).pop();
+                 _saveChanges();
+               },
+             ),
+           ],
+         );
+       },
+     );
+   }
 
-  Widget _buildDobField(String label, String? dob, BuildContext context) {
+   Future<void> _saveChanges() async {
+     if (_userDetails == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('No user details available')),
+       );
+       return;
+     }
+
+     try {
+       DocumentReference docRef = FirebaseFirestore.instance
+           .collection('healthRecord')
+           .doc(_userDetails!.userId);
+
+       // Prepare the data to be saved
+       Map<String, dynamic> healthRecordData = {
+         'userId': userIdGlobal,
+         'fullName': _userDetails!.fullName,
+         'dob': _userDetails!.dob,
+         'gender': _userDetails!.gender,
+         'phoneNumber': _userDetails!.phoneNumber,
+         'medicalConditions': _userDetails!.medicalConditions,
+         'surgicalHistory': _userDetails!.surgicalHistory,
+         'familyHistory': _userDetails!.familyHistory,
+         'allergies': _userDetails!.allergies,
+         'height': _userDetails!.height,
+         'weight': _userDetails!.weight,
+         'emergencyContactName': _userDetails!.emergencyContactName,
+         'relationship': _userDetails!.relationship,
+         'emergencyContactPhone': _userDetails!.emergencyContactPhone,
+         'lastUpdated': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+       };
+
+       // Check if the document exists
+       DocumentSnapshot docSnapshot = await docRef.get();
+
+       // If the document exists, update it. Otherwise, create a new one.
+       if (docSnapshot.exists) {
+         await docRef.update(healthRecordData);
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Changes saved successfully')),
+         );
+       } else {
+         await docRef.set(healthRecordData);
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('New health record created successfully')),
+         );
+       }
+     } catch (e) {
+       print(e);
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Error saving changes: $e')),
+       );
+     }
+   }
+
+   ExpansionPanel _buildAssignToDoctorPanel() {
+     return ExpansionPanel(
+       headerBuilder: (BuildContext context, bool isExpanded) {
+         return ListTile(
+           title: Text(
+             'Assign to a Doctor',
+             style: TextStyle(
+               fontSize: 18,
+               fontWeight: FontWeight.bold,
+             ),
+           ),
+         );
+       },
+       body: _userDetails != null
+           ? Padding(
+         padding: const EdgeInsets.all(16.0),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             _buildTextField('Blood Pressure', _bpController, 'e.g. 120/80'),
+             _buildTextField('Temperature', _tempController, 'e.g. 98.6 (in Fahrenheit)'),
+             _buildTextField('Heart Rate', _heartRateController, 'e.g. 75 (in bpm)'),
+             _buildTextField('SpO2', _spO2Controller, 'e.g. 95 (in %)'),
+             _buildDoctorDropdown(),
+             _buildStatusTextField(),
+             _buildTextField('Symptoms', _symptomsController, 'Enter Symptoms'),
+             SizedBox(height: 20),
+             ElevatedButton(
+               onPressed: () {
+                 _assignToDoctor();
+               },
+               child: Text('Save'),
+             ),
+           ],
+         ),
+       )
+           : Container(),
+       isExpanded: _isExpanded[1],
+     );
+   }
+
+   Widget _buildTextField(String label, TextEditingController controller, String hintText, {bool editable = true}) {
+     double boxWidth = MediaQuery.of(context).size.width * 0.9;
+     return Padding(
+       padding: const EdgeInsets.only(bottom: 12.0),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Text(
+             label,
+             style: TextStyle(
+               fontSize: 16,
+               fontWeight: FontWeight.bold,
+             ),
+           ),
+           SizedBox(height: 5),
+           Container(
+             width: boxWidth,
+             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+             decoration: BoxDecoration(
+               borderRadius: BorderRadius.circular(12),
+               color: editable ? Colors.grey[200] : Colors.grey[300],
+             ),
+             child: editable
+                 ? TextField(
+               controller: controller,
+               decoration: InputDecoration(
+                 hintText: hintText,
+                 border: InputBorder.none,
+               ),
+             )
+                 : Text(
+               hintText,
+               style: TextStyle(color: Colors.grey),
+             ),
+           ),
+         ],
+       ),
+     );
+   }
+
+
+   Widget _buildDobField(String label, String? dob, BuildContext context) {
     TextEditingController _dobController = TextEditingController(text: dob);
     double boxWidth = MediaQuery.of(context).size.width * 0.9;
 
@@ -477,7 +601,7 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
     );
   }
 
-  Widget _buildStatusTextField() {
+  Widget _buildStatusTextField({bool editable = true}) {
     String status = _selectedDoctorName != null
         ? 'Assigned to $_selectedDoctorName'
         : 'Select a doctor';
@@ -563,86 +687,5 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
     await _fetchUserDetails();
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Save Changes'),
-          content: Text('Are you sure you want to save the changes?'),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Save'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _saveChanges();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-   Future<void> _saveChanges() async {
-     if (_userDetails == null) {
-       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text('No user details available')),
-       );
-       return;
-     }
-
-     try {
-       DocumentReference docRef = FirebaseFirestore.instance
-           .collection('healthRecord')
-           .doc(_userDetails!.userId);
-
-       // Prepare the data to be saved
-       Map<String, dynamic> healthRecordData = {
-         'userId': userIdGlobal,
-         'fullName': _userDetails!.fullName,
-         'dob': _userDetails!.dob,
-         'gender': _userDetails!.gender,
-         'phoneNumber': _userDetails!.phoneNumber,
-         'medicalConditions': _userDetails!.medicalConditions,
-         'surgicalHistory': _userDetails!.surgicalHistory,
-         'familyHistory': _userDetails!.familyHistory,
-         'allergies': _userDetails!.allergies,
-         'height': _userDetails!.height,
-         'weight': _userDetails!.weight,
-         'emergencyContactName': _userDetails!.emergencyContactName,
-         'relationship': _userDetails!.relationship,
-         'emergencyContactPhone': _userDetails!.emergencyContactPhone,
-         'lastUpdated': DateFormat('yyyy-MM-dd').format(DateTime.now()),
-       };
-
-       // Check if the document exists
-       DocumentSnapshot docSnapshot = await docRef.get();
-
-       // If the document exists, update it. Otherwise, create a new one.
-       if (docSnapshot.exists) {
-         await docRef.update(healthRecordData);
-         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('Changes saved successfully')),
-         );
-       } else {
-         await docRef.set(healthRecordData);
-         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text('New health record created successfully')),
-         );
-       }
-     } catch (e) {
-       print(e);
-       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text('Error saving changes: $e')),
-       );
-     }
-   }
 
 }

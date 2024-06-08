@@ -14,6 +14,7 @@ import '../../provider/ward/ward_user_provider.dart';
 import '../../services/CareGiversService.dart';
 import '../../services/doctor_services.dart';
 import '../../services/ward_user_services.dart';
+import 'CareGiversDoctorsPage.dart';
 import 'CurrentCampsPage.dart';
 import 'RegisterUserPage.dart';
 import 'ward_user_list.dart';
@@ -94,10 +95,9 @@ class _WardMenuPageState extends State<WardMenuPage> {
                         ),
                         buildMenuButtonWithIcon(
                           context,
-                          'Register Care Giver/Doctor',
+                          'View Care Giver/Doctor',
                           Icons.medical_information,
-                          null,
-                          onTap: () => _showCareGiverDoctorDialog(context),
+                          CareGiversDoctorsPage(),
                         ),
                       ],
                     ),

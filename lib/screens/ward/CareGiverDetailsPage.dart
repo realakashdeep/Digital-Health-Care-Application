@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class DoctorDetailsPage extends StatefulWidget {
+class CareGiverDetailsPage extends StatefulWidget {
   final String name;
   final String email;
 
-  const DoctorDetailsPage({required this.name, required this.email});
+  const CareGiverDetailsPage({required this.name, required this.email});
 
   @override
-  _DoctorDetailsPageState createState() => _DoctorDetailsPageState();
+  _CareGiverDetailsPageState createState() => _CareGiverDetailsPageState();
 }
 
-class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
+class _CareGiverDetailsPageState extends State<CareGiverDetailsPage> {
   DateTime? _selectedDate;
   late Future<List<Map<String, dynamic>>> _appointmentsFuture;
 
@@ -25,7 +25,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
   Future<List<Map<String, dynamic>>> _fetchAppointments() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('appointments')
-        .where('doctorMail', isEqualTo: widget.email)
+        .where('careMail', isEqualTo: widget.email)
         .get();
 
     List<Map<String, dynamic>> appointments = querySnapshot.docs
@@ -74,7 +74,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Doctor Details',
+                'Care Giver Details',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
@@ -82,7 +82,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.99,
                   child: FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance.collection('doctors').where('email', isEqualTo: widget.email).limit(1).get(),
+                    future: FirebaseFirestore.instance.collection('caregivers').where('email', isEqualTo: widget.email).limit(1).get(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
@@ -90,13 +90,13 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                         return Text('No data found');
                       }
-                      final doctorData = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+                      final caregiverData = snapshot.data!.docs.first.data() as Map<String, dynamic>;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDetailBox(label: 'Name', value: doctorData['name']),
-                          _buildDetailBox(label: 'Email', value: doctorData['email']),
-                          _buildDetailBox(label: 'Ward Number', value: doctorData['wardNumber']),
+                          _buildDetailBox(label: 'Name', value: caregiverData['name']),
+                          _buildDetailBox(label: 'Email', value: caregiverData['email']),
+                          _buildDetailBox(label: 'Ward Number', value: caregiverData['wardNumber']),
                         ],
                       );
                     },
@@ -108,7 +108,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Viewed Patients',
+                    'Appointments',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
@@ -143,7 +143,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(appointmentData['patientName'], style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text(appointmentData['assignedTo']),
+                                  Text('Dr. '+appointmentData['assignedTo']),
                                 ],
                               ),
                               children: [
@@ -159,6 +159,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                                       _buildDetailBox(label: 'Temperature', value: appointmentData['temp'] ?? ''),
                                       _buildDetailBox(label: 'Heart Rate', value: appointmentData['heartRate'] ?? ''),
                                       _buildDetailBox(label: 'SpO2', value: appointmentData['spO2'] ?? ''),
+                                      _buildDetailBox(label: 'Prescription', value: appointmentData['prescriptions'] ?? ''),
                                     ],
                                   ),
                                 ),

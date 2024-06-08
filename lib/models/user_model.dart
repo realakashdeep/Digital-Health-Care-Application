@@ -12,6 +12,7 @@ class MyUser {
   String district;
   String ward;
   String? profilePictureURL;
+  String dateRegistered; // Add dateRegistered field
 
   MyUser({
     required this.userId,
@@ -24,7 +25,8 @@ class MyUser {
     required this.state,
     required this.district,
     required this.ward,
-    this.profilePictureURL, // Initialize profileImageUrl
+    required this.dateRegistered, // Initialize dateRegistered
+    this.profilePictureURL,
   });
 
   static MyUser empty() => MyUser(
@@ -38,9 +40,9 @@ class MyUser {
     state: "bihar",
     district: "alipurduar",
     ward: "007",
+    dateRegistered: "", // Initialize dateRegistered
   );
 
-  // Convert model to JSON structure for storing data in Firestore
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -52,24 +54,27 @@ class MyUser {
       'state': state,
       'district': district,
       'ward': ward,
-      'profilePictureURL': profilePictureURL, // Include profileImageUrl in the map
+      'dateRegistered': dateRegistered, // Include dateRegistered in the map
+      'profilePictureURL': profilePictureURL,
     };
   }
-  // factory MyUser.fromJson(Map<String, dynamic> json) {
-  //   return MyUser(
-  //     userId: json['userId'],
-  //     name: json['name'],
-  //     phoneNumber: json['phoneNumber'],
-  //     gender: json['gender'],
-  //     dob: json['dob'] ?? '',
-  //     ward: json['ward'],
-  //     district: json['district'],
-  //     state: json['state'],
-  //     aadhaarNumber: json['aadhaarNumber'],
-  //     profilePictureURL: json['profilePictureURL'],
-  //     password: json['password'] ?? '',
-  //   );
-  // }
+
+  factory MyUser.fromJson(Map<String, dynamic> json) {
+    return MyUser(
+      userId: json['userId'],
+      name: json['name'],
+      phoneNumber: json['phoneNumber'],
+      gender: json['gender'],
+      dob: json['dob'] ?? '',
+      ward: json['ward'],
+      district: json['district'],
+      state: json['state'],
+      aadhaarNumber: json['aadhaarNumber'],
+      profilePictureURL: json['profilePictureURL'],
+      password: json['password'] ?? '',
+      dateRegistered: json['dateRegistered'], // Assign dateRegistered from JSON
+    );
+  }
 
   factory MyUser.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if (document.data() != null) {
@@ -86,6 +91,7 @@ class MyUser {
         district: data['district'] ?? '',
         ward: data['ward'] ?? '',
         profilePictureURL: data['profilePictureURL'], // Initialize profileImageUrl
+        dateRegistered: data['dateRegistered'], // Assign dateRegistered from Firestore
       );
     } else {
       return MyUser.empty();
