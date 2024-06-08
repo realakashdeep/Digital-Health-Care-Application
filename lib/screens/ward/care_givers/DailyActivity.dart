@@ -81,13 +81,13 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
         title: Text('Daily Activity'),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView( // Added SingleChildScrollView here
         padding: const EdgeInsets.all(30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: screenWidth * 0.99,
+              width: screenWidth * 0.9,
               alignment: Alignment.center,
               child: ElevatedButton(
                 onPressed: () async {
@@ -166,11 +166,22 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
                                   Text('Status: ${userDetail['status'] ?? 'N/A'}'),
                                 ],
                               ),
-                              ElevatedButton(
-                                onPressed: () => _generatePDF(userDetail),
-                                child: Text(
-                                  'Generate PDF',
-                                  style: TextStyle(color: Colors.blue),
+                              Container(
+                                width: screenWidth * 0.2, // Set a fixed width for the button
+                                child: ElevatedButton(
+                                  onPressed: () => _generatePDF(userDetail),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    textStyle: TextStyle(color: Colors.blue),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Generate PDF',
+                                    textAlign: TextAlign.center, // Center the text
+                                    style: TextStyle(color: Colors.blue), // Ensure the text color is white
+                                  ),
                                 ),
                               ),
                             ],
@@ -184,7 +195,7 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.4,  // Set the width to 50% of the screen width
+                        width: MediaQuery.of(context).size.width * 0.4,
                         child: ElevatedButton(
                           onPressed: () {
                             if (_userDetailsList.isNotEmpty) {
@@ -195,12 +206,17 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.white,
                             side: BorderSide(color: Colors.blue),
+                            padding: EdgeInsets.symmetric(vertical: 14), // Adjust padding for consistent size
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            textStyle: TextStyle(fontSize: 14), // Ensure consistent font size
                           ),
-                          child: Text('All Users PDF', style: TextStyle(fontSize: 14),),
+                          child: Text('All Users PDF'),
                         ),
                       ),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.4,  // Set the width to 50% of the screen width
+                        width: MediaQuery.of(context).size.width * 0.4,
                         child: ElevatedButton(
                           onPressed: () {
                             if (_userDetailsList.isNotEmpty) {
@@ -211,15 +227,20 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.white,
                             side: BorderSide(color: Colors.blue),
+                            padding: EdgeInsets.symmetric(vertical: 14), // Adjust padding for consistent size
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            textStyle: TextStyle(fontSize: 14), // Ensure consistent font size
                           ),
                           child: Text('Summary Report'),
                         ),
                       ),
                     ],
                   ),
-
                 ],
               ),
+
           ],
         ),
       ),
@@ -325,7 +346,7 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
 
     pdf.addPage(
       pw.MultiPage(
-          orientation: pw.PageOrientation.landscape,
+        orientation: pw.PageOrientation.landscape,
         pageFormat: PdfPageFormat.a4.landscape,  // Set page orientation to landscape
         build: (pw.Context context) {
           return [
@@ -372,5 +393,4 @@ class _DailyActivityPageState extends State<DailyActivityPage> {
 
     await _saveAndPrintPDF(pdf, pdfName);
   }
-
 }

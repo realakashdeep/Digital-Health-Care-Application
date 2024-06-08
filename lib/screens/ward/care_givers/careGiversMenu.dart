@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'ViewUserDetails.dart';
-
+import 'package:flutter/services.dart';
 class CareGiverMenuPage extends StatefulWidget {
   @override
   _CareGiverMenuPageState createState() => _CareGiverMenuPageState();
@@ -86,7 +86,7 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
   @override
   Widget build(BuildContext context) {
     double deviceWidth = MediaQuery.of(context).size.width;
-    double inputWidth = deviceWidth * 0.8;
+    double inputWidth = deviceWidth * 0.9;
     double buttonWidth = deviceWidth * 0.5;
 
     return Scaffold(
@@ -115,6 +115,12 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12), // Rounded corners
                       ),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.clear), // Icon for clear button
+                        onPressed: () {
+                          _aadhaarController.clear(); // Clear the text field
+                        },
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -125,7 +131,8 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
                       return null;
                     },
                   ),
-                ),
+                )
+                ,
                 SizedBox(height: 20),
                 SizedBox(
                   width: buttonWidth,

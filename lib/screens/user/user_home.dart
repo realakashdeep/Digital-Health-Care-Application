@@ -72,29 +72,7 @@ class UserHome extends StatelessWidget {
                   ),
                   _buildSquareButton(
                     context,
-                    icon: Icons.campaign,
-                    label: 'CareGivers Medical Form',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CareGiversForm()),
-                      );
-                    },
-                  ),
-                  _buildSquareButton(
-                    context,
-                    icon: Icons.campaign,
-                    label: 'Doctor\'s Appointments',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AppointmentList()),
-                      );
-                    },
-                  ),
-                  _buildSquareButton(
-                    context,
-                    icon: Icons.campaign,
+                    icon: Icons.list,
                     label: 'Appointments Report',
                     onPressed: () {
                       Navigator.push(

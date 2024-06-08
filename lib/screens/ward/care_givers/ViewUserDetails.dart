@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -14,16 +15,19 @@ class ViewUserDetails extends StatefulWidget {
 }
 
 class _ViewUserDetailsState extends State<ViewUserDetails> {
+   late String wardNo;
   bool _isLoading = true;
   PatientHealthRecord? _userDetails;
   List<bool> _isExpanded = [false, false];
+  List<String> _doctorNames = [];
+  String? _selectedDoctorName;
+  late String userIdGlobal;
 
   // Controllers for Assign to Doctor fields
   TextEditingController _bpController = TextEditingController();
   TextEditingController _tempController = TextEditingController();
   TextEditingController _heartRateController = TextEditingController();
   TextEditingController _spO2Controller = TextEditingController();
-  TextEditingController _assignedToController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
   TextEditingController _symptomsController = TextEditingController();
   TextEditingController _testsController = TextEditingController();
@@ -36,7 +40,6 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
 
   Future<void> _fetchUserDetails() async {
     try {
-      // Fetch userId using aadhaarNumber from Users collection
       final querySnapshot = await FirebaseFirestore.instance
           .collection('Users')
           .where('aadhaarNumber', isEqualTo: widget.aadhaarNumber)
@@ -44,25 +47,48 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print(querySnapshot.docs.first.data());
+        var userData = querySnapshot.docs.first.data();
         String userId = querySnapshot.docs.first.id;
-        print(userId);
+        userIdGlobal = userId;
+        String fullName = userData['name'] ?? '';
+        String gender = userData['gender'] ?? '';
+        String phoneNumber = userData['phoneNumber'] ?? '';
+        String wardNumber = userData['ward'] ?? '';
+        wardNo = wardNumber;
 
-        // Fetch user details from healthRecord collection using userId
+        await _fetchDoctors(wardNumber);
+
         final healthRecordSnapshot = await FirebaseFirestore.instance
             .collection('healthRecord')
             .where('userId', isEqualTo: userId)
             .limit(1)
             .get();
-
-        if (healthRecordSnapshot.docs.isNotEmpty) {
-          print(healthRecordSnapshot.docs.first.data());
-          setState(() {
-            _userDetails =
-                PatientHealthRecord.fromJson(healthRecordSnapshot.docs.first.data());
-          });
-          print(_userDetails?.weight);
-        }
+        print(userId);
+        setState(() {
+          if (healthRecordSnapshot.docs.isNotEmpty) {
+            _userDetails = PatientHealthRecord.fromJson(healthRecordSnapshot.docs.first.data());
+            print(healthRecordSnapshot.docs.first.data());
+            print('hii');
+          } else {
+            _userDetails = PatientHealthRecord(
+              fullName: fullName,
+              dob: '',
+              gender: gender,
+              phoneNumber: phoneNumber,
+              userId: userId,
+              medicalConditions: '',
+              surgicalHistory: '',
+              familyHistory: '',
+              allergies: '',
+              height: '',
+              weight: '',
+              emergencyContactName: '',
+              relationship: '',
+              emergencyContactPhone: '',
+              lastUpdated: '',
+            );
+          }
+        });
       }
     } catch (e) {
       print(e);
@@ -76,13 +102,32 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
     }
   }
 
+  Future<void> _fetchDoctors(String wardNumber) async {
+    try {
+      print('wardNumber - $wardNumber');
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('doctors')
+          .where('wardNumber', isEqualTo: wardNumber)
+          .get();
+
+      List<String> doctorNames = querySnapshot.docs.map((doc) => doc['name'] as String).toList();
+      setState(() {
+        _doctorNames = doctorNames;
+      });
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching doctors: $e')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _bpController.dispose();
     _tempController.dispose();
     _heartRateController.dispose();
     _spO2Controller.dispose();
-    _assignedToController.dispose();
     _statusController.dispose();
     _symptomsController.dispose();
     _testsController.dispose();
@@ -95,15 +140,19 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
       appBar: AppBar(
         title: Text('View User Details'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildExpansionPanelList(),
-            ],
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        color: Colors.blue,
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildExpansionPanelList(),
+              ],
+            ),
           ),
         ),
       ),
@@ -127,6 +176,8 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
   }
 
   ExpansionPanel _buildBasicDetailsPanel() {
+    print("Basic Details");
+    print(_userDetails?.medicalConditions);
     return ExpansionPanel(
       headerBuilder: (BuildContext context, bool isExpanded) {
         return ListTile(
@@ -145,20 +196,20 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailItem('Name', _userDetails!.fullName, context, editable: false),
-            _buildDetailItem('Date of Birth', _userDetails!.dob, context),
-            _buildDetailItem('Gender', _userDetails!.gender, context, editable: false),
-            _buildDetailItem('Phone Number', _userDetails!.phoneNumber, context, editable: false),
-            _buildDetailItem('Medical Conditions', _userDetails!.medicalConditions, context),
-            _buildDetailItem('Surgical History', _userDetails!.surgicalHistory, context),
-            _buildDetailItem('Family History', _userDetails!.familyHistory, context),
-            _buildDetailItem('Allergies', _userDetails!.allergies, context),
-            _buildDetailItem('Height', _userDetails!.height, context),
-            _buildDetailItem('Weight', _userDetails!.weight, context),
-            _buildDetailItem('Emergency Contact Name', _userDetails!.emergencyContactName, context),
-            _buildDetailItem('Relationship', _userDetails!.relationship, context),
-            _buildDetailItem('Emergency Contact Phone', _userDetails!.emergencyContactPhone, context),
-            _buildDetailItem('Last Updated', _userDetails!.lastUpdated, context),
+            _buildDetailItem('Name', _userDetails?.fullName ?? '', context, editable: false),
+            _buildDobField('Date of Birth', _userDetails?.dob, context),
+            _buildDetailItem('Gender', _userDetails?.gender ?? '', context, editable: false),
+            _buildDetailItem('Phone Number', _userDetails?.phoneNumber ?? '', context, editable: false),
+            _buildDetailItem('Medical Conditions', _userDetails?.medicalConditions ?? '', context),
+            _buildDetailItem('Surgical History', _userDetails?.surgicalHistory ?? '', context),
+            _buildDetailItem('Family History', _userDetails?.familyHistory ?? '', context),
+            _buildDetailItem('Allergies', _userDetails?.allergies ?? '', context),
+            _buildDetailItem('Height', _userDetails?.height ?? '', context),
+            _buildDetailItem('Weight', _userDetails?.weight ?? '', context),
+            _buildDetailItem('Emergency Contact Name', _userDetails?.emergencyContactName ?? '', context),
+            _buildDetailItem('Relationship', _userDetails?.relationship ?? '', context),
+            _buildDetailItem('Emergency Contact Phone', _userDetails?.emergencyContactPhone ?? '', context),
+            _buildDetailItem('Last Updated', _userDetails?.lastUpdated ?? '', context, editable: false),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -169,7 +220,7 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
           ],
         ),
       )
-          : Container(), // Instead of Padding with empty children
+          : Container(),
       isExpanded: _isExpanded[0],
     );
   }
@@ -193,14 +244,14 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTextField('Blood Pressure', _bpController),
-            _buildTextField('Temperature', _tempController),
-            _buildTextField('Heart Rate', _heartRateController),
-            _buildTextField('SpO2', _spO2Controller),
-            _buildTextField('Assigned To', _assignedToController),
-            _buildTextField('Status', _statusController),
-            _buildTextField('Symptoms', _symptomsController),
-            _buildTextField('Tests', _testsController),
+            _buildTextField('Blood Pressure', _bpController, 'e.g. 120/80'),
+            _buildTextField('Temperature', _tempController, 'e.g. 98.6 (in Fahrenheit)'),
+            _buildTextField('Heart Rate', _heartRateController, 'e.g. 75 (in bpm)'),
+            _buildTextField('SpO2', _spO2Controller, 'e.g. 95 (in %)'),
+            _buildDoctorDropdown(),
+            _buildStatusTextField(),
+            _buildTextField('Symptoms', _symptomsController, 'Enter Symptoms'),
+            //_buildTextField('Tests', _testsController,'', editable: false),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -211,12 +262,12 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
           ],
         ),
       )
-          : Container(), // Instead of Padding with empty children
+          : Container(),
       isExpanded: _isExpanded[1],
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller, String hintText, {bool editable = true}) {
     double boxWidth = MediaQuery.of(context).size.width * 0.9;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -236,12 +287,144 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Colors.grey[200],
+              color: editable ? Colors.grey[200] : Colors.grey[300],
             ),
-            child: TextFormField(
+            child: editable
+                ? TextField(
               controller: controller,
               decoration: InputDecoration(
+                hintText: hintText,
                 border: InputBorder.none,
+              ),
+            )
+                : Text(
+              hintText,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(String label, String value, BuildContext context, {bool editable = true}) {
+    double boxWidth = MediaQuery.of(context).size.width * 0.9;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            width: boxWidth,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: editable ? Colors.grey[200] : Colors.grey[300],
+            ),
+            child: editable
+                ? TextFormField(
+              initialValue: value,
+              onChanged: (newValue) {
+                setState(() {
+                  switch (label) {
+                    case 'Medical Conditions':
+                      _userDetails?.medicalConditions = newValue;
+                      break;
+                    case 'Surgical History':
+                      _userDetails?.surgicalHistory = newValue;
+                      break;
+                    case 'Family History':
+                      _userDetails?.familyHistory = newValue;
+                      break;
+                    case 'Allergies':
+                      _userDetails?.allergies = newValue;
+                      break;
+                    case 'Height':
+                      _userDetails?.height = newValue;
+                      break;
+                    case 'Weight':
+                      _userDetails?.weight = newValue;
+                      break;
+                    case 'Emergency Contact Name':
+                      _userDetails?.emergencyContactName = newValue;
+                      break;
+                    case 'Relationship':
+                      _userDetails?.relationship = newValue;
+                      break;
+                    case 'Emergency Contact Phone':
+                      _userDetails?.emergencyContactPhone = newValue;
+                      break;
+
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+              ),
+            )
+                : Text(value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDobField(String label, String? dob, BuildContext context) {
+    TextEditingController _dobController = TextEditingController(text: dob);
+    double boxWidth = MediaQuery.of(context).size.width * 0.9;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 5),
+          GestureDetector(
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+
+              if (pickedDate != null) {
+                setState(() {
+                  dob = DateFormat('yyyy-MM-dd').format(pickedDate);
+                  _dobController.text = dob!;
+                  _userDetails?.dob = dob!;
+                });
+              }
+            },
+            child: Container(
+              width: boxWidth,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[200],
+              ),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: _dobController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
               ),
             ),
           ),
@@ -250,161 +433,215 @@ class _ViewUserDetailsState extends State<ViewUserDetails> {
     );
   }
 
-  Future<void> _updateUserDetails() async {
-    setState(() {
-      _isLoading = true; // Set isLoading to true to show the loading indicator
-    });
-
-    try {
-      print(FirebaseFirestore.instance
-          .collection('healthRecord')
-          .doc(_userDetails!.userId));
-      // Update user details in Firestore
-      await FirebaseFirestore.instance
-          .collection('healthRecord')
-          .doc(_userDetails!.userId)
-          .update({
-        'fullName': _userDetails?.fullName,
-        'dob': _userDetails?.dob,
-        'phoneNumber': _userDetails?.phoneNumber,
-        'gender': _userDetails?.gender,
-        'userId': _userDetails?.userId,
-        'medicalConditions': _userDetails!.medicalConditions,
-        'surgicalHistory': _userDetails!.surgicalHistory,
-        'familyHistory': _userDetails!.familyHistory,
-        'allergies': _userDetails!.allergies,
-        'height': _userDetails!.height,
-        'weight': _userDetails!.weight,
-        'emergencyContactName': _userDetails!.emergencyContactName,
-        'relationship': _userDetails!.relationship,
-        'emergencyContactPhone': _userDetails!.emergencyContactPhone,
-        'lastUpdated': DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User details updated successfully')),
-      );
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating user details: $e')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false; // Set isLoading back to false to hide the loading indicator
-      });
-    }
-  }
-
-  Future<void> _assignToDoctor() async {
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('healthRecord')
-          .doc(_userDetails!.userId)
-          .update({
-        'bp': _bpController.text,
-        'temp': _tempController.text,
-        'heartRate': _heartRateController.text,
-        'spO2': _spO2Controller.text,
-        'assignedTo': _assignedToController.text,
-        'status': _statusController.text,
-        'symptoms': _symptomsController.text,
-        'tests': _testsController.text,
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Details assigned to doctor successfully')),
-      );
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error assigning details: $e')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator
-      });
-    }
-  }
-
-  Future<void> _showConfirmationDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AbsorbPointer( // AbsorbPointer prevents interaction with the screen
-          absorbing: _isLoading, // If isLoading is true, absorb interactions
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              AlertDialog(
-                title: Text('Are you sure to update?'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      _updateUserDetails();
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Yes'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('No'),
-                  ),
-                ],
-              ),
-              if (_isLoading) // Show CircularProgressIndicator while loading
-                CircularProgressIndicator(),
-            ],
+  Widget _buildDoctorDropdown() {
+    double boxWidth = MediaQuery.of(context).size.width * 0.9;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Assign to Doctor',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          SizedBox(height: 5),
+          Container(
+            width: boxWidth,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey[200],
+            ),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: _selectedDoctorName,
+              hint: Text('Select a doctor'),
+              items: _doctorNames.map((String name) {
+                return DropdownMenuItem<String>(
+                  value: name,
+                  child: Text(name),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedDoctorName = newValue;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusTextField() {
+    String status = _selectedDoctorName != null
+        ? 'Assigned to $_selectedDoctorName'
+        : 'Select a doctor';
+
+    return _buildTextField('Status', _statusController, status);
+  }
+
+   Future<void> _assignToDoctor() async {
+     if (_selectedDoctorName == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Please select a doctor')),
+       );
+       return;
+     }
+
+     try {
+       final querySnapshot = await FirebaseFirestore.instance
+           .collection('doctors')
+           .where('wardNumber', isEqualTo: wardNo)
+           .get();
+
+       var doctorEmail;
+       querySnapshot.docs.forEach((doctorDoc) {
+         if (doctorDoc.data()['name'] == _selectedDoctorName) {
+           doctorEmail = doctorDoc.data()['email'];
+         }
+       });
+
+       User? user = FirebaseAuth.instance.currentUser;
+
+       // Add the appointment to the "appointments" collection
+       DocumentReference docRef = await FirebaseFirestore.instance.collection('appointments').add({
+         'appointmentDate': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+         'patientId': _userDetails?.userId,
+         'patientName': _userDetails?.fullName,
+         'bp': _bpController.text,
+         'temp': _tempController.text,
+         'heartRate': _heartRateController.text,
+         'spO2': _spO2Controller.text,
+         'assignedTo': _selectedDoctorName,
+         'doctorMail': doctorEmail,
+         'careMail': user?.email,
+         'wardNumber': wardNo,
+         'status': 'Assigned to $_selectedDoctorName',
+         'symptoms': _symptomsController.text,
+         'prescriptions': '',
+       });
+
+       // Update the document to include the appointmentId
+       await docRef.update({
+         'appointmentId': docRef.id,
+       });
+
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Appointment created successfully')),
+       );
+
+       // Clear the text fields after saving
+       _bpController.clear();
+       _tempController.clear();
+       _heartRateController.clear();
+       _spO2Controller.clear();
+       _statusController.clear();
+       _symptomsController.clear();
+       _testsController.clear();
+     } catch (e) {
+       print(e);
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Error creating appointment: $e')),
+       );
+     }
+   }
+
+
+
+
+   Future<void> _handleRefresh() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await _fetchUserDetails();
+  }
+
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Save Changes'),
+          content: Text('Are you sure you want to save the changes?'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _saveChanges();
+              },
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildDetailItem(String label, String? value, BuildContext context, {bool editable = true}) {
-    double boxWidth = MediaQuery.of(context).size.width * 0.9;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 5),
-          Container(
-            width: boxWidth,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey[200],
-            ),
-            child: editable
-                ? TextFormField(
-              initialValue: value,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-              ),
-              onChanged: (newValue) {
-                // Handle changes if needed
-              },
-            )
-                : Text(
-              value ?? '',
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+   Future<void> _saveChanges() async {
+     if (_userDetails == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('No user details available')),
+       );
+       return;
+     }
+
+     try {
+       DocumentReference docRef = FirebaseFirestore.instance
+           .collection('healthRecord')
+           .doc(_userDetails!.userId);
+
+       // Prepare the data to be saved
+       Map<String, dynamic> healthRecordData = {
+         'userId': userIdGlobal,
+         'fullName': _userDetails!.fullName,
+         'dob': _userDetails!.dob,
+         'gender': _userDetails!.gender,
+         'phoneNumber': _userDetails!.phoneNumber,
+         'medicalConditions': _userDetails!.medicalConditions,
+         'surgicalHistory': _userDetails!.surgicalHistory,
+         'familyHistory': _userDetails!.familyHistory,
+         'allergies': _userDetails!.allergies,
+         'height': _userDetails!.height,
+         'weight': _userDetails!.weight,
+         'emergencyContactName': _userDetails!.emergencyContactName,
+         'relationship': _userDetails!.relationship,
+         'emergencyContactPhone': _userDetails!.emergencyContactPhone,
+         'lastUpdated': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+       };
+
+       // Check if the document exists
+       DocumentSnapshot docSnapshot = await docRef.get();
+
+       // If the document exists, update it. Otherwise, create a new one.
+       if (docSnapshot.exists) {
+         await docRef.update(healthRecordData);
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Changes saved successfully')),
+         );
+       } else {
+         await docRef.set(healthRecordData);
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('New health record created successfully')),
+         );
+       }
+     } catch (e) {
+       print(e);
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('Error saving changes: $e')),
+       );
+     }
+   }
+
 }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:final_year_project/dump/populate.dart';
+// import 'package:final_year_project/dump/populate.dart';
 import 'package:final_year_project/screens/ward/bar_graph.dart';
 import 'package:final_year_project/screens/ward/profile/ward_profile.dart';
 import 'package:final_year_project/screens/welcome.dart';
@@ -72,12 +72,12 @@ class _WardMenuPageState extends State<WardMenuPage> {
                           Icons.local_hospital,
                           WardProfilePage(),
                         ),
-                        buildMenuButtonWithIcon(
-                          context,
-                          'Populate',
-                          Icons.list_alt,
-                          Populate(),
-                        ),
+                        // buildMenuButtonWithIcon(
+                        //   context,
+                        //   'Populate',
+                        //   Icons.list_alt,
+                        //   Populate(),
+                        // ),
                         buildMenuButtonWithIcon(
                           context,
                           'User Registration Report',
