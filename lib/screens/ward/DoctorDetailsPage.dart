@@ -159,6 +159,9 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                                       _buildDetailBox(label: 'Temperature', value: appointmentData['temp'] ?? ''),
                                       _buildDetailBox(label: 'Heart Rate', value: appointmentData['heartRate'] ?? ''),
                                       _buildDetailBox(label: 'SpO2', value: appointmentData['spO2'] ?? ''),
+                                      _buildDetailBox(label: 'Prescription', value: appointmentData['prescriptions'] ?? ''),
+                                      _buildDetailBox(label: 'Status', value: appointmentData['status'] ?? ''),
+
                                     ],
                                   ),
                                 ),

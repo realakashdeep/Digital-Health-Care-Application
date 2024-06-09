@@ -10,18 +10,13 @@ class CampsPage extends StatefulWidget {
 }
 
 class _CampsPageState extends State<CampsPage> {
-  // Create TextEditingController instances for each text field
   final TextEditingController _campNameController = TextEditingController();
-
   final TextEditingController _descriptionController = TextEditingController();
-
   final TextEditingController _startDateController = TextEditingController();
-
   final TextEditingController _addressController = TextEditingController();
-
   final TextEditingController _headDoctorController = TextEditingController();
-
   final TextEditingController _lastDateController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); // Add form key for validation
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +24,7 @@ class _CampsPageState extends State<CampsPage> {
       appBar: AppBar(
         title: Text('Camps Details'),
         centerTitle: true,
-      ),// Use the AppDrawer widget here
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Camp')
@@ -68,167 +63,83 @@ class _CampsPageState extends State<CampsPage> {
                 onTap: () {
                   _showCampDetails(context, camp);
                 },
-                  child: Card(
-                    margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 15.0),
-                    elevation: 2.0,
-                    child: Padding(
-                      padding: EdgeInsets.all(25.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Center(
-                            child: Text(
-                              camp.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.0,
-                              ),
+                child: Card(
+                  margin: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.05,
+                      vertical: 15.0),
+                  elevation: 2.0,
+                  child: Padding(
+                    padding: EdgeInsets.all(25.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Text(
+                            camp.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
                             ),
                           ),
-                          SizedBox(height: 20.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'Start Date: ${camp.startDate}',
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    color: Colors.grey[600],
-                                  ),
+                        ),
+                        SizedBox(height: 20.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Start Date: ${camp.startDate}',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                              Expanded(
-                                child: Text(
-                                  'End Date: ${camp.lastDate}',
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    color: Colors.grey[600],
-                                  ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                'End Date: ${camp.lastDate}',
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  )
+                  ),
+                ),
               );
-
             }).toList(),
           );
         },
       ),
       floatingActionButton: SizedBox(
-        width: 70, // Set the desired width
-        height: 70, // Set the desired height
+        width: 70,
+        height: 70,
         child: FloatingActionButton(
           onPressed: () {
             _showAddCampModal(context);
           },
           backgroundColor: Colors.blue,
-          child: Icon(Icons.add, color: Colors.white, size: 30,), // Increase the icon size
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 30,
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  void _showAddCampModal(BuildContext context) {
-    bool _isSaving = false;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'Add New Camp',
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      _buildTextField('Camp Name', 'Enter camp name', _campNameController),
-                      SizedBox(height: 16.0),
-                      _buildTextField(
-                        'Description (Max words 200)',
-                        'Enter description',
-                        _descriptionController,
-                        maxLength: 200,
-                        maxLines: 2,
-                        keyboardType: TextInputType.multiline,
-                      ),
-                      SizedBox(height: 16.0),
-                      _buildDateField(context, 'Start Date', 'Enter start date', _startDateController),
-                      SizedBox(height: 16.0),
-                      _buildTextField('Address', 'Enter address', _addressController),
-                      SizedBox(height: 16.0),
-                      _buildTextField('Head Doctor', 'Enter head doctor\'s name', _headDoctorController),
-                      SizedBox(height: 16.0),
-                      _buildDateField(context, 'Last Date', 'Enter last date', _lastDateController),
-                      SizedBox(height: 20.0),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _isSaving = true;
-                            });
-                            _saveCampData();
-                            setState(() {
-                              _isSaving = false;
-                            });
-
-                            // Close the modal
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            minimumSize: Size(300, 40),
-                          ),
-                          child: _isSaving
-                              ? CircularProgressIndicator()
-                              : Text(
-                            'Save',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        )
-
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _showCampDetails(BuildContext context, Camp camp) {
-    String formattedStartDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.startDate));
-    String formattedEndDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.lastDate));
+    String formattedStartDate =
+    DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.startDate));
+    String formattedEndDate =
+    DateFormat('yyyy-MM-dd').format(DateTime.parse(camp.lastDate));
 
     showDialog(
       context: context,
@@ -339,8 +250,7 @@ class _CampsPageState extends State<CampsPage> {
                   fontSize: 16.0,
                 ),
               ),
-            )
-            ,
+            ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -359,10 +269,115 @@ class _CampsPageState extends State<CampsPage> {
     );
   }
 
+  void _showAddCampModal(BuildContext context) {
+    bool _isSaving = false;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Add New Camp',
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        _buildTextField('Camp Name', 'Enter camp name',
+                            _campNameController, validateSpecialChars: false),
+                        SizedBox(height: 16.0),
+                        _buildTextField(
+                          'Description (Max words 200)',
+                          'Enter description',
+                          _descriptionController,
+                          maxLength: 200,
+                          maxLines: 2,
+                          keyboardType: TextInputType.multiline,
+                        ),
+                        SizedBox(height: 16.0),
+                        _buildDateField(context, 'Start Date', 'Enter start date',
+                            _startDateController),
+                        SizedBox(height: 16.0),
+                        _buildTextField('Address', 'Enter address',
+                            _addressController, validateSpecialChars: false),
+                        SizedBox(height: 16.0),
+                        _buildTextField(
+                            'Head Doctor',
+                            'Enter head doctor\'s name',
+                            _headDoctorController,
+                            validateSpecialChars: false),
+                        SizedBox(height: 16.0),
+                        _buildDateField(
+                            context, 'Last Date', 'Enter last date', _lastDateController),
+                        SizedBox(height: 20.0),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  _isSaving = true;
+                                });
+                                _saveCampData().then((_) {
+                                  setState(() {
+                                    _isSaving = false;
+                                  });
+                                  Navigator.pop(context);
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              minimumSize: Size(300, 40),
+                            ),
+                            child: _isSaving
+                                ? CircularProgressIndicator()
+                                : Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildTextField(
       String labelText, String hintText, TextEditingController controller,
-      {int? maxLength, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
-    return TextField(
+      {int? maxLength,
+        int maxLines = 1,
+        TextInputType keyboardType = TextInputType.text,
+        bool validateSpecialChars = true}) {
+    return TextFormField(
       controller: controller,
       maxLength: maxLength,
       maxLines: maxLines,
@@ -377,10 +392,21 @@ class _CampsPageState extends State<CampsPage> {
           borderRadius: BorderRadius.circular(10.0),
         ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'This field is required';
+        }
+        if (validateSpecialChars &&
+            RegExp(r'[^a-zA-Z0-9\s]').hasMatch(value)) {
+          return 'Special characters are not allowed';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildDateField(BuildContext context, String labelText, String hintText, TextEditingController controller) {
+  Widget _buildDateField(BuildContext context, String labelText, String hintText,
+      TextEditingController controller) {
     return GestureDetector(
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
@@ -395,7 +421,7 @@ class _CampsPageState extends State<CampsPage> {
         }
       },
       child: AbsorbPointer(
-        child: TextField(
+        child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
@@ -407,12 +433,18 @@ class _CampsPageState extends State<CampsPage> {
               borderRadius: BorderRadius.circular(10.0),
             ),
           ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'This field is required';
+            }
+            return null;
+          },
         ),
       ),
     );
   }
 
-  void _saveCampData() {
+  Future<void> _saveCampData() async {
     String campName = _campNameController.text;
     String description = _descriptionController.text;
     String startDate = _startDateController.text;
@@ -429,7 +461,11 @@ class _CampsPageState extends State<CampsPage> {
 
     String uploadedOn = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    FirebaseFirestore.instance.collection('Wards').doc(currentUser.uid).get().then((wardDoc) {
+    FirebaseFirestore.instance
+        .collection('Wards')
+        .doc(currentUser.uid)
+        .get()
+        .then((wardDoc) {
       if (wardDoc.exists) {
         String wardNumber = wardDoc.data()?['wardNumber'] ?? '';
         String wardId = wardDoc.id;
@@ -477,6 +513,4 @@ class _CampsPageState extends State<CampsPage> {
       print('Failed to delete camp: $error');
     }
   }
-
-
 }

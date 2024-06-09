@@ -135,7 +135,7 @@ class _DoctorMedicalFormState extends State<DoctorMedicalForm> {
                   children: [
                     _buildDetailCard('Full Name', user.name),
                     _buildDetailCard('Gender', user.gender),
-                    _buildDetailCard('DOB', user.dob),
+                    _buildDetailCard('Date of Birth', user.dob),
                     _buildDetailCard('Phone Number', user.phoneNumber),
                     _buildDetailCard('Allergies', patientHealthRecord.allergies ?? 'N/A'),
                     _buildDetailCard('Height', patientHealthRecord.height ?? 'N/A'),

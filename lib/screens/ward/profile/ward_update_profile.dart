@@ -22,6 +22,7 @@ class _WardUpdateProfileState extends State<WardUpdateProfile> {
   late TextEditingController _wardContactNumberController;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  final _formKey = GlobalKey<FormState>(); // Add form key for validation
 
   @override
   void initState() {
@@ -51,6 +52,10 @@ class _WardUpdateProfileState extends State<WardUpdateProfile> {
   }
 
   Future<void> _uploadImageAndSaveWardDetails() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     String? imageUrl;
     try {
       if (_imageFile != null) {
@@ -93,44 +98,47 @@ class _WardUpdateProfileState extends State<WardUpdateProfile> {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: _imageFile != null ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
-                      : widget.ward.wardImageUrl != 'N/A'
-                      ? DecorationImage(
-                    image: NetworkImage(widget.ward.wardImageUrl),
-                    fit: BoxFit.cover,
-                  )
+        child: Form(
+          key: _formKey, // Add form key here
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8.0),
+                    image: _imageFile != null ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
+                        : widget.ward.wardImageUrl != 'N/A'
+                        ? DecorationImage(
+                      image: NetworkImage(widget.ward.wardImageUrl),
+                      fit: BoxFit.cover,
+                    )
+                        : null,
+                  ),
+                  child: _imageFile == null && widget.ward.wardImageUrl == 'N/A'
+                      ? Center(child: Text('Tap to add an image'))
                       : null,
                 ),
-                child: _imageFile == null && widget.ward.wardImageUrl == 'N/A'
-                    ? Center(child: Text('Tap to add an image'))
-                    : null,
               ),
-            ),
-            SizedBox(height: 16),
-            _buildText(label: 'Ward Email', value: widget.ward.wardEmail),
-            SizedBox(height: 16),
-            _buildText(label: 'Ward Number', value: widget.ward.wardNumber),
-            SizedBox(height: 16),
-            _buildTextField(label: 'Ward Address', controller: _wardAddressController),
-            SizedBox(height: 16),
-            _buildTextField(label: 'Ward Contact Number', controller: _wardContactNumberController),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _uploadImageAndSaveWardDetails,
-              child: Text('Save'),
-            ),
-          ],
+              SizedBox(height: 16),
+              _buildText(label: 'Ward Email', value: widget.ward.wardEmail),
+              SizedBox(height: 16),
+              _buildText(label: 'Ward Number', value: widget.ward.wardNumber),
+              SizedBox(height: 16),
+              _buildTextField(label: 'Ward Address', controller: _wardAddressController),
+              SizedBox(height: 16),
+              _buildTextField(label: 'Ward Contact Number', controller: _wardContactNumberController, keyboardType: TextInputType.phone),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _uploadImageAndSaveWardDetails,
+                child: Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -141,9 +149,9 @@ class _WardUpdateProfileState extends State<WardUpdateProfile> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label+" "+value,
+          label + ": " + value,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        )
+        ),
       ],
     );
   }
@@ -158,6 +166,20 @@ class _WardUpdateProfileState extends State<WardUpdateProfile> {
         labelText: label,
         border: OutlineInputBorder(),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'This field is required';
+        }
+        if (label == 'Ward Contact Number') {
+          if (value.length != 10) {
+            return 'Mobile number must be 10 digits long';
+          }
+          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+            return 'Mobile number must contain only digits';
+          }
+        }
+        return null;
+      },
     );
   }
 }
