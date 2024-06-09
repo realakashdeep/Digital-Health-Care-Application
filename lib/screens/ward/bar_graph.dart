@@ -52,6 +52,7 @@ class BarGraphReportState extends State<BarGraphReport> {
             .get();
 
         List<MyUser> users = querySnapshot.docs.map((doc) => MyUser.fromSnapshot(doc)).toList();
+        print(users);
         _processMyUserData(users);
       }
     } catch (e) {
@@ -91,18 +92,38 @@ class BarGraphReportState extends State<BarGraphReport> {
     if (dateString.isEmpty) {
       return null;
     }
-    final parts = dateString.split('/');
-    if (parts.length != 3) {
-      throw FormatException('Invalid date format: $dateString');
+
+    if (dateString.contains('/')) {
+      // Handle DD/MM/YYYY format
+      final parts = dateString.split('/');
+      if (parts.length != 3) {
+        throw FormatException('Invalid date format: $dateString');
+      }
+      final day = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final year = int.tryParse(parts[2]);
+      if (day == null || month == null || year == null) {
+        throw FormatException('Invalid date format: $dateString');
+      }
+      return DateTime(year, month, day);
+    } else if (dateString.contains('-')) {
+      // Handle YYYY-MM-DD format
+      final parts = dateString.split('-');
+      if (parts.length != 3) {
+        throw FormatException('Invalid date format: $dateString');
+      }
+      final year = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final day = int.tryParse(parts[2]);
+      if (year == null || month == null || day == null) {
+        throw FormatException('Invalid date format: $dateString');
+      }
+      return DateTime(year, month, day);
+    } else {
+      throw FormatException('Unsupported date format: $dateString');
     }
-    final day = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    final year = int.tryParse(parts[2]);
-    if (day == null || month == null || year == null) {
-      throw FormatException('Invalid date format: $dateString');
-    }
-    return DateTime(year, month, day);
   }
+
 
   @override
   Widget build(BuildContext context) {

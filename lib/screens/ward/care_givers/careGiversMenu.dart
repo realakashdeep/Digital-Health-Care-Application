@@ -1,8 +1,11 @@
 import 'package:final_year_project/screens/ward/care_givers/DailyActivity.dart';
+import 'package:final_year_project/screens/ward/care_givers/RegisterUserByCare.dart';
 import 'package:final_year_project/screens/welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../RegisterUserPage.dart';
+import 'RegisterUserByCare.dart';
 import 'ViewUserDetails.dart';
 import 'package:flutter/services.dart';
 class CareGiverMenuPage extends StatefulWidget {
@@ -69,14 +72,16 @@ class _CareGiverMenuPageState extends State<CareGiverMenuPage> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                // Add your user registration logic here
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const RegisterUserByCare()),
+                );
               },
               child: Text(
                 'Register User',
                 style: TextStyle(color: Colors.green),
               ),
-            ),
+            )
+
           ],
         );
       },
