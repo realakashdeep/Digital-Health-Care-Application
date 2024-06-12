@@ -19,7 +19,7 @@ class WelcomePage extends StatelessWidget {
             children: [
               SizedBox(height: 20),
               Text(
-                'Digital HealthCare Facilities',
+                'Digital Health Centre Facilities',
                 style: TextStyle(fontSize: 24),
               ),
               SizedBox(height: 80),

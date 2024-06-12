@@ -81,8 +81,10 @@ class DoctorsService {
     try {
       String? doctorId = await getDoctorId(email);
       if (doctorId != null) {
+        print(doctorId);
         await _firestore.collection('doctors').doc(doctorId).delete();
       } else {
+        print("not found");
         throw Exception('Doctor not found');
       }
     } catch (e) {

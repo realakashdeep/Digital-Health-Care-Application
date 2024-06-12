@@ -20,8 +20,7 @@ class _CareGiversDoctorsPageState extends State<CareGiversDoctorsPage> with Sing
   TabController? _tabController;
   Future<List<CareGiver>>? _careGiversFuture;
   Future<List<Doctor>>? _doctorsFuture;
-
-  @override
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
@@ -146,7 +145,8 @@ class _CareGiversDoctorsPageState extends State<CareGiversDoctorsPage> with Sing
                             ),
                             TextButton(
                               onPressed: () async {
-                                await deleteCareGiver(careGiver.id); // Assuming you have a method to delete caregiver
+                                print(careGiver.email);
+                                await _firestore.collection('caregivers').doc(careGiver.email).delete();
                                 Navigator.of(context).pop();
                               },
                               child: Text('Delete'),

@@ -32,7 +32,7 @@ class SplashScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              tTitle,
+              "Digital Health Centre",
               style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],

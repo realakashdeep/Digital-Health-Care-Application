@@ -91,9 +91,11 @@ class CareGiversService {
   }
 
   // Delete caregiver data from Firestore
-  Future<void> deleteCareGiver(String uid) async {
+  Future<void> deleteCareGiver(String email) async {
+    String id = getCareGiverId(email) as String;
+    print(id);
     try {
-      await _firestore.collection('caregivers').doc(uid).delete();
+      await _firestore.collection('caregivers').doc(email).delete();
     } catch (e) {
       throw e;
     }

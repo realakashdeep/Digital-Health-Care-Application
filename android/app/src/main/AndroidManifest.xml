@@ -7,9 +7,9 @@
     <application
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
-        android:label="final_year_project"
+        android:label="Digital Health Centre"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
