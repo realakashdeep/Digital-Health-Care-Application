@@ -41,6 +41,8 @@ class _PatientAppointmentReportState extends State<PatientAppointmentReport> {
   }
 
   @override
+  @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -74,9 +76,13 @@ class _PatientAppointmentReportState extends State<PatientAppointmentReport> {
                     Text('Assigned To: ${appointment.assignedTo}'),
                   ],
                 ),
-                trailing: appointment.status == "finished" ? Icon(Icons.done) : Icon(Icons.arrow_forward),
-                onTap: appointment.status == "finished" ? null : () {
-                  print(appointment);
+                trailing: appointment.status.toLowerCase() == "finished"
+                    ? Text(
+                  'Prescription available',
+                  style: TextStyle(color: Colors.green),
+                )
+                    : Icon(Icons.arrow_forward),
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(

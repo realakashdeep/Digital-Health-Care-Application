@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 
@@ -51,6 +54,22 @@ class UserService {
       throw Exception('Error fetching user: $e');
     }
   }
+   Future<void> updateUserPassword(String userId, String newPassword) async {
+     User? user = _auth.currentUser;
+
+     if (user != null) {
+       // Update the password in Firebase Auth
+       await user.updatePassword(newPassword);
+
+       // Hash the new password
+       String hashedPassword = hashPassword(newPassword);
+
+       // Update the hashed password in Firestore
+       await _firestore.collection('Users').doc(userId).update({
+         'password': hashedPassword,
+       });
+     }
+   }
 
   // Update user details in Firestore
   Future<void> updateUser(MyUser user) async {
@@ -93,4 +112,9 @@ class UserService {
       throw Exception('Error signing out: $e');
     }
   }
+   String hashPassword(String password) {
+     var bytes = utf8.encode(password);
+     var digest = sha256.convert(bytes);
+     return digest.toString();
+   }
 }

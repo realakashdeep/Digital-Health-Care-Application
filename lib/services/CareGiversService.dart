@@ -17,6 +17,7 @@ class CareGiversService {
 
 
 
+
   Future<void> addCareGiver(String name, String email, String wardNumber, String password) async {
     try {
       final querySnapshot = await _firestore.collection('caregivers').where('email', isEqualTo: email).get();

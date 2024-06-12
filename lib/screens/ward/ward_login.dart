@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:final_year_project/screens/ward/ward_menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -231,7 +234,8 @@ class _WardLoginPageState extends State<WardLoginPage> {
         );
         return;
       }
-
+      String password = hashPassword(_passwordController.text);
+      print("password = $password");
       await authProvider.signIn(
         _emailController.text,
         _passwordController.text,
@@ -326,5 +330,10 @@ class _WardLoginPageState extends State<WardLoginPage> {
       print('Error checking email existence in doctors collection: $e');
       throw e;
     }
+  }
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
   }
 }
