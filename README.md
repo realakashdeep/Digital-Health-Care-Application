@@ -8,12 +8,3 @@ Digitization of Primary Health Care Services
 
 
 
-
-# completed 
-1)ui
-
-currently doing
-1)firebase database connection
-
-
-
